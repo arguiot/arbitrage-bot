@@ -10,7 +10,7 @@ export class FakeCEX implements Exchange<null> {
     }
 
     async getQuote(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<Quote> {
-        const price = Math.ceil(Math.random() * 0.2 + 0.9 * 10e9);
+        const price = Math.ceil((Math.random() * 0.02 + 0.9) * 10e9);
         return {
             amount: amountIn,
             amountOut: amountIn.mul(BigNumber.from(price)),

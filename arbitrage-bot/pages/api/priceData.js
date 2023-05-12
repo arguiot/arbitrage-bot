@@ -1,12 +1,27 @@
 import { BigNumber, ethers } from 'ethers';
 import { UniswapV2 } from '../../scripts/exchanges/UniswapV2';
+import { FakeCEX } from '../../scripts/exchanges/FakeCEX';
 import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
 import _UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
-// Replace with the address of your contract
-const routerAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
-const factoryAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 export default async function handler(req, res) {
+    const { exchange } = req.body;
+
+    switch (exchange) {
+        case 'uniswap':
+            await uniswap(req, res);
+            break;
+        case 'fakecex':
+            await fakecex(req, res);
+            break;
+        default:
+            res.status(400).json({ error: 'Exchange not supported' });
+    }
+}
+
+async function uniswap(req, res) {
+    // Get router address & factory address from the request body
+    const { routerAddress, factoryAddress, tokenA, tokenB } = req.body;
     // Connect to the JSON-RPC server
     const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
 
@@ -18,11 +33,24 @@ export default async function handler(req, res) {
 
     const quote = await uniswapV2.getQuote(
         BigNumber.from(100),
-        "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+        tokenA,
+        tokenB
     );
     // Call a function on the contract
     // const result = await contract.someFunction();
+
+    res.status(200).json({ quote });
+}
+
+async function fakecex(req, res) {
+    const { tokenA, tokenB } = req.body;
+
+    const fakeCex = new FakeCEX();
+    const quote = await fakeCex.getQuote(
+        BigNumber.from(100),
+        "TKA",
+        "TKB"
+    );
 
     res.status(200).json({ quote });
 }

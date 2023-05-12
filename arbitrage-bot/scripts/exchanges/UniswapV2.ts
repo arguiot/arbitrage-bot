@@ -15,11 +15,19 @@ export class UniswapV2 implements Exchange<Contract> {
         // Get reserves
         const pairAddress = await this.source.getPair(tokenA, tokenB);
 
+        // Guard pairAddress is not the zero address... that means there is no liquidity pool
+        if (pairAddress === ethers.constants.AddressZero) {
+            return {
+                amount: amountIn,
+                amountOut: BigNumber.from(0),
+                price: 0
+            };
+        }
+
         const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, this.source.signer);
         const reserves = await pair.getReserves();
         const reserveA = reserves[0];
         const reserveB = reserves[1];
-
         // Get quote
         const quote = await this.delegate.getAmountOut(amountIn, reserveA, reserveB);
 

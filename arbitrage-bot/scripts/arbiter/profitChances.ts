@@ -1,3 +1,5 @@
+import { type } from "os";
+
 const modelJson = { 'coefficients': [3.2249590845866583, -0.008487893619997352, -8.289355052151508, -2.7553679060180372e-05, 0.018381381764979644, 6.682066508973032, 1.136819970260633e-07, -1.132177881582365e-05, -0.006509158078653439, -1.741753472222248] }
 // Define the 2D polynomial function
 function polynomialFeatures2D({ time, profit, degree }: { time: number; profit: number; degree: number; }): number[] {
@@ -19,10 +21,24 @@ function polynomial2DFunction(time: number, profit: number): number {
         result += modelJson.coefficients[i] * features[i];
     }
 
-    return result;
+    // Make sure result is between 0 and 1
+    return Math.min(Math.max(result, 0), 1);
 }
 
 // Define the calculateProfitProbability function
-export function calculateProfitProbability({ delta, ttf }: { delta: number; ttf: number }): number {
-    return polynomial2DFunction(ttf, delta);
+export function calculateProfitProbability({
+    type = "dex",
+    delta,
+    ttf,
+    commission = 0.02
+}: {
+    type?: "dex" | "cex";
+    delta: number;
+    ttf: number;
+    commission?: number;
+}): number {
+    if (type === 'dex') {
+        const availabilityScore = polynomial2DFunction(ttf, delta);
+        return availabilityScore * (1 - commission);
+    }
 }

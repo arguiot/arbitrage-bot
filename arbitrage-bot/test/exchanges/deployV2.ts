@@ -7,8 +7,8 @@ import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 export async function deployV2({
     totalLiquidityA = 1000000,
     totalLiquidityB = 1000000,
-    liquidityA = 1000000,
-    liquidityB = 1000000,
+    liquidityA = 100000,
+    liquidityB = 100000,
 }) {
     await ethers.provider.send("hardhat_reset", []);
     // Deploy Uniswap V2
