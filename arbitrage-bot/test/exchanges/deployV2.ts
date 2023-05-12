@@ -3,7 +3,7 @@ import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { deployUniswapV2 } from "../../scripts/exchanges/deploy/deployUniswapV2";
 import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
-
+import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 export async function deployV2({
     totalLiquidityA = 1000000,
     totalLiquidityB = 1000000,
@@ -12,15 +12,14 @@ export async function deployV2({
 }) {
     await ethers.provider.send("hardhat_reset", []);
     // Deploy Uniswap V2
-    const { factory, router, weth } = await deployUniswapV2();
+    const [deployer] = await ethers.getSigners();
+    const { factory, router, weth } = await deployUniswapV2(deployer);
 
     const uniswapV2 = new UniswapV2(router, factory);
 
     expect(factory).to.be.ok;
     expect(router).to.be.ok;
     expect(weth).to.be.ok;
-
-    const [deployer] = await ethers.getSigners();
 
     // Get contracts
     const tokenA = await ethers.getContractFactory("TokenA");
@@ -49,7 +48,7 @@ export async function deployV2({
 
     // Check liquidity
     const pairAddress = await factory.getPair(tokenAContract.address, tokenBContract.address);
-    const pair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+    const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, deployer);
     const reserves = await pair.getReserves();
     expect(reserves[0].toString()).to.equal(`${liquidityA}`);
     expect(reserves[1].toString()).to.equal(`${liquidityB}`);

@@ -1,7 +1,7 @@
 import { ethers, BigNumber, Contract } from "ethers";
 import { Exchange, Cost } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
-
+import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 export class UniswapV2 implements Exchange<Contract> {
     delegate: Contract;
     source: Contract;
@@ -14,7 +14,8 @@ export class UniswapV2 implements Exchange<Contract> {
     async getQuote(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<Quote> {
         // Get reserves
         const pairAddress = await this.source.getPair(tokenA, tokenB);
-        const pair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+
+        const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, this.source.signer);
         const reserves = await pair.getReserves();
         const reserveA = reserves[0];
         const reserveB = reserves[1];
