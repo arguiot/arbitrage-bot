@@ -2,19 +2,45 @@ import { ethers, BigNumber, Contract } from "ethers";
 import { Exchange, Cost, Token } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
 import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
+import _UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
+import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
+
 export class UniswapV2 implements Exchange<Contract> {
     delegate: Contract;
     source: Contract;
 
-    constructor(delegate: Contract, source: Contract) {
-        this.delegate = delegate;
-        this.source = source;
+    constructor(delegate?: Contract, source?: Contract, provider: ethers.providers.Provider = ethers.getDefaultProvider()) {
+        if (delegate) {
+            this.delegate = delegate;
+        } else {
+            const routerAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+            this.delegate = new ethers.Contract(routerAddress, _UniswapV2Router02.abi, provider);
+        }
+        if (source) {
+            this.source = source;
+        } else {
+            const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+            this.source = new ethers.Contract(factoryAddress, _UniswapV2Factory.abi, provider);
+        }
     }
 
     async getQuote(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote> {
+        // First convert ETH to WETH if necessary
+        const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        if (tokenA.address === ethers.constants.AddressZero) {
+            tokenA = {
+                name: "WETH",
+                address: wethAddress,
+            }
+        }
+        if (tokenB.address === ethers.constants.AddressZero) {
+            tokenB = {
+                name: "WETH",
+                address: wethAddress,
+            }
+        }
         // Get reserves
         const pairAddress = await this.source.getPair(tokenA.address, tokenB.address);
-
         // Guard pairAddress is not the zero address... that means there is no liquidity pool
         if (pairAddress === ethers.constants.AddressZero) {
             return {
@@ -24,17 +50,25 @@ export class UniswapV2 implements Exchange<Contract> {
             };
         }
 
-        const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, this.source.signer);
+        const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, this.source.provider);
         const reserves = await pair.getReserves();
+        // Ok, now we need to sort the tokens, because the order of the reserves is not guaranteed
+        // We need to sort them by address
+        // const swap = BigNumber.from(tokenA.address).gt(BigNumber.from(tokenB.address));
         const reserveA = reserves[0];
         const reserveB = reserves[1];
         // Get quote
-        const quote = await this.delegate.getAmountOut(amountIn, reserveA, reserveB);
-
+        const _quote = await this.delegate.getAmountsOut(ethers.utils.parseEther(amountIn.toString()), [
+            tokenA.address,
+            tokenB.address
+        ]);
+        console.log({ _quote })
+        // Convert back from wei to ether
+        const quote = Number(ethers.utils.formatEther(_quote));
         return {
             amount: amountIn,
             amountOut: quote,
-            price: amountIn.toNumber() / quote.toNumber()
+            price: amountIn.toNumber() / quote
         };
     }
 
