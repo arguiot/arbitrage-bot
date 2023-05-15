@@ -13,8 +13,8 @@ describe("Uniswap V2", function() {
         const { uniswapV2, tokenA, tokenB } = await deployV2({});
         const quote = await uniswapV2.getQuote(
             BigNumber.from(100),
-            tokenA.address,
-            tokenB.address
+            tokenA,
+            tokenB
         );
         expect(quote.price).to.be.approximately(1, 0.1);
     });
@@ -23,8 +23,8 @@ describe("Uniswap V2", function() {
         const { uniswapV2, tokenA, tokenB } = await deployV2({});
         const time = await uniswapV2.estimateTransactionTime(
             BigNumber.from(100),
-            tokenA.address,
-            tokenB.address
+            tokenA,
+            tokenB
         );
         expect(time / 1000).to.be.greaterThan(15); // At least 15 seconds
     });

@@ -23,7 +23,7 @@ import CexPrice from "./cexPrice";
 
 
 export default function ExchangeCard({ id }) {
-    const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap"
+    const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { isDeployed, deploy, factory, router } = useUniswapStore();
 
@@ -31,14 +31,52 @@ export default function ExchangeCard({ id }) {
 
     async function deployExchange(value) {
         setIsDeploying(true);
-        if (value === "local-cex") {
-            // return;
-        }
-        if (value === "local-uniswap") {
-            await deploy();
+        switch (value) {
+            case "local-cex":
+                // return;
+                break;
+            case "binance":
+                // return;
+                break;
+            case "kraken":
+                // return;
+                break;
+            case "local-uniswap":
+                await deploy();
+                break;
         }
         setExchange(value);
         setIsDeploying(false);
+    }
+
+    function nameFor(exchange) {
+        switch (exchange) {
+            case "local-cex":
+                return "Local CEX";
+            case "binance":
+                return "Binance";
+            case "kraken":
+                return "Kraken";
+            case "local-uniswap":
+                return "Local Uniswap";
+            default:
+                return "Unknown";
+        }
+    }
+
+    function getExchange(exchange) {
+        switch (exchange) {
+            case "local-cex":
+                return <CexPrice id={id} exchange={exchange} />;
+            case "binance":
+                return <CexPrice id={id} exchange={exchange} />;
+            case "kraken":
+                return <CexPrice id={id} exchange={exchange} />;
+            case "local-uniswap":
+                return <UniswapPrice factoryAddress={factory} routerAddress={router} tokenA={tokenA} tokenB={tokenB} />;
+            default:
+                return null;
+        }
     }
 
     return <Card className="w-1/2">
@@ -46,12 +84,12 @@ export default function ExchangeCard({ id }) {
             <CardHeader>
                 <CardTitle>Exchange</CardTitle>
                 <CardDescription>{
-                    exchange === "local-cex" ? "FakeCEX" : "FakeDEX"
+                    nameFor(exchange)
                 }</CardDescription>
             </CardHeader>
             <CardContent>
                 {
-                    exchange === "local-cex" ? <CexPrice id={id} /> : <UniswapPrice factoryAddress={factory} routerAddress={router} tokenA={tokenA} tokenB={tokenB} />
+                    getExchange(exchange)
                 }
             </CardContent>
         </> : <div className="relative">
@@ -67,6 +105,8 @@ export default function ExchangeCard({ id }) {
                     <SelectContent>
                         <SelectItem value="local-cex">FakeCEX</SelectItem>
                         <SelectItem value="local-uniswap">FakeDEX</SelectItem>
+                        <SelectItem value="binance">Binance</SelectItem>
+                        <SelectItem value="kraken">Kraken</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

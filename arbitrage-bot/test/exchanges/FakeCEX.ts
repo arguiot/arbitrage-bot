@@ -13,8 +13,8 @@ describe("FakeCEX", function() {
         const fakeCex = new FakeCEX();
         const quote = await fakeCex.getQuote(
             BigNumber.from(100),
-            "TKA",
-            "TKB"
+            { name: "TKA" },
+            { name: "TKB" }
         );
         expect(quote.price / 10e9).to.be.approximately(1, 0.1);
     });
@@ -23,8 +23,8 @@ describe("FakeCEX", function() {
         const fakeCex = new FakeCEX();
         const time = await fakeCex.estimateTransactionTime(
             BigNumber.from(100),
-            "TKA",
-            "TKB"
+            { name: "TKA" },
+            { name: "TKB" }
         );
         expect(time / 1000).to.be.greaterThan(1); // At least 1 seconds
     });

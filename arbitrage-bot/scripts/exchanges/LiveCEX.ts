@@ -1,21 +1,23 @@
-
 import { BigNumber } from "ethers";
-import { Exchange, Cost } from "./adapters/exchange";
+import { Exchange, Cost, Token } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
+import { version, exchanges, Exchange as CCXTExchange } from 'ccxt';
 
-export class FakeCEX implements Exchange<null> {
-    delegate: null;
+export class LiveCEX implements Exchange<CCXTExchange> {
+    delegate: CCXTExchange;
 
-    constructor() {
-        this.delegate = null;
+    constructor(exchange: keyof typeof exchanges) {
+        this.delegate = new exchanges[exchange]() as unknown as CCXTExchange;
     }
 
     async getQuote(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote> {
-        const price = Math.ceil((Math.random() * 0.02 + 0.9) * 10e9);
+        const price = await this.delegate.fetchTicker(`${tokenA.name}/${tokenB.name}`);
         return {
             amount: amountIn,
-            amountOut: amountIn.mul(BigNumber.from(price)),
-            price: price
+            amountOut: BigNumber.from(Math.floor(amountIn.toNumber() * (price.last ?? 0))),
+            price: price.last ?? 0,
+            bid: price.bid ?? 0,
+            ask: price.ask ?? 0,
         }
     }
 

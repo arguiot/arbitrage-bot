@@ -1,5 +1,5 @@
 import { ethers, BigNumber, Contract } from "ethers";
-import { Exchange, Cost } from "./adapters/exchange";
+import { Exchange, Cost, Token } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
 import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 export class UniswapV2 implements Exchange<Contract> {
@@ -11,9 +11,9 @@ export class UniswapV2 implements Exchange<Contract> {
         this.source = source;
     }
 
-    async getQuote(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<Quote> {
+    async getQuote(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote> {
         // Get reserves
-        const pairAddress = await this.source.getPair(tokenA, tokenB);
+        const pairAddress = await this.source.getPair(tokenA.address, tokenB.address);
 
         // Guard pairAddress is not the zero address... that means there is no liquidity pool
         if (pairAddress === ethers.constants.AddressZero) {
@@ -38,12 +38,12 @@ export class UniswapV2 implements Exchange<Contract> {
         };
     }
 
-    async estimateTransactionTime(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<number> {
+    async estimateTransactionTime(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<number> {
         // Get the provider
         const provider = ethers.getDefaultProvider();
 
         // Estimate gas required for the transaction
-        const { gas } = await this.estimateTransactionCost(amountIn, tokenA, tokenB);
+        const { gas } = await this.estimateTransactionCost(amountIn, tokenA.address, tokenB.address);
 
         // Get the current block number
         const currentBlockNumber = await provider.getBlockNumber();
@@ -60,17 +60,17 @@ export class UniswapV2 implements Exchange<Contract> {
         return estimatedTime;
     }
 
-    async estimateTransactionCost(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<Cost> {
+    async estimateTransactionCost(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Cost> {
         // Ask the delegate for the gas price using contract.estimateGas method in ethers.js
         // Use swapExactTokensForTokens or correct ETH method in the delegate contract to estimate the gas cost
         try {
             let cost = BigNumber.from(0);
             if (tokenA === "0x0000000000000000000000000000000000000000") {
-                cost = await this.delegate.estimateGas.swapExactETHForTokens(0, [tokenA, tokenB], ethers.constants.AddressZero, 0);
+                cost = await this.delegate.estimateGas.swapExactETHForTokens(0, [tokenA.address, tokenB.address], ethers.constants.AddressZero, 0);
             } else if (tokenB === "0x0000000000000000000000000000000000000000") {
-                cost = await this.delegate.estimateGas.swapExactTokensForETH(0, [tokenA, tokenB], ethers.constants.AddressZero, 0);
+                cost = await this.delegate.estimateGas.swapExactTokensForETH(0, [tokenA.address, tokenB.address], ethers.constants.AddressZero, 0);
             } else {
-                cost = await this.delegate.estimateGas.swapExactTokensForTokens(0, 0, [tokenA, tokenB], ethers.constants.AddressZero, 0);
+                cost = await this.delegate.estimateGas.swapExactTokensForTokens(0, 0, [tokenA.address, tokenB.address], ethers.constants.AddressZero, 0);
             }
 
             const gas = cost * 100; // 100 is the gas price

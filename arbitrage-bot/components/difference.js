@@ -15,16 +15,25 @@ export default function Difference() {
         if (priceData1 && priceData2) {
             const difference = Math.abs(priceData1.quote.price - priceData2.quote.price);
             const percentage = difference / priceData1.quote.price;
-            if (percentage > 0.01) {
-                addTrade({
-                    timestamp: Date.now(),
-                    pair: "TKA/TKB",
-                    exchange1: "fakecex",
-                    exchange2: "fakecex",
-                    amount1: 1,
-                    amount2: 1,
-                    profit: percentage,
-                });
+            if (percentage > 0.00001) {
+                async function registerTrade() {
+                    const opportunity = await fetch("/api/processOpportunity", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            tokenA: priceData1.tokenA,
+                            tokenB: priceData2.tokenB,
+                            exchangeA: priceData1.exchange,
+                            exchangeB: priceData2.exchange,
+                            amountIn: 1
+                        })
+                    }).then((res) => res.json());
+                    console.log(opportunity);
+                    addTrade(opportunity);
+                }
+                registerTrade();
             }
         }
     }, [priceData1, priceData2]);
@@ -33,7 +42,12 @@ export default function Difference() {
         return <Skeleton />;
     }
 
-    const difference = Math.abs(priceData1.quote.price - priceData2.quote.price);
+    const difference = priceData1.quote.ask ?
+        Math.max(
+            Math.abs(priceData1.quote.bid - priceData2.quote.ask),
+            Math.abs(priceData1.quote.ask - priceData2.quote.bid)
+        ) :
+        Math.abs(priceData1.quote.price - priceData2.quote.price);
     const percentage = difference / priceData1.quote.price;
 
     const prob = calculateProfitProbability({
@@ -54,26 +68,37 @@ export default function Difference() {
         },
         {
             subject: 'Time to finality',
-            A: 1,
+            A: priceData1.ttf + priceData2.ttf,
             fullMark: 15,
-        }
+        },
     ];
+
+    // If exchange supports bid/ask add this to the chart
+    if (priceData1.quote.bid) {
+        data.push({
+            subject: 'Bid/Ask',
+            A: priceData1.quote.bid / priceData2.quote.ask,
+            fullMark: 1,
+        });
+    }
+
     return <>
         <div className="mt-4 flex justify-between items-center gap-4">
             <div className="w-full">
-                <div className="text-xl font-bold">Difference: {(percentage * 100).toFixed(1)}%</div>
+                <div className="text-xl font-bold">Difference: {(percentage * 100).toFixed(3)}%</div>
                 <Progress value={(percentage / 0.04) * 100} />
             </div>
-            <div className="w-full">
+            {/* <div className="w-full">
                 <div className="text-xl font-bold">Probability of Profit: {(prob * 100).toFixed(2)}%</div>
                 <Progress value={prob * 100} />
-            </div>
+            </div> */}
         </div>
         <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
                     <PolarGrid />
                     <PolarAngleAxis dataKey="subject" />
+                    <PolarAngleAxis dataKey="fullMark" />
                     <PolarRadiusAxis />
                     <Radar name="Data" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} animationDuration={0} />
                 </RadarChart>

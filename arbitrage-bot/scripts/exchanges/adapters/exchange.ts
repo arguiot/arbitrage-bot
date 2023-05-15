@@ -6,11 +6,16 @@ export type Cost = {
     costInDollars: number;
 }
 
+export type Token = {
+    name: string;
+    address: string;
+}
+
 export interface Exchange<T> {
     // Properties
     delegate: T;
     // Methods
-    getQuote(amount: BigNumber, tokenA: string, tokenB: string): Promise<Quote>; // Returns a quote for the given amount of tokenA
-    estimateTransactionTime(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<number>; // Returns the estimated time to execute a transaction
-    estimateTransactionCost(amountIn: BigNumber, tokenA: string, tokenB: string): Promise<Cost>; // Returns the estimated cost to execute a transaction in dollars
+    getQuote(amount: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote>; // Returns a quote for the given amount of tokenA
+    estimateTransactionTime(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<number>; // Returns the estimated time to execute a transaction
+    estimateTransactionCost(amountIn: BigNumber, tokenA: Token, tokenB: Token, direction: "buy" | "sell"): Promise<Cost>; // Returns the estimated cost to execute a transaction in dollars
 }

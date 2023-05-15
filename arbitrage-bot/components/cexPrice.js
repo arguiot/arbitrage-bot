@@ -1,15 +1,19 @@
 import useSWR, { mutate } from 'swr'
 import { Button } from "@/components/ui/button"
 import usePriceStore from '../lib/priceDataStore';
-export default function CexPrice({ id }) {
+import usePairStore from '../lib/tokenStore';
+export default function CexPrice({ id, exchange }) {
     const { setPriceData1, setPriceData2 } = usePriceStore();
+    const { tokenA, tokenB } = usePairStore();
     const fetcher = (url) => fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            exchange: "fakecex",
+            exchange,
+            tokenA,
+            tokenB
         }),
     }).then((res) => res.json());
 
@@ -29,7 +33,11 @@ export default function CexPrice({ id }) {
 
     return (
         <div>
-            <h3><span className='text-green-500'>·</span> Live Price: {(priceData.quote.price / 10e9).toFixed(2)}$</h3>
+            <h3><span className='text-green-500'>·</span> Live Price: {(priceData.quote.price).toFixed(2)}$</h3>
+            {priceData.quote.bid && <>
+                <h3><span className='text-green-500'>·</span> Bid: {(priceData.quote.bid).toFixed(2)}</h3>
+                <h3><span className='text-green-500'>·</span> Ask: {(priceData.quote.ask).toFixed(2)}</h3>
+            </>}
         </div>
     );
 }
