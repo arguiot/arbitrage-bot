@@ -5,10 +5,12 @@ import { calculateProfitProbability } from "@/scripts/arbiter/profitChances";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { useEffect } from "react";
 import useTradeBookStore from "../lib/tradesStore";
+import { useToast } from "./ui/use-toast";
 
 export default function Difference() {
     const { priceData1, priceData2 } = usePriceStore();
     const { addTrade } = useTradeBookStore();
+    const { toast } = useToast()
 
     useEffect(() => {
         // Register a trade if the difference is greater than 1%
@@ -33,7 +35,14 @@ export default function Difference() {
                     console.log(opportunity);
                     addTrade(opportunity);
                 }
-                registerTrade();
+                try {
+                    registerTrade();
+                } catch (e) {
+                    toast({
+                        title: "Error",
+                        description: "Error fetching price data",
+                    })
+                }
             }
         }
     }, [priceData1, priceData2]);

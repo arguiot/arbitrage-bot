@@ -41,14 +41,11 @@ export class UniswapV2 implements Exchange<Contract> {
         }
         // Get quote
         const _quote = await this.delegate.getAmountsOut(ethers.utils.parseEther(amountIn.toString()), [
-            tokenB.address,
-            tokenA.address
+            tokenA.address,
+            tokenB.address
         ]);
         // Convert back from wei to ether
-        const quote = Number(ethers.utils.formatEther(
-            _quote[1] // amountOut
-        ));
-
+        const quote = Number(ethers.utils.formatUnits(_quote[1], tokenA.name == "WETH" ? "mwei" : "ether"));
         // For the price, we need to order the tokens by their symbol. If tokenA is first, then the price is amountIn / quote otherwise it's quote / amountIn
         let price;
         if (tokenA.name.localeCompare(tokenB.name) === 0) {
