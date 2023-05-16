@@ -21,7 +21,7 @@ export default function UniswapPrice({
     }).then((res) => res.json());
 
     const { data: priceData, error } = useSWR("/api/priceData", fetcher, {
-        refreshInterval: 1000, // refresh every second
+        refreshInterval: 10000, // refresh every 10 second
     });
 
     const addLiquidity = async () => {
@@ -51,7 +51,7 @@ export default function UniswapPrice({
 
     return (
         <div>
-            { priceData.quote.price == 0 ? <>
+            {priceData.quote.price == 0 ? <>
                 <Button onClick={addLiquidity}>
                     Add sample liquidity
                 </Button>

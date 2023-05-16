@@ -94,17 +94,6 @@ export default function Index() {
             </div>
             <Difference />
             <TradeBook />
-            {isConnected && (
-                <div>
-                    {error && <div>Error fetching price data</div>}
-                    {!error && priceData && (
-                        <div>
-                            <p>Uniswap Price: {priceData.uniswapPrice}</p>
-                            <p>Binance Price: {priceData.binancePrice}</p>
-                        </div>
-                    )}
-                </div>
-            )}
             <Separator className="mt-8" />
             <Button className="mx-auto mt-12" variant="outline" onClick={() => {
                 pairReset();

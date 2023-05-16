@@ -44,6 +44,9 @@ export default function ExchangeCard({ id }) {
             case "local-uniswap":
                 await deploy();
                 break;
+            case "uniswap":
+                // return;
+                break;
         }
         setExchange(value);
         setIsDeploying(false);
@@ -59,6 +62,8 @@ export default function ExchangeCard({ id }) {
                 return "Kraken";
             case "local-uniswap":
                 return "Local Uniswap";
+            case "uniswap":
+                return "Uniswap V2";
             default:
                 return "Unknown";
         }
@@ -74,6 +79,8 @@ export default function ExchangeCard({ id }) {
                 return <CexPrice id={id} exchange={exchange} />;
             case "local-uniswap":
                 return <UniswapPrice factoryAddress={factory} routerAddress={router} tokenA={tokenA} tokenB={tokenB} />;
+            case "uniswap":
+                return <CexPrice id={id} exchange={exchange} />;
             default:
                 return null;
         }
@@ -105,6 +112,7 @@ export default function ExchangeCard({ id }) {
                     <SelectContent>
                         <SelectItem value="local-cex">FakeCEX</SelectItem>
                         <SelectItem value="local-uniswap">FakeDEX</SelectItem>
+                        <SelectItem value="uniswap">Uniswap V2</SelectItem>
                         <SelectItem value="binance">Binance</SelectItem>
                         <SelectItem value="kraken">Kraken</SelectItem>
                     </SelectContent>

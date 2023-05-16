@@ -28,18 +28,17 @@ export default async function handler(req, res) {
 
 async function uniswap(req, res) {
     // Get router address & factory address from the request body
-    const { routerAddress, factoryAddress, tokenA, tokenB } = req.body;
+    const { tokenA, tokenB } = req.body;
     // Connect to the JSON-RPC server
-    const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+    const provider = new ethers.providers.JsonRpcProvider({
+        url: "https://eth.pr1mer.tech/v1/mainnet"
+    });
 
     // Connect to the contract
-    const router = new ethers.Contract(routerAddress, _UniswapV2Router02.abi, provider);
-    const factory = new ethers.Contract(factoryAddress, _UniswapV2Factory.abi, provider);
-
-    const uniswapV2 = new UniswapV2(router, factory);
+    const uniswapV2 = new UniswapV2(null, null, provider);
 
     const quote = await uniswapV2.getQuote(
-        BigNumber.from(100),
+        BigNumber.from(1),
         tokenA,
         tokenB
     );
@@ -54,7 +53,7 @@ async function fakecex(req, res) {
 
     const fakeCex = new FakeCEX();
     const quote = await fakeCex.getQuote(
-        BigNumber.from(100),
+        BigNumber.from(1),
         tokenA,
         tokenB
     );
@@ -68,7 +67,7 @@ async function livecex(exchange, req, res) {
 
     const liveCex = new LiveCEX(exchange);
     const quote = await liveCex.getQuote(
-        BigNumber.from(100),
+        BigNumber.from(1),
         tokenA,
         tokenB
     );

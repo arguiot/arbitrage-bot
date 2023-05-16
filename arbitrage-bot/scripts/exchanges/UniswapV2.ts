@@ -39,36 +39,28 @@ export class UniswapV2 implements Exchange<Contract> {
                 address: wethAddress,
             }
         }
-        // Get reserves
-        const pairAddress = await this.source.getPair(tokenA.address, tokenB.address);
-        // Guard pairAddress is not the zero address... that means there is no liquidity pool
-        if (pairAddress === ethers.constants.AddressZero) {
-            return {
-                amount: amountIn,
-                amountOut: BigNumber.from(0),
-                price: 0
-            };
-        }
-
-        const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, this.source.provider);
-        const reserves = await pair.getReserves();
-        // Ok, now we need to sort the tokens, because the order of the reserves is not guaranteed
-        // We need to sort them by address
-        // const swap = BigNumber.from(tokenA.address).gt(BigNumber.from(tokenB.address));
-        const reserveA = reserves[0];
-        const reserveB = reserves[1];
         // Get quote
         const _quote = await this.delegate.getAmountsOut(ethers.utils.parseEther(amountIn.toString()), [
-            tokenA.address,
-            tokenB.address
+            tokenB.address,
+            tokenA.address
         ]);
-        console.log({ _quote })
         // Convert back from wei to ether
-        const quote = Number(ethers.utils.formatEther(_quote));
+        const quote = Number(ethers.utils.formatEther(
+            _quote[1] // amountOut
+        ));
+
+        // For the price, we need to order the tokens by their symbol. If tokenA is first, then the price is amountIn / quote otherwise it's quote / amountIn
+        let price;
+        if (tokenA.name.localeCompare(tokenB.name) === 0) {
+            price = amountIn.toNumber() / quote;
+        } else {
+            price = quote / amountIn.toNumber();
+        }
+
         return {
             amount: amountIn,
             amountOut: quote,
-            price: amountIn.toNumber() / quote
+            price
         };
     }
 

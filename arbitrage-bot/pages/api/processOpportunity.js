@@ -9,12 +9,15 @@ import { validateOpportunity } from '../../scripts/arbiter/opportunity';
 export default async function handler(req, res) {
     const { tokenA, tokenB, exchangeA, exchangeB, amountIn } = req.body;
 
+    // Sort the tokens alphabetically
+    const [token0, token1] = [tokenA, tokenB].sort((a, b) => a.name.localeCompare(b.name));
+
     const ExchangeA = await getExchange(exchangeA, req, res);
     const ExchangeB = await getExchange(exchangeB, req, res);
 
     // Get price data from the exchanges
-    const priceA = await ExchangeA.getQuote(BigNumber.from(amountIn), tokenA, tokenB);
-    const priceB = await ExchangeB.getQuote(BigNumber.from(amountIn), tokenA, tokenB);
+    const priceA = await ExchangeA.getQuote(BigNumber.from(amountIn), token0, token1);
+    const priceB = await ExchangeB.getQuote(BigNumber.from(amountIn), token0, token1);
 
     const _priceA = priceA.ask || priceA.price;
     const _priceB = priceB.bid || priceB.price;
@@ -66,16 +69,12 @@ async function getExchange(exchange, req, res) {
 }
 
 async function uniswap(req, res) {
-    // Get router address & factory address from the request body
-    const { routerAddress, factoryAddress, tokenA, tokenB } = req.body;
-    // Connect to the JSON-RPC server
-    const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+    const provider = new ethers.providers.JsonRpcProvider({
+        url: "https://eth.pr1mer.tech/v1/mainnet"
+    });
 
     // Connect to the contract
-    const router = new ethers.Contract(routerAddress, _UniswapV2Router02.abi, provider);
-    const factory = new ethers.Contract(factoryAddress, _UniswapV2Factory.abi, provider);
-
-    const uniswapV2 = new UniswapV2(router, factory);
+    const uniswapV2 = new UniswapV2(null, null, provider);
 
     // Process the opportunity
     return uniswapV2;
