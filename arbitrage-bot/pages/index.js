@@ -67,7 +67,7 @@ export default function Index() {
         }
     }
 
-    return (
+    return <>
         <div className="prose mx-auto mt-8" >
             <div className="flex justify-between items-center">
                 <h1>Arbitrage Bot</h1>
@@ -93,7 +93,6 @@ export default function Index() {
                 <ExchangeCard id={2} />
             </div>
             <Difference />
-            <TradeBook />
             <Separator className="mt-8" />
             <Button className="mx-auto mt-12" variant="outline" onClick={() => {
                 pairReset();
@@ -101,6 +100,7 @@ export default function Index() {
             }}>
                 Reset
             </Button>
-        </div >
-    );
+        </div>
+        <TradeBook />
+    </>;
 }
