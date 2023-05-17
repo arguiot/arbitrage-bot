@@ -70,7 +70,7 @@ async function getExchange(exchange, req, res) {
 
 async function uniswap(req, res) {
     const provider = new ethers.providers.JsonRpcProvider({
-        url: "https://eth.pr1mer.tech/v1/mainnet"
+        url: process.env.JSON_RPC_URL,
     });
 
     // Connect to the contract

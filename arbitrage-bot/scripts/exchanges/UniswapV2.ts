@@ -1,9 +1,9 @@
 import { ethers, BigNumber, Contract } from "ethers";
 import { Exchange, Cost, Token } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
-import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
-import _UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
-import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
+const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json");
+const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
+const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
 
 export class UniswapV2 implements Exchange<Contract> {
     delegate: Contract;
@@ -40,10 +40,10 @@ export class UniswapV2 implements Exchange<Contract> {
             }
         }
         // Get quote
-        const _quote = await this.delegate.getAmountsOut(ethers.utils.parseEther(amountIn.toString()), [
-            tokenA.address,
-            tokenB.address
-        ]);
+        const _quote = await this.delegate.getAmountsOut(
+            ethers.utils.parseEther(amountIn.toString()),
+            [tokenA.address, tokenB.address]
+        );
         // Convert back from wei to ether
         const quote = Number(ethers.utils.formatUnits(_quote[1], tokenA.name == "WETH" ? "mwei" : "ether"));
         // For the price, we need to order the tokens by their symbol. If tokenA is first, then the price is amountIn / quote otherwise it's quote / amountIn

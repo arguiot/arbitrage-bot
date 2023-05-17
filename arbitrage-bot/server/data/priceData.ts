@@ -5,35 +5,22 @@ import { LiveCEX } from '../../scripts/exchanges/LiveCEX';
 import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
 import _UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
 
-export default async function handler(req, res) {
-    const { exchange } = req.body;
-
+export default async function handler({ exchange, tokenA, tokenB, provider }) {
     switch (exchange) {
         case 'uniswap':
-            await uniswap(req, res);
-            break;
+            return await uniswap({ tokenA, tokenB, provider });
         case 'local-cex':
-            await fakecex(req, res);
-            break;
+            return await fakecex({ tokenA, tokenB });
         case 'binance':
-            await livecex('binance', req, res);
-            break;
+            return await livecex('binance', { tokenA, tokenB });
         case 'kraken':
-            await livecex('kraken', req, res);
-            break;
+            return await livecex('kraken', { tokenA, tokenB });
         default:
-            res.status(400).json({ error: 'Exchange not supported' });
+            throw new Error('Exchange not supported');
     }
 }
 
-async function uniswap(req, res) {
-    // Get router address & factory address from the request body
-    const { tokenA, tokenB } = req.body;
-    // Connect to the JSON-RPC server
-    const provider = new ethers.providers.JsonRpcProvider({
-        url: process.env.JSON_RPC_URL,
-    });
-
+async function uniswap({ tokenA, tokenB, provider }) {
     // Connect to the contract
     const uniswapV2 = new UniswapV2(null, null, provider);
 
@@ -44,13 +31,10 @@ async function uniswap(req, res) {
     );
     // Call a function on the contract
     // const result = await contract.someFunction();
-
-    res.status(200).json({ quote, exchange: 'uniswap', tokenA, tokenB });
+    return { quote, exchange: 'uniswap', tokenA, tokenB }
 }
 
-async function fakecex(req, res) {
-    const { tokenA, tokenB } = req.body;
-
+async function fakecex({ tokenA, tokenB }) {
     const fakeCex = new FakeCEX();
     const quote = await fakeCex.getQuote(
         BigNumber.from(1),
@@ -58,13 +42,11 @@ async function fakecex(req, res) {
         tokenB
     );
 
-    res.status(200).json({ quote, exchange: 'local-cex', ttf: 0.1, tokenA, tokenB });
+    return { quote, exchange: 'local-cex', ttf: 0.1, tokenA, tokenB }
 }
 
 
-async function livecex(exchange, req, res) {
-    const { tokenA, tokenB } = req.body;
-
+async function livecex(exchange, { tokenA, tokenB }) {
     const liveCex = new LiveCEX(exchange);
     const quote = await liveCex.getQuote(
         BigNumber.from(1),
@@ -72,5 +54,5 @@ async function livecex(exchange, req, res) {
         tokenB
     );
 
-    res.status(200).json({ quote, exchange, ttf: 0.1, tokenA, tokenB });
+    return { quote, exchange, ttf: 0.1, tokenA, tokenB }
 }

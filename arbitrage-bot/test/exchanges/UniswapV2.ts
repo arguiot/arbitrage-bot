@@ -40,7 +40,7 @@ describe("Uniswap V2 Live", function() {
     it("Should get quote", async () => {
         // Find provider to connect to mainnet (gateway: eth.pr1mer.tech)
         const provider = new ethers.providers.JsonRpcProvider({
-            url: "https://eth.pr1mer.tech/v1/mainnet",
+            url: process.env.JSON_RPC_URL,
             headers: {
                 "CF-Access-Client-Id": "338db795e927f1cf6e37479542a9be3c.access",
                 "CF-Access-Client-Secret": "6932620374a9680656a7286faa846317728c069cbc54d17870a25ec2b488d05c"
