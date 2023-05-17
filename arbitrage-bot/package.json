@@ -4,7 +4,8 @@
         "test": "hardhat test",
         "node": "hardhat node",
         "dev": "next dev",
-        "server": "bun run server/index.ts --watch"
+        "server": "bun run server/index.ts --watch",
+        "server-node": "ts-node -T server/node.ts"
     },
     "devDependencies": {
         "@nomiclabs/hardhat-ethers": "^2.2.3",

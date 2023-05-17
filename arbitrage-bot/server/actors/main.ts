@@ -47,7 +47,11 @@ export default class MainActor implements Actor<MainActorOptions> {
         (async () => {
             while (true) {
                 await this.mainLoop();
-                await Bun.sleep(10);
+                if (globalThis.Bun) {
+                    await Bun.sleep(10);
+                } else {
+                    await new Promise((resolve) => setTimeout(resolve, 10));
+                }
             }
         })();
     }
