@@ -1,35 +1,13 @@
-import useSWR, { mutate } from 'swr'
-import { Button } from "@/components/ui/button"
-import usePriceStore from '../lib/priceDataStore';
-import usePairStore from '../lib/tokenStore';
-export default function CexPrice({ id, exchange }) {
-    const { setPriceData1, setPriceData2 } = usePriceStore();
-    const { tokenA, tokenB } = usePairStore();
-    const fetcher = (url) => fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            exchange,
-            tokenA,
-            tokenB
-        }),
-    }).then((res) => res.json());
+import usePriceStore from "../lib/priceDataStore";
 
-    const { data: priceData, error } = useSWR(`/api/priceData?id=${id}`, fetcher, {
-        refreshInterval: 1000, // refresh every second
-        onSuccess: (data) => {
-            if (id == 1) {
-                setPriceData1(data);
-            } else {
-                setPriceData2(data);
-            }
-        }
-    });
+export default function CexPrice({ exchange }) {
+    const { getQuote } = usePriceStore();
 
-    if (error) return <div>Error fetching price data</div>;
-    if (!priceData) return <div>Loading...</div>;
+    const priceData = getQuote(exchange);
+
+    if (!priceData) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>

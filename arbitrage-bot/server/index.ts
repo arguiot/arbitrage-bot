@@ -34,7 +34,9 @@ export default {
                 if (validatedData.topic === "priceData") {
                     const query = validatedData.query;
                     mainActor.subscribeToPriceData(query);
-                    ws.send("{ \"status\": \"subscribed\", \"topic\": \"priceData\" }")
+                    ws.send(JSON.stringify({ status: "subscribed", topic: "priceData" }));
+                } else if (validatedData.topic === "decision") {
+                    ws.send(JSON.stringify({ status: "subscribed", topic: "decision" }));
                 }
             } catch (e) {
                 ws.send(JSON.stringify({ error: e }))

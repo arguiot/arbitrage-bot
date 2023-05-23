@@ -20,6 +20,7 @@ import { Loader2 } from "lucide-react";
 import UniswapPrice from "./uniswapPrice";
 import usePairStore from "../lib/tokenStore";
 import CexPrice from "./cexPrice";
+import { Client } from "../lib/client";
 
 
 export default function ExchangeCard({ id }) {
@@ -36,16 +37,16 @@ export default function ExchangeCard({ id }) {
                 // return;
                 break;
             case "binance":
-                // return;
+                Client.shared.subscribeToPriceData(value, "cex", tokenA, tokenB);
                 break;
             case "kraken":
-                // return;
+                Client.shared.subscribeToPriceData(value, "cex", tokenA, tokenB);
                 break;
             case "local-uniswap":
                 await deploy();
                 break;
             case "uniswap":
-                // return;
+                Client.shared.subscribeToPriceData(value, "dex", tokenA, tokenB);
                 break;
         }
         setExchange(value);

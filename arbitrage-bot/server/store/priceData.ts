@@ -1,0 +1,49 @@
+import { Quote } from "../../scripts/exchanges/types/Quote";
+import { Opportunity } from "../types/opportunity";
+
+export class PriceDataStore {
+    static shared = new PriceDataStore();
+
+    quotes: Map<string, Quote> = new Map();
+
+    addQuote(exchange: string, quote: Quote) {
+        this.quotes.set(exchange, quote);
+    }
+
+    getQuote(exchange: string): Quote | undefined {
+        return this.quotes.get(exchange);
+    }
+
+    getArbitrageOpportunity(): Opportunity | null {
+        // Look at all the quotes and find the two with the highest price difference
+        let bestOpportunity: Opportunity | null = null;
+        let bestProfit = 0;
+
+        for (const [exchange1, quote1] of this.quotes.entries()) {
+            for (const [exchange2, quote2] of this.quotes.entries()) {
+                if (exchange1 === exchange2) continue;
+
+                const price1 = quote1.ask ?? quote1.price;
+                const price2 = quote2.bid ?? quote2.price;
+                const priceDifference = price1 - price2;
+                const profit = priceDifference * quote1.amount.toNumber();
+
+                if (profit > bestProfit) {
+                    bestProfit = profit;
+                    bestOpportunity = {
+                        exchange1,
+                        exchange2,
+                        profit,
+                        percentProfit: (profit / (quote1.amount.toNumber() * price1)) * 100,
+                        quote1,
+                        quote2,
+                        tokenA: quote1.tokenA,
+                        tokenB: quote1.tokenB,
+                    };
+                }
+            }
+        }
+
+        return bestOpportunity;
+    }
+}

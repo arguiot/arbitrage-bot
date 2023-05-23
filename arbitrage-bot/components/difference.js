@@ -8,44 +8,7 @@ import useTradeBookStore from "../lib/tradesStore";
 import { useToast } from "./ui/use-toast";
 
 export default function Difference() {
-    const { priceData1, priceData2 } = usePriceStore();
-    const { addTrade } = useTradeBookStore();
-    const { toast } = useToast()
-
-    useEffect(() => {
-        // Register a trade if the difference is greater than 1%
-        if (priceData1 && priceData2) {
-            const difference = Math.abs(priceData1.quote.price - priceData2.quote.price);
-            const percentage = difference / priceData1.quote.price;
-            if (percentage > 0.00001) {
-                async function registerTrade() {
-                    const opportunity = await fetch("/api/processOpportunity", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            tokenA: priceData1.tokenA,
-                            tokenB: priceData2.tokenB,
-                            exchangeA: priceData1.exchange,
-                            exchangeB: priceData2.exchange,
-                            amountIn: 1
-                        })
-                    }).then((res) => res.json());
-                    console.log(opportunity);
-                    addTrade(opportunity);
-                }
-                try {
-                    registerTrade();
-                } catch (e) {
-                    toast({
-                        title: "Error",
-                        description: "Error fetching price data",
-                    })
-                }
-            }
-        }
-    }, [priceData1, priceData2]);
+    const { getQuote } = usePriceStore();
 
     if (!priceData1 || !priceData2) {
         return <Skeleton />;

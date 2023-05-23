@@ -1,10 +1,19 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-const usePriceStore = create((set) => ({
-    priceData1: null,
-    priceData2: null,
-    setPriceData1: (data) => set({ priceData1: data }),
-    setPriceData2: (data) => set({ priceData2: data }),
+const usePriceStore = create((set, get) => ({
+    quotes: new Map(),
+
+    addQuote: (exchange, quote) => {
+        set((state) => {
+            const quotes = new Map(state.quotes);
+            quotes.set(exchange, quote);
+            return { quotes };
+        });
+    },
+
+    getQuote: (exchange) => {
+        return get().quotes.get(exchange);
+    },
 }));
 
 export default usePriceStore;

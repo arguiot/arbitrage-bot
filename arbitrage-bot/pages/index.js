@@ -1,5 +1,5 @@
 import { ConnectKitButton } from 'connectkit';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useSWR from 'swr'
 import { useAccount } from "wagmi";
 import { Separator } from "@/components/ui/separator"
@@ -18,9 +18,14 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
+import { Client } from '../lib/client';
 
 export default function Index() {
-    const { toast } = useToast()
+    useEffect(() => {
+        Client.shared = new Client();
+    }, []);
+
+    const { toast } = useToast();
     const { isConnected } = useAccount();
     const { isDeployed, setTokenA, setTokenB, tokenA, tokenB, deploy, reset: pairReset } = usePairStore();
     const { reset: uniswapReset } = useUniswapStore();
@@ -92,7 +97,7 @@ export default function Index() {
                 <ExchangeCard id={1} />
                 <ExchangeCard id={2} />
             </div>
-            <Difference />
+            {/* <Difference /> */}
             <Separator className="mt-8" />
             <Button className="mx-auto mt-12" variant="outline" onClick={() => {
                 pairReset();

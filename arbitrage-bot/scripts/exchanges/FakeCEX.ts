@@ -14,8 +14,10 @@ export class FakeCEX implements Exchange<null> {
         const price = Math.ceil((Math.random() * 0.02 + 0.9) * 10e9);
         return {
             amount: amountIn,
-            amountOut: amountIn.mul(BigNumber.from(price)),
-            price: price
+            amountOut: amountIn.toNumber() * price,
+            price: price,
+            tokenA,
+            tokenB,
         }
     }
 
@@ -27,5 +29,9 @@ export class FakeCEX implements Exchange<null> {
     async estimateTransactionCost(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Cost> {
         // Random cost in wei, between 0.001-0.01 ETH
         return { costInDollars: Math.random() * 0.009 + 0.001 };
+    }
+
+    swapExactTokensForTokens(amountIn: BigNumber, amountOutMin: BigNumber, path: string[], to: string, deadline: number): Promise<void> {
+        throw new Error("Method not implemented.");
     }
 }

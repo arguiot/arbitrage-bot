@@ -23,6 +23,7 @@ export default class OnChain implements Actor<OnChainOptions> {
             result.topic = this.topic;
             return result;
         } catch (e) {
+            console.error(e);
             return { topic: this.topic, error: e };
         }
     }

@@ -7,13 +7,33 @@ dotenv.config();
 
 const port = process.env.PORT || 8080;
 
-const mainActor = new MainActor();
+let mainActor = new MainActor();
 
 console.log(`Server listening on port ${port}, url: http://localhost:${port}`);
 
 const server = new WebSocket.Server({ port });
 
 server.on("connection", (ws: WebSocket) => {
+
+    // Implement the websocket polyfill
+    ws.subscribe = (topic: string) => {
+        ws.topics = ws.topics || [];
+        ws.topics.push(topic);
+    };
+
+    ws.unsubscribe = (topic: string) => {
+        ws.topics = ws.topics || [];
+        ws.topics = ws.topics.filter((t) => t !== topic);
+    };
+
+    ws.publish = (topic: string, data: string) => {
+        ws.topics = ws.topics || [];
+        if (ws.topics.includes(topic)) {
+            ws.send(data);
+        }
+    };
+
+
     ws.on("message", (message: WebSocket.Data) => {
         try {
             const data = JSON.parse(message.toString());
@@ -33,6 +53,7 @@ server.on("connection", (ws: WebSocket) => {
                 );
             }
         } catch (e) {
+            console.error(e);
             ws.send(JSON.stringify({ error: e }));
         }
     });
@@ -41,5 +62,6 @@ server.on("connection", (ws: WebSocket) => {
         ws.unsubscribe("priceData");
     });
 
+    mainActor = new MainActor(); // Reset the actor
     mainActor.start({ ws });
 });

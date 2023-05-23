@@ -1,28 +1,15 @@
 import useSWR, { mutate } from 'swr'
 import { Button } from "@/components/ui/button"
+import usePriceStore from '../lib/priceDataStore';
 export default function UniswapPrice({
     factoryAddress,
     routerAddress,
     tokenA,
     tokenB
 }) {
-    const fetcher = (url) => fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            exchange: "uniswap",
-            factoryAddress,
-            routerAddress,
-            tokenA,
-            tokenB
-        }),
-    }).then((res) => res.json());
+    const { priceData1, priceData2 } = usePriceStore();
 
-    const { data: priceData, error } = useSWR("/api/priceData", fetcher, {
-        refreshInterval: 10000, // refresh every 10 second
-    });
+    const priceData = id === 1 ? priceData1 : priceData2;
 
     const addLiquidity = async () => {
         const response = await fetch("/api/addLiquidity", {
@@ -45,9 +32,6 @@ export default function UniswapPrice({
             mutate("/api/priceData");
         }
     }
-
-    if (error) return <div>Error fetching price data</div>;
-    if (!priceData) return <div>Loading...</div>;
 
     return (
         <div>
