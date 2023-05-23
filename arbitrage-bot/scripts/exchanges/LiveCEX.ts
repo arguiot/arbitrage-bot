@@ -22,7 +22,7 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     async getQuote(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote> {
         // First we need to sort the tokens by their symbol
         const [token1, token2] = [tokenA, tokenB].sort((a, b) => a.name.localeCompare(b.name));
-        const price = await this.delegate.watchTicker(`${token1.name}/${token2.name}`);
+        const price = await this.delegate.fetchTicker(`${token1.name}/${token2.name}`);
 
         return {
             amount: amountIn,

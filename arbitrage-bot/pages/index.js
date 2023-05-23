@@ -18,9 +18,10 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
-import { Client } from '../lib/client';
+import { Client, useClientState } from '../lib/client';
 
 export default function Index() {
+    const { connected } = useClientState();
     useEffect(() => {
         Client.shared = new Client();
     }, []);
@@ -75,7 +76,7 @@ export default function Index() {
     return <>
         <div className="prose mx-auto mt-8" >
             <div className="flex justify-between items-center">
-                <h1>Arbitrage Bot</h1>
+                <h1>Arbitrage Bot <span className={connected ? "text-green-500" : "text-red-500"}>·</span></h1>
                 <ConnectKitButton />
             </div>
             <Separator className="mb-8" />
@@ -97,7 +98,7 @@ export default function Index() {
                 <ExchangeCard id={1} />
                 <ExchangeCard id={2} />
             </div>
-            {/* <Difference /> */}
+            <Difference />
             <Separator className="mt-8" />
             <Button className="mx-auto mt-12" variant="outline" onClick={() => {
                 pairReset();

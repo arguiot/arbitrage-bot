@@ -2,7 +2,7 @@
 
 import { Token } from "../scripts/exchanges/adapters/exchange";
 import usePriceStore from "./priceDataStore";
-
+import { create } from "zustand";
 interface WebSocket {
     onclose: ((event: CloseEvent) => void) | null;
     onerror: ((event: Event) => void) | null;
@@ -12,27 +12,48 @@ interface WebSocket {
     send(data: string | ArrayBuffer | Blob | ArrayBufferView): void;
 }
 
+export const useClientState = create((set) => ({
+    connected: false,
+    setConnnected: (connected: boolean) => set({ connected }),
+}));
+
 export class Client {
     url = "ws://localhost:8080/";
     ws: WebSocket;
+    reconnectTimer: any;
 
     static shared: Client;
 
     constructor() {
+        this.connect();
+    }
+
+    connect() {
         this.ws = new WebSocket(this.url);
         this.ws.onopen = this.onOpen.bind(this);
         this.ws.onmessage = this.onMessage.bind(this);
+        this.ws.onclose = this.onClose.bind(this);
     }
 
     onOpen() {
-        console.log("Connection opened");
+        console.log("Connected to server");
+        useClientState.getState().setConnnected(true);
+        clearTimeout(this.reconnectTimer);
+    }
+
+    onClose() {
+        console.log("Disconnected from server");
+        useClientState.getState().setConnnected(false);
+        this.reconnectTimer = setTimeout(() => this.connect(), 1000);
     }
 
     onMessage(event: MessageEvent) {
         const message = JSON.parse(event.data);
         switch (message.topic) {
             case "priceData":
-                usePriceStore.getState().addQuote(message.exchange, message);
+                if (typeof message.quote !== "undefined") {
+                    usePriceStore.getState().addQuote(message.exchange, message.quote);
+                }
                 break;
             default:
                 console.log("Unknown message", message);

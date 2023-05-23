@@ -8,30 +8,27 @@ import useTradeBookStore from "../lib/tradesStore";
 import { useToast } from "./ui/use-toast";
 
 export default function Difference() {
-    const { getQuote } = usePriceStore();
+    const { getArbitrage } = usePriceStore();
+    const arbitrage = getArbitrage();
+    const priceData1 = arbitrage.quote1;
+    const priceData2 = arbitrage.quote2;
 
     if (!priceData1 || !priceData2) {
         return <Skeleton />;
     }
 
-    const difference = priceData1.quote.ask ?
-        Math.max(
-            Math.abs(priceData1.quote.bid - priceData2.quote.ask),
-            Math.abs(priceData1.quote.ask - priceData2.quote.bid)
-        ) :
-        Math.abs(priceData1.quote.price - priceData2.quote.price);
-    const percentage = difference / priceData1.quote.price;
+    const percentage = arbitrage.percentProfit;
 
     const prob = calculateProfitProbability({
-        ttf: 1, // 1 second
+        ttf: Math.max(priceData1.ttf, priceData2.ttf), // 1 second
         delta: percentage
     })
 
     const data = [
         {
             subject: 'Difference',
-            A: percentage * 100,
-            fullMark: 4,
+            A: percentage,
+            fullMark: 1,
         },
         {
             subject: 'Profit Probability',
@@ -40,16 +37,16 @@ export default function Difference() {
         },
         {
             subject: 'Time to finality',
-            A: priceData1.ttf + priceData2.ttf,
+            A: Math.max(priceData1.ttf, priceData2.ttf),
             fullMark: 15,
         },
     ];
 
     // If exchange supports bid/ask add this to the chart
-    if (priceData1.quote.bid) {
+    if (priceData1.bid) {
         data.push({
             subject: 'Bid/Ask',
-            A: priceData1.quote.bid / priceData2.quote.ask,
+            A: priceData1.bid / priceData2.ask,
             fullMark: 1,
         });
     }
@@ -57,8 +54,8 @@ export default function Difference() {
     return <>
         <div className="mt-4 flex justify-between items-center gap-4">
             <div className="w-full">
-                <div className="text-xl font-bold">Difference: {(percentage * 100).toFixed(3)}%</div>
-                <Progress value={(percentage / 0.04) * 100} />
+                <div className="text-xl font-bold">Difference: {percentage.toFixed(3)}%</div>
+                <Progress value={percentage} />
             </div>
             {/* <div className="w-full">
                 <div className="text-xl font-bold">Probability of Profit: {(prob * 100).toFixed(2)}%</div>
