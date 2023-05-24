@@ -94,7 +94,7 @@ export default function Index() {
                     </SelectContent>
                 </Select>
             </div>
-            <div className="flex justify-between items-center gap-4">
+            <div className="flex justify-between gap-4">
                 <ExchangeCard id={1} />
                 <ExchangeCard id={2} />
             </div>
@@ -103,6 +103,11 @@ export default function Index() {
             <Button className="mx-auto mt-12" variant="outline" onClick={() => {
                 pairReset();
                 uniswapReset();
+                Client.shared.reset();
+                toast({
+                    title: "Reset",
+                    description: "Reset all data",
+                })
             }}>
                 Reset
             </Button>

@@ -129,7 +129,6 @@ export class UniswapV2 implements Exchange<Contract> {
             return { costInDollars, gas };
         }
         catch (e) {
-            console.error(e);
             return { gas: BigNumber.from(21000 * 100), costInDollars: 21000 * 100 * 4000 * 10e-9 }; // default gas
         }
     }

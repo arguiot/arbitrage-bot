@@ -82,4 +82,18 @@ export class Client {
             },
         }));
     }
+
+    subscribeToDecision() {
+        this.send(JSON.stringify({
+            type: "subscribe",
+            topic: "decision",
+        }));
+    }
+
+    reset() {
+        this.send(JSON.stringify({
+            type: "reset",
+            topic: "reset",
+        }));
+    }
 }

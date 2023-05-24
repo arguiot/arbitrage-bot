@@ -43,6 +43,11 @@ server.on("connection", (ws: WebSocket) => {
                 ws.subscribe(validatedData.topic);
             } else if (validatedData.type === "unsubscribe") {
                 ws.unsubscribe(validatedData.topic);
+            } else if (validatedData.type === "reset") {
+                ws.unsubscribe("priceData");
+                mainActor = new MainActor();
+                mainActor.start({ ws });
+                ws.send(JSON.stringify({ status: "success", topic: "reset" }));
             }
 
             if (validatedData.topic === "priceData") {
@@ -51,6 +56,9 @@ server.on("connection", (ws: WebSocket) => {
                 ws.send(
                     JSON.stringify({ status: "subscribed", topic: "priceData" })
                 );
+            } else if (validatedData.topic === "decision") {
+                mainActor.broadcastDecisions = true;
+                ws.send(JSON.stringify({ status: "subscribed", topic: "decision" }));
             }
         } catch (e) {
             console.error(e);

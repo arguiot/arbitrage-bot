@@ -17,6 +17,7 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     provider = Credentials.shared.wallet.provider;
 
+    broadcastDecisions = false;
 
     constructor() {
         (async () => {
@@ -71,9 +72,12 @@ export default class MainActor implements Actor<MainActorOptions> {
     }
 
     async receive(): Promise<PartialResult> {
-        const result = await this.decisionPeer.receive();
-        if (this.ws) {
-            this.ws.publish(result.topic, JSON.stringify(result));
+        if (this.broadcastDecisions) {
+            const result = await this.decisionPeer.receive();
+            console.log("Decision: ", result);
+            if (this.ws) {
+                this.ws.publish(result.topic, JSON.stringify(result));
+            }
         }
         return {
             topic: "mainActor",

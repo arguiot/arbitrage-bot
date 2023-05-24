@@ -62,7 +62,7 @@ export default function Difference() {
                 <Progress value={prob * 100} />
             </div> */}
         </div>
-        <div className="w-full h-64">
+        {/* <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
                     <PolarGrid />
@@ -72,6 +72,6 @@ export default function Difference() {
                     <Radar name="Data" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} animationDuration={0} />
                 </RadarChart>
             </ResponsiveContainer>
-        </div>
+        </div> */}
     </>;
 }

@@ -87,13 +87,25 @@ export default function ExchangeCard({ id }) {
         }
     }
 
+    const select = <Select onValueChange={(value) => {
+        deployExchange(value);
+    }} value={exchange}>
+        <SelectTrigger className="w-[180px]">
+            {isDeploying && <Loader2 className="animate-spin" />}
+            <SelectValue placeholder="Connect exchange" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectItem value="uniswap">Uniswap V2</SelectItem>
+            <SelectItem value="binance">Binance</SelectItem>
+            <SelectItem value="kraken">Kraken</SelectItem>
+        </SelectContent>
+    </Select>
+
     return <Card className="w-1/2">
         {exchange !== null ? <>
             <CardHeader>
                 <CardTitle>Exchange</CardTitle>
-                <CardDescription>{
-                    nameFor(exchange)
-                }</CardDescription>
+                <CardDescription>{select}</CardDescription>
             </CardHeader>
             <CardContent>
                 {
@@ -103,21 +115,7 @@ export default function ExchangeCard({ id }) {
         </> : <div className="relative">
             <Skeleton className="relative h-96 w-full z-0" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                <Select onValueChange={(value) => {
-                    deployExchange(value);
-                }}>
-                    <SelectTrigger className="w-[180px]">
-                        {isDeploying && <Loader2 className="animate-spin" />}
-                        <SelectValue placeholder="Connect exchange" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="local-cex">FakeCEX</SelectItem>
-                        <SelectItem value="local-uniswap">FakeDEX</SelectItem>
-                        <SelectItem value="uniswap">Uniswap V2</SelectItem>
-                        <SelectItem value="binance">Binance</SelectItem>
-                        <SelectItem value="kraken">Kraken</SelectItem>
-                    </SelectContent>
-                </Select>
+                {select}
             </div>
         </div>}
     </Card>
