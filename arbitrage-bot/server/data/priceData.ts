@@ -1,9 +1,10 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "./adapters";
+import { Token } from "../types/request";
 
 
-class LiquidityCache {
+export class LiquidityCache {
     static shared = new LiquidityCache();
     cache = new Map<string, number>();
 
@@ -20,7 +21,17 @@ class LiquidityCache {
     }
 }
 
-export default async function priceData({ exchange, tokenA, tokenB, wallet }) {
+export default async function priceData({
+    exchange,
+    tokenA,
+    tokenB,
+    wallet,
+}: {
+    exchange: string;
+    tokenA: Token;
+    tokenB: Token;
+    wallet: ethers.Wallet;
+}) {
     const adapter = getAdapter(exchange, wallet);
 
     let balanceA = LiquidityCache.shared.get(exchange, tokenA.name);
@@ -43,7 +54,7 @@ export default async function priceData({ exchange, tokenA, tokenB, wallet }) {
     PriceDataStore.shared.addQuote(exchange, quote);
 
     const ttf = await adapter.estimateTransactionTime(
-        BigNumber.from(1),
+        balanceA,
         tokenA,
         tokenB
     )

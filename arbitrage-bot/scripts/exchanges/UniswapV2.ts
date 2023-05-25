@@ -6,12 +6,15 @@ const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json"
 const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
 
 export class UniswapV2 implements Exchange<Contract> {
+    name = "uniswap";
+    type: "dex" | "cex" = "dex";
+
     delegate: Contract;
     source: Contract;
 
     wallet: Wallet;
 
-    constructor(delegate?: Contract, source?: Contract, wallet?: Wallet = Wallet.createRandom()) {
+    constructor(delegate?: Contract, source?: Contract, wallet: Wallet = Wallet.createRandom()) {
         if (delegate) {
             this.delegate = delegate;
         } else {
@@ -71,7 +74,7 @@ export class UniswapV2 implements Exchange<Contract> {
         const provider = this.wallet.provider;
 
         // Estimate gas required for the transaction
-        const { gas } = await this.estimateTransactionCost(amountIn, tokenA.address, tokenB.address);
+        const { gas } = await this.estimateTransactionCost(amountIn, 0, tokenA, tokenB); // Here the price doesn't matter
 
         // Get the current block number
         const currentBlockNumber = await provider.getBlockNumber();
@@ -88,7 +91,7 @@ export class UniswapV2 implements Exchange<Contract> {
         return estimatedTime;
     }
 
-    async estimateTransactionCost(amountIn: number, tokenA: Token, tokenB: Token): Promise<Cost> {
+    async estimateTransactionCost(amountIn: number, price: number, tokenA: Token, tokenB: Token): Promise<Cost> {
         // Ask the delegate for the gas price using contract.estimateGas method in ethers.js
         // Use swapExactTokensForTokens or correct ETH method in the delegate contract to estimate the gas cost
         try {
@@ -123,7 +126,6 @@ export class UniswapV2 implements Exchange<Contract> {
             // MARK: - convert to dollars
             // Get the current price of ETH
             const provider = this.wallet.provider;
-            const price = await provider.getEtherPrice();
             const { maxPriorityFeePerGas } = await provider.getFeeData();
             // Multiply the gas cost by the price of ETH
             const gas = cost.mul(maxPriorityFeePerGas ?? 100); // 100 is the gas price
@@ -138,7 +140,13 @@ export class UniswapV2 implements Exchange<Contract> {
 
     async swapExactTokensForTokens(amountIn: number, amountOutMin: number, path: Token[], to: string, deadline: number): Promise<void> {
         if (process.env.USE_TESTNET === "TRUE") {
-            return 100;
+            console.log({
+                from: "uniswap",
+                amountIn,
+                amountOutMin,
+                path
+            })
+            return;
         }
         const amount = ethers.utils.parseEther(amountIn.toString());
         const amountOut = ethers.utils.parseEther(amountOutMin.toString());

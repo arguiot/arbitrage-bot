@@ -18,17 +18,32 @@ import useUniswapStore from "../lib/uniswapStore";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import UniswapPrice from "./uniswapPrice";
+import usePriceStore from "../lib/priceDataStore";
 import usePairStore from "../lib/tokenStore";
 import CexPrice from "./cexPrice";
 import { Client } from "../lib/client";
-
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ExchangeCard({ id }) {
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
+    const { getQuote } = usePriceStore();
+
     const { isDeployed, deploy, factory, router } = useUniswapStore();
 
     const [isDeploying, setIsDeploying] = useState(false);
+    const [buy, setBuy] = useState(null);
+
+    const priceData = getQuote(exchange);
 
     async function deployExchange(value) {
         setIsDeploying(true);
@@ -73,15 +88,15 @@ export default function ExchangeCard({ id }) {
     function getExchange(exchange) {
         switch (exchange) {
             case "local-cex":
-                return <CexPrice id={id} exchange={exchange} />;
+                return <CexPrice priceData={priceData} />;
             case "binance":
-                return <CexPrice id={id} exchange={exchange} />;
+                return <CexPrice priceData={priceData} />;
             case "kraken":
-                return <CexPrice id={id} exchange={exchange} />;
+                return <CexPrice priceData={priceData} />;
             case "local-uniswap":
                 return <UniswapPrice factoryAddress={factory} routerAddress={router} tokenA={tokenA} tokenB={tokenB} />;
             case "uniswap":
-                return <CexPrice id={id} exchange={exchange} />;
+                return <CexPrice priceData={priceData} />;
             default:
                 return null;
         }
@@ -111,6 +126,44 @@ export default function ExchangeCard({ id }) {
                 {
                     getExchange(exchange)
                 }
+                <div className="flex justify-between">
+                    {priceData && <>
+                        <Button onClick={() => setBuy({
+                            exchange,
+                            token: tokenA,
+                            amount: 0,
+                        })}>Buy {tokenA.name}</Button>
+                        <Button onClick={() => setBuy({
+                            exchange,
+                            token: tokenB,
+                            amount: 0,
+                        })}>Buy {tokenB.name}</Button>
+                    </>}
+                    <Dialog open={buy !== null} onOpenChange={(open) => {
+                        if (open === false) setBuy(null);
+                    }} >
+                        {buy && <>
+                            <DialogContent>
+
+                                <DialogHeader>
+                                    <DialogTitle>Buy {buy.token.name} on {buy.exchange}</DialogTitle>
+                                    <DialogDescription>
+                                        Current balance: {priceData.balanceA} {priceData.tokenA.name} / {priceData.balanceB} {priceData.tokenB.name}
+                                    </DialogDescription>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="name" className="text-right">
+                                                Amount
+                                            </Label>
+                                            <Input id="name" value={buy.amount} onChange={(e) => setBuy({ ...buy, amount: e.target.value })} className="col-span-3" />
+                                        </div>
+                                    </div>
+                                </DialogHeader>
+                            </DialogContent>
+                        </>
+                        }
+                    </Dialog>
+                </div>
             </CardContent>
         </> : <div className="relative">
             <Skeleton className="relative h-96 w-full z-0" />

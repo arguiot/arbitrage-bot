@@ -19,37 +19,37 @@ export default function Difference() {
 
     const percentage = arbitrage.percentProfit;
 
-    const prob = calculateProfitProbability({
-        ttf: Math.max(priceData1.ttf, priceData2.ttf), // 1 second
-        delta: percentage
-    })
+    // const prob = calculateProfitProbability({
+    //     ttf: Math.max(priceData1.ttf, priceData2.ttf), // 1 second
+    //     delta: percentage
+    // })
 
-    const data = [
-        {
-            subject: 'Difference',
-            A: percentage,
-            fullMark: 1,
-        },
-        {
-            subject: 'Profit Probability',
-            A: prob,
-            fullMark: 1,
-        },
-        {
-            subject: 'Time to finality',
-            A: Math.max(priceData1.ttf, priceData2.ttf),
-            fullMark: 15,
-        },
-    ];
+    // const data = [
+    //     {
+    //         subject: 'Difference',
+    //         A: percentage,
+    //         fullMark: 1,
+    //     },
+    //     {
+    //         subject: 'Profit Probability',
+    //         A: prob,
+    //         fullMark: 1,
+    //     },
+    //     {
+    //         subject: 'Time to finality',
+    //         A: Math.max(priceData1.ttf, priceData2.ttf),
+    //         fullMark: 15,
+    //     },
+    // ];
 
-    // If exchange supports bid/ask add this to the chart
-    if (priceData1.bid) {
-        data.push({
-            subject: 'Bid/Ask',
-            A: priceData1.bid / priceData2.ask,
-            fullMark: 1,
-        });
-    }
+    // // If exchange supports bid/ask add this to the chart
+    // if (priceData1.bid) {
+    //     data.push({
+    //         subject: 'Bid/Ask',
+    //         A: priceData1.bid / priceData2.ask,
+    //         fullMark: 1,
+    //     });
+    // }
 
     return <>
         <div className="mt-4 flex justify-between items-center gap-4">

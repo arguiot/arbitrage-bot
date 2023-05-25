@@ -30,15 +30,16 @@ export function calculateProfitProbability({
     type = "dex",
     delta,
     ttf,
-    commission = 0.02
+    commission = 0.02,
 }: {
-    type?: "dex" | "cex";
+    type: "dex" | "cex";
     delta: number;
     ttf: number;
     commission?: number;
 }): number {
-    if (type === 'dex') {
+    if (type === "dex") {
         const availabilityScore = polynomial2DFunction(ttf, delta);
         return availabilityScore * (1 - commission);
     }
+    return delta > commission ? 1 : 0;
 }

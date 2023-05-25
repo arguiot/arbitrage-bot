@@ -129,7 +129,8 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     // MARK: - Tasks
     subscribeToPriceData(query: Query) {
-        if (query.type == "dex") {
+        if (typeof query === "undefined") return;
+        if (query.type === "dex") {
             this.addOnChainTask("priceData", async () => {
                 return await priceData({ ...query, wallet: this.wallet });
             });

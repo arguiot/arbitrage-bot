@@ -12,12 +12,15 @@ export type Token = {
 }
 
 export interface Exchange<T> {
+    name: string;
+    type: "dex" | "cex";
+
     // Properties
     delegate: T;
     // Methods
     getQuote(amount: number, tokenA: Token, tokenB: Token): Promise<Quote>; // Returns a quote for the given amount of tokenA
     estimateTransactionTime(amountIn: number, tokenA: Token, tokenB: Token): Promise<number>; // Returns the estimated time to execute a transaction
-    estimateTransactionCost(amountIn: number, tokenA: Token, tokenB: Token, direction: "buy" | "sell"): Promise<Cost>; // Returns the estimated cost to execute a transaction in dollars
+    estimateTransactionCost(amountIn: number, price: number, tokenA: Token, tokenB: Token, direction: "buy" | "sell"): Promise<Cost>; // Returns the estimated cost to execute a transaction in dollars
 
     // Swap methods
     swapExactTokensForTokens(amountIn: number, amountOutMin: number, path: Token[], to: string, deadline: number): Promise<void>; // Swaps an exact amount of tokens for another token

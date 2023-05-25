@@ -3,7 +3,8 @@ import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "../data/adapters";
 import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
 import Credentials from "../credentials/Credentials";
-import { Opportunity } from "../types/opportinity";
+import { Opportunity } from "../types/opportunity";
+import { LiquidityCache } from "../data/priceData";
 type DecisionOptions = {
 
 };
@@ -18,20 +19,22 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
         // Then, let's calculate the cost of the transaction
-        const exchange1 = getAdapter(opportunity.exchange1, undefined);
-        const exchange2 = getAdapter(opportunity.exchange2, undefined);
+        const exchange1 = getAdapter(opportunity.exchange1, Credentials.shared.wallet);
+        const exchange2 = getAdapter(opportunity.exchange2, Credentials.shared.wallet);
 
         const cost1 = await exchange1.estimateTransactionCost(
             opportunity.quote1.amount,
-            opportunity.tokenA,
-            opportunity.tokenB,
+            opportunity.quote1.price,
+            opportunity.quote1.tokenB,
+            opportunity.quote1.tokenA,
             "buy"
         );
 
         const cost2 = await exchange2.estimateTransactionCost(
             opportunity.quote2.amount,
-            opportunity.tokenB,
-            opportunity.tokenA,
+            opportunity.quote2.price,
+            opportunity.quote2.tokenA,
+            opportunity.quote2.tokenB,
             "sell"
         );
 
@@ -47,46 +50,59 @@ export default class Decision implements Actor<DecisionOptions> {
         // Let's calculate the probability of the transaction succeeding
         const ttf1 = await exchange1.estimateTransactionTime(
             opportunity.quote1.amount,
-            opportunity.tokenA,
-            opportunity.tokenB
+            opportunity.quote1.tokenB,
+            opportunity.quote1.tokenA
         );
 
         const ttf2 = await exchange2.estimateTransactionTime(
             opportunity.quote2.amount,
-            opportunity.tokenB,
-            opportunity.tokenA
+            opportunity.quote2.tokenA,
+            opportunity.quote2.tokenB
         );
 
-        const probability = calculateProfitProbability({
+        const probability1 = calculateProfitProbability({
+            type: exchange1.type,
             delta: opportunity.profit,
-            ttf: Math.max(ttf1, ttf2),
+            ttf: ttf1,
         });
 
-        if (probability < 0.5) {
-            return {
-                topic: "decision",
-                opportunity: undefined,
-                reason: "Probability of success is too low",
-            }
-        }
+        const probability2 = calculateProfitProbability({
+            type: exchange2.type,
+            delta: opportunity.profit,
+            ttf: ttf2,
+        });
+
+        // if (probability < 0.5) {
+        //     return {
+        //         topic: "decision",
+        //         opportunity: undefined,
+        //         reason: "Probability of success is too low",
+        //         probability,
+        //     }
+        // }
 
         // If we get here, we have a good opportunity
         // Let's perform the transaction
         const tx1 = await exchange1.swapExactTokensForTokens(
-            opportunity.quote1.amount.toNumber(),
+            opportunity.quote1.amount,
             opportunity.quote1.amountOut,
-            [opportunity.tokenA, opportunity.tokenB],
+            [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
             Date.now() + ttf1 * 1000
         );
 
         const tx2 = await exchange2.swapExactTokensForTokens(
-            opportunity.quote2.amount.toNumber(),
+            opportunity.quote2.amount,
             opportunity.quote2.amountOut,
-            [opportunity.tokenB, opportunity.tokenA],
+            [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
             Date.now() + ttf2 * 1000
         );
+
+        LiquidityCache.shared.invalidate(opportunity.exchange1, opportunity.quote1.tokenA.name)
+        LiquidityCache.shared.invalidate(opportunity.exchange1, opportunity.quote1.tokenB.name)
+        LiquidityCache.shared.invalidate(opportunity.exchange2, opportunity.quote2.tokenA.name)
+        LiquidityCache.shared.invalidate(opportunity.exchange2, opportunity.quote2.tokenB.name)
 
         return {
             topic: "decision",

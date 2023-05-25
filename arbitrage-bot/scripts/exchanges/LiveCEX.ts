@@ -5,21 +5,23 @@ import { version, exchanges, Exchange as CCXTExchange, pro } from 'ccxt';
 import Credentials, { ExchangeCredentials } from "../../server/credentials/Credentials";
 type ExchangeKey = keyof typeof exchanges;
 type ProKey = keyof typeof pro;
-type CombinedExchanges = ExchangeKey | ProKey;
 
 export class LiveCEX implements Exchange<CCXTExchange> {
+    name: string;
+    type: "cex" | "dex" = "cex";
     delegate: CCXTExchange;
 
-    constructor(exchange: CombinedExchanges, credentials?: ExchangeCredentials) {
+    constructor(exchange: string, credentials?: ExchangeCredentials) {
+        this.name = exchange;
         const args = (credentials ?? Credentials.shared.exchanges[exchange]) ?? {};
-        if (pro[exchange]) {
-            this.delegate = new pro[exchange]({
+        if (pro[exchange as ProKey]) {
+            this.delegate = new pro[exchange as ProKey]({
                 ...args,
                 enableRateLimit: true,
                 rateLimit: 100,
             }) as unknown as CCXTExchange;
         } else {
-            this.delegate = new exchanges[exchange]({
+            this.delegate = new exchanges[exchange as ExchangeKey]({
                 ...args,
                 enableRateLimit: true,
                 rateLimit: 100,
@@ -52,7 +54,7 @@ export class LiveCEX implements Exchange<CCXTExchange> {
         return Math.random() * 2000 + 1000;
     }
 
-    async estimateTransactionCost(amountIn: number, tokenA: Token, tokenB: Token): Promise<Cost> {
+    async estimateTransactionCost(amountIn: number, price: number, tokenA: Token, tokenB: Token): Promise<Cost> {
         // Random cost in wei, between 0.001-0.01 ETH
         return { costInDollars: Math.random() * 0.009 + 0.001 };
     }
@@ -73,6 +75,6 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     async liquidityFor(token: Token): Promise<number> {
         // Return balance for token
         const balances = await this.delegate.fetchBalance();
-        return balances.free[token.name] ?? 0;
+        return Number(balances[token.name].free ?? 0);
     }
 }

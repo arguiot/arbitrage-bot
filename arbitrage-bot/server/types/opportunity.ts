@@ -8,6 +8,4 @@ export type Opportunity = {
     percentProfit: number;
     quote1: Quote;
     quote2: Quote;
-    tokenA: Token;
-    tokenB: Token;
 };

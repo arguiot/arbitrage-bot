@@ -1,5 +1,4 @@
 import { Wallet, ethers } from 'ethers';
-import { Exchange, ExchangeAPI, ExchangeClass, ExchangeOptions } from "ccxt";
 import dotenv from "dotenv";
 
 export interface ExchangeCredentials {
@@ -8,13 +7,8 @@ export interface ExchangeCredentials {
     // Add more exchange credential fields here if needed
 }
 
-interface CredentialsConfig {
-    [exchangeName: string]: ExchangeCredentials;
-    // Add more exchanges here if needed
-}
-
 class Credentials {
-    public readonly exchanges: Record<string, ExchangeAPI> = {};
+    public readonly exchanges: Record<string, ExchangeCredentials> = {};
     public readonly wallet: Wallet;
 
     private static instance: Credentials;

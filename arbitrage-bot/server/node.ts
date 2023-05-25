@@ -2,18 +2,30 @@ import MainActor from "./actors/main";
 import { messageTypeSchema } from "./types/request";
 import WebSocket from "ws";
 import dotenv from "dotenv";
+import { ServerWebSocket } from "./types/socket";
 
 dotenv.config();
 
-const port = process.env.PORT || 8080;
+const port = parseInt(process.env.PORT || "8080");
 
 let mainActor = new MainActor();
 
 console.log(`Server listening on port ${port}, url: http://localhost:${port}`);
 
+interface CustomWebSocket extends WebSocket {
+    readonly data: any;
+    readonly remoteAddress: string;
+    subscribe: (topic: string) => void;
+    unsubscribe: (topic: string) => void;
+    publish: (topic: string, data: string) => void;
+    topics?: string[];
+    isSubscribed(topic: string): boolean;
+    cork(cb: (ws: ServerWebSocket) => void): void;
+}
+
 const server = new WebSocket.Server({ port });
 
-server.on("connection", (ws: WebSocket) => {
+server.on("connection", (ws: CustomWebSocket) => {
 
     // Implement the websocket polyfill
     ws.subscribe = (topic: string) => {

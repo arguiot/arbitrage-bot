@@ -26,7 +26,7 @@ export class PriceDataStore {
                 const price1 = quote1.ask ?? quote1.price;
                 const price2 = quote2.bid ?? quote2.price;
                 const priceDifference = price1 - price2;
-                const profit = priceDifference * quote1.amount.toNumber();
+                const profit = priceDifference * quote1.amount;
 
                 if (profit > bestProfit) {
                     bestProfit = profit;
@@ -34,11 +34,9 @@ export class PriceDataStore {
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: (profit / (quote1.amount.toNumber() * price1)) * 100,
+                        percentProfit: (profit / (quote1.amount * price1)) * 100,
                         quote1,
                         quote2,
-                        tokenA: quote1.tokenA,
-                        tokenB: quote1.tokenB,
                     };
                 }
             }

@@ -1,10 +1,4 @@
-import usePriceStore from "../lib/priceDataStore";
-import usePairStore from "../lib/tokenStore";
-
-export default function CexPrice({ exchange }) {
-    const { getQuote } = usePriceStore();
-    const priceData = getQuote(exchange);
-
+export default function CexPrice({ priceData }) {
     if (!priceData) {
         return <div>Loading...</div>;
     }

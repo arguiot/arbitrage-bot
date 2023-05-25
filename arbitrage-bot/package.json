@@ -5,7 +5,7 @@
         "node": "hardhat node",
         "dev": "next dev",
         "server": "bun run server/index.ts --watch",
-        "server-node": "ts-node -T server/node.ts node --inspect"
+        "server-node": "ts-node server/node.ts node --inspect"
     },
     "devDependencies": {
         "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -43,6 +43,8 @@
     },
     "dependencies": {
         "@radix-ui/react-alert-dialog": "^1.0.3",
+        "@radix-ui/react-dialog": "^1.0.3",
+        "@radix-ui/react-label": "^2.0.1",
         "@radix-ui/react-progress": "^1.0.2",
         "@radix-ui/react-select": "^1.2.1",
         "@radix-ui/react-separator": "^1.0.2",
