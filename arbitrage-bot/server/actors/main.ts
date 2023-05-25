@@ -15,14 +15,14 @@ type MainActorOptions = {
 export default class MainActor implements Actor<MainActorOptions> {
     ws?: ServerWebSocket = undefined;
 
-    provider = Credentials.shared.wallet.provider;
+    wallet = Credentials.shared.wallet;
 
     broadcastDecisions = false;
 
     constructor() {
         (async () => {
             console.log("Connected to provider: " + process.env.JSON_RPC_URL);
-            console.log("Block number: " + await this.provider.getBlockNumber())
+            console.log("Block number: " + await this.wallet.provider.getBlockNumber())
         })();
     }
 
@@ -33,8 +33,8 @@ export default class MainActor implements Actor<MainActorOptions> {
 
         // On chain peers
         // Clear provider events
-        this.provider.removeAllListeners("block");
-        this.provider.on("block", async (blockNumber) => {
+        this.wallet.provider.removeAllListeners("block");
+        this.wallet.provider.on("block", async (blockNumber) => {
             console.log("New block: " + blockNumber);
             await this.receive();
             this.onChainPeers.forEach(async (peer) => {
@@ -131,11 +131,11 @@ export default class MainActor implements Actor<MainActorOptions> {
     subscribeToPriceData(query: Query) {
         if (query.type == "dex") {
             this.addOnChainTask("priceData", async () => {
-                return await priceData({ ...query, provider: this.provider });
+                return await priceData({ ...query, wallet: this.wallet });
             });
         } else {
             this.addOffChainTask("priceData", async () => {
-                return await priceData({ ...query, provider: this.provider });
+                return await priceData({ ...query, wallet: this.wallet });
             });
         }
     }

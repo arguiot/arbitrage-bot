@@ -22,7 +22,6 @@ class Credentials {
     private constructor() {
         dotenv.config();
         // Initialize exchanges credentials
-        const config: CredentialsConfig = {};
         for (const envName in process.env) {
             if (
                 envName.startsWith("EXCHANGE_") &&
@@ -32,17 +31,9 @@ class Credentials {
                     .slice("EXCHANGE_".length, -"_API_KEY".length)
                     .toLowerCase();
                 const apiKey = process.env[envName]!;
-                const secret = process.env[`EXCHANGE_${exchangeName}_API_SECRET`]!;
-                config[exchangeName] = { apiKey, secret };
+                const secret = process.env[`EXCHANGE_${exchangeName.toUpperCase()}_API_SECRET`]!;
+                this.exchanges[exchangeName] = { apiKey, secret };
             }
-        }
-        // Initialize exchanges credentials
-        const exchangeClasses: Record<string, ExchangeClass> = {};
-        for (const exchangeName in config) {
-            const ExchangeClass = exchangeClasses[exchangeName];
-            const exchangeOptions: ExchangeOptions = config[exchangeName];
-            const exchange = new ExchangeClass(exchangeOptions);
-            this.exchanges[exchangeName] = exchange;
         }
 
         // Initialize wallet credentials

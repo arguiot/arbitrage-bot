@@ -9,6 +9,8 @@ export class UniswapV2 implements Exchange<Contract> {
     delegate: Contract;
     source: Contract;
 
+    wallet: Wallet;
+
     constructor(delegate?: Contract, source?: Contract, wallet?: Wallet = Wallet.createRandom()) {
         if (delegate) {
             this.delegate = delegate;
@@ -22,11 +24,12 @@ export class UniswapV2 implements Exchange<Contract> {
             const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
             this.source = new ethers.Contract(factoryAddress, _UniswapV2Factory.abi, wallet);
         }
+        this.wallet = wallet;
     }
 
-    async getQuote(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Quote> {
+    async getQuote(amountIn: number, tokenA: Token, tokenB: Token): Promise<Quote> {
         // First convert ETH to WETH if necessary
-        const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        const wethAddress = process.env.WETH_CONTRACT_ADDRESS ?? "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         if (tokenA.address === ethers.constants.AddressZero) {
             tokenA = {
                 name: "WETH",
@@ -49,9 +52,9 @@ export class UniswapV2 implements Exchange<Contract> {
         // For the price, we need to order the tokens by their symbol. If tokenA is first, then the price is amountIn / quote otherwise it's quote / amountIn
         let price;
         if (tokenA.name.localeCompare(tokenB.name) === 0) {
-            price = amountIn.toNumber() / quote;
+            price = amountIn / quote;
         } else {
-            price = quote / amountIn.toNumber();
+            price = quote / amountIn;
         }
 
         return {
@@ -63,9 +66,9 @@ export class UniswapV2 implements Exchange<Contract> {
         };
     }
 
-    async estimateTransactionTime(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<number> {
+    async estimateTransactionTime(amountIn: number, tokenA: Token, tokenB: Token): Promise<number> {
         // Get the provider
-        const provider = ethers.getDefaultProvider();
+        const provider = this.wallet.provider;
 
         // Estimate gas required for the transaction
         const { gas } = await this.estimateTransactionCost(amountIn, tokenA.address, tokenB.address);
@@ -80,22 +83,22 @@ export class UniswapV2 implements Exchange<Contract> {
 
         // Estimate the time for the transaction to be confirmed
 
-        const estimatedTime = (averageBlockTime * gas.toNumber()) / 100;
+        const estimatedTime = (averageBlockTime * (gas?.toNumber() ?? 1)) / 100;
 
         return estimatedTime;
     }
 
-    async estimateTransactionCost(amountIn: BigNumber, tokenA: Token, tokenB: Token): Promise<Cost> {
+    async estimateTransactionCost(amountIn: number, tokenA: Token, tokenB: Token): Promise<Cost> {
         // Ask the delegate for the gas price using contract.estimateGas method in ethers.js
         // Use swapExactTokensForTokens or correct ETH method in the delegate contract to estimate the gas cost
         try {
             let cost = BigNumber.from(0);
             const deadline = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 20); // 20 minutes from the current Unix time
-            const address = "0x492804D7740150378BE8d4bBF8ce012C5497DeA9"; // My own address, but it doesn't matter for this
-            const oneETH = ethers.utils.parseEther("1");
+            const address = this.wallet.address;
+            const oneETH = ethers.utils.parseEther(amountIn.toString());
 
             // First convert ETH to WETH if necessary
-            const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            const wethAddress = process.env.WETH_CONTRACT_ADDRESS ?? "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
             if (tokenA.address === ethers.constants.AddressZero) {
                 tokenA = {
                     name: "WETH",
@@ -119,7 +122,7 @@ export class UniswapV2 implements Exchange<Contract> {
 
             // MARK: - convert to dollars
             // Get the current price of ETH
-            const provider = ethers.getDefaultProvider();
+            const provider = this.wallet.provider;
             const price = await provider.getEtherPrice();
             const { maxPriorityFeePerGas } = await provider.getFeeData();
             // Multiply the gas cost by the price of ETH
@@ -133,7 +136,27 @@ export class UniswapV2 implements Exchange<Contract> {
         }
     }
 
-    async swapExactTokensForTokens(amountIn: ethers.BigNumber, amountOutMin: ethers.BigNumber, path: string[], to: string, deadline: number): Promise<void> {
-        return await this.delegate.swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline);
+    async swapExactTokensForTokens(amountIn: number, amountOutMin: number, path: Token[], to: string, deadline: number): Promise<void> {
+        if (process.env.USE_TESTNET === "TRUE") {
+            return 100;
+        }
+        const amount = ethers.utils.parseEther(amountIn.toString());
+        const amountOut = ethers.utils.parseEther(amountOutMin.toString());
+        return await this.delegate.swapExactTokensForTokens(amount, amountOut, path.map(token => token.address), to, deadline);
+    }
+
+    async liquidityFor(token: Token): Promise<number> {
+        if (process.env.USE_TESTNET === "TRUE") {
+            return 100;
+        }
+        // Returns the amount of token the wallet has.
+        if (token.address === ethers.constants.AddressZero) {
+            const balance = await this.wallet.getBalance();
+            return Number(ethers.utils.formatEther(balance));
+        }
+        const contractAbi = ['function balanceOf(address) view returns (uint256)'];
+        const contract = new ethers.Contract(token.address, contractAbi, this.wallet);
+        const balance = await contract.balanceOf(this.wallet.address);
+        return Number(ethers.utils.formatUnits(balance, token.name == "WETH" ? "mwei" : "ether"));
     }
 }

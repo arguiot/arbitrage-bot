@@ -2,14 +2,15 @@ import { Actor, PartialResult } from "./actor";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "../data/adapters";
 import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
-
+import Credentials from "../credentials/Credentials";
+import { Opportunity } from "../types/opportinity";
 type DecisionOptions = {
 
 };
 export default class Decision implements Actor<DecisionOptions> {
     async receive(fromLoop?: string | undefined): Promise<PartialResult> {
         // First, let's get the opportunities
-        const opportunity = PriceDataStore.shared.getArbitrageOpportunity();
+        const opportunity = PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
         if (!opportunity) {
             return {
                 topic: "decision",
@@ -21,7 +22,7 @@ export default class Decision implements Actor<DecisionOptions> {
         const exchange2 = getAdapter(opportunity.exchange2, undefined);
 
         const cost1 = await exchange1.estimateTransactionCost(
-            opportunity.quote1.amountIn,
+            opportunity.quote1.amount,
             opportunity.tokenA,
             opportunity.tokenB,
             "buy"
@@ -34,18 +35,18 @@ export default class Decision implements Actor<DecisionOptions> {
             "sell"
         );
 
-        // // Verify that both costs is significantly less than the profit. If not, return undefined
-        // if (cost1.costInDollars > opportunity.profit || cost2.costInDollars > opportunity.profit) {
-        //     return {
-        //         topic: "decision",
-        //         opportunity: undefined,
-        //         reason: "Cost is too high",
-        //     };
-        // }
+        // Verify that both costs is significantly less than the profit. If not, return undefined
+        if (cost1.costInDollars > opportunity.profit || cost2.costInDollars > opportunity.profit) {
+            return {
+                topic: "decision",
+                opportunity: undefined,
+                reason: "Cost is too high",
+            };
+        }
 
         // Let's calculate the probability of the transaction succeeding
         const ttf1 = await exchange1.estimateTransactionTime(
-            opportunity.quote1.amountIn,
+            opportunity.quote1.amount,
             opportunity.tokenA,
             opportunity.tokenB
         );
@@ -69,9 +70,29 @@ export default class Decision implements Actor<DecisionOptions> {
             }
         }
 
+        // If we get here, we have a good opportunity
+        // Let's perform the transaction
+        const tx1 = await exchange1.swapExactTokensForTokens(
+            opportunity.quote1.amount.toNumber(),
+            opportunity.quote1.amountOut,
+            [opportunity.tokenA, opportunity.tokenB],
+            Credentials.shared.wallet.address,
+            Date.now() + ttf1 * 1000
+        );
+
+        const tx2 = await exchange2.swapExactTokensForTokens(
+            opportunity.quote2.amount.toNumber(),
+            opportunity.quote2.amountOut,
+            [opportunity.tokenB, opportunity.tokenA],
+            Credentials.shared.wallet.address,
+            Date.now() + ttf2 * 1000
+        );
+
         return {
             topic: "decision",
             opportunity,
+            tx1,
+            tx2,
         };
     }
 

@@ -14,7 +14,9 @@ interface WebSocket {
 
 export const useClientState = create((set) => ({
     connected: false,
+    decisions: false,
     setConnnected: (connected: boolean) => set({ connected }),
+    setDecisions: (decisions: boolean) => set({ decisions }),
 }));
 
 export class Client {
@@ -52,7 +54,11 @@ export class Client {
         switch (message.topic) {
             case "priceData":
                 if (typeof message.quote !== "undefined") {
-                    usePriceStore.getState().addQuote(message.exchange, message.quote);
+                    usePriceStore.getState().addQuote(message.exchange, {
+                        ...message.quote,
+                        balanceA: message.balanceA,
+                        balanceB: message.balanceB,
+                    });
                 }
                 break;
             default:

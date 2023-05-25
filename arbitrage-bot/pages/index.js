@@ -21,7 +21,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Client, useClientState } from '../lib/client';
 
 export default function Index() {
-    const { connected } = useClientState();
+    const { connected, decisions, setDecisions } = useClientState();
     useEffect(() => {
         Client.shared = new Client();
     }, []);
@@ -41,6 +41,16 @@ export default function Index() {
                 setTokenB({
                     name: "USDT",
                     address: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                })
+                break;
+            case "ETH/USDC":
+                setTokenA({
+                    name: "ETH",
+                    address: "0x0000000000000000000000000000000000000000",
+                })
+                setTokenB({
+                    name: "USDC",
+                    address: "0x3c3aA68bc795e72833218229b0e53eFB4143A152"
                 })
                 break;
             case "ETH/BTC":
@@ -88,6 +98,7 @@ export default function Index() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="ETH/USDT">ETH/USDT</SelectItem>
+                        <SelectItem value="ETH/USDC">ETH/USDC</SelectItem>
                         <SelectItem value="ETH/BTC">ETH/BTC</SelectItem>
                         <SelectItem value="AAVE/ETH">AAVE/ETH</SelectItem>
                         <SelectItem value="TKA/TKB">TKA/TKB</SelectItem>
@@ -100,17 +111,25 @@ export default function Index() {
             </div>
             <Difference />
             <Separator className="mt-8" />
-            <Button className="mx-auto mt-12" variant="outline" onClick={() => {
-                pairReset();
-                uniswapReset();
-                Client.shared.reset();
-                toast({
-                    title: "Reset",
-                    description: "Reset all data",
-                })
-            }}>
-                Reset
-            </Button>
+            <div className="flex justify-between mt-12">
+                <Button variant="outline" onClick={() => {
+                    pairReset();
+                    uniswapReset();
+                    Client.shared.reset();
+                    toast({
+                        title: "Reset",
+                        description: "Reset all data",
+                    })
+                }}>
+                    Reset
+                </Button>
+                <Button variant={decisions ? "destructive" : "primary"} onClick={() => {
+                    Client.shared.subscribeToDecision();
+                    setDecisions(!decisions);
+                }}>
+                    {decisions ? "Stop" : "Start"} Arbitrage
+                </Button>
+            </div>
         </div>
         <TradeBook />
     </>;

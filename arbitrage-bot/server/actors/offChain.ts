@@ -23,6 +23,7 @@ export default class OffChain implements Actor<OffChainOptions> {
             result.topic = this.topic;
             return result;
         } catch (e) {
+            console.error(e);
             return { topic: this.topic, error: e };
         }
     }
