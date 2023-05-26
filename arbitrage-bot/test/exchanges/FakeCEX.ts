@@ -3,11 +3,10 @@ import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { FakeCEX } from "../../scripts/exchanges/FakeCEX";
 
-describe("FakeCEX", function() {
-
+describe("FakeCEX", function () {
     this.beforeAll(async () => {
         await ethers.provider.send("hardhat_reset", []);
-    })
+    });
 
     it("Should get quote", async () => {
         const fakeCex = new FakeCEX();

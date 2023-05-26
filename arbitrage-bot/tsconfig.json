@@ -7,11 +7,7 @@
         "outDir": "dist",
         "declaration": true,
         "resolveJsonModule": true,
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "esnext"
-        ],
+        "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
@@ -26,23 +22,12 @@
             }
         ],
         "paths": {
-            "@/*": [
-                "./*"
-            ]
+            "@/*": ["./*"]
         }
     },
-    "include": [
-        "./scripts",
-        "./test",
-        "./typechain",
-        ".next/types/**/*.ts"
-    ],
-    "files": [
-        "./hardhat.config.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ],
+    "include": ["./scripts", "./test", "./typechain", ".next/types/**/*.ts"],
+    "files": ["./hardhat.config.ts"],
+    "exclude": ["node_modules"],
     "ts-node": {
         // It is faster to skip typechecking.
         // Remove if you want ts-node to do typechecking.

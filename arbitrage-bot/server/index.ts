@@ -4,7 +4,7 @@ import { messageTypeSchema } from "./types/request";
 
 const mainActor = new MainActor();
 
-console.log("Server listening on port 8080, url: http://localhost:8080")
+console.log("Server listening on port 8080, url: http://localhost:8080");
 
 export default {
     port: 8080,
@@ -21,7 +21,6 @@ export default {
             message: string | ArrayBuffer | Uint8Array
         ) {
             try {
-
                 const data = JSON.parse(message as string);
                 const validatedData = messageTypeSchema.parse(data);
 
@@ -34,12 +33,22 @@ export default {
                 if (validatedData.topic === "priceData") {
                     const query = validatedData.query;
                     mainActor.subscribeToPriceData(query);
-                    ws.send(JSON.stringify({ status: "subscribed", topic: "priceData" }));
+                    ws.send(
+                        JSON.stringify({
+                            status: "subscribed",
+                            topic: "priceData",
+                        })
+                    );
                 } else if (validatedData.topic === "decision") {
-                    ws.send(JSON.stringify({ status: "subscribed", topic: "decision" }));
+                    ws.send(
+                        JSON.stringify({
+                            status: "subscribed",
+                            topic: "decision",
+                        })
+                    );
                 }
             } catch (e) {
-                ws.send(JSON.stringify({ error: e }))
+                ws.send(JSON.stringify({ error: e }));
             }
         }, // a message is received
         open(ws: ServerWebSocket) {
@@ -48,10 +57,9 @@ export default {
         close(ws, code, message) {
             ws.unsubscribe("priceData");
         }, // a socket is closed
-        drain(ws) { }, // the socket is ready to receive more data
+        drain(ws) {}, // the socket is ready to receive more data
     },
-}
-
+};
 
 interface Server {
     pendingWebsockets: number;
@@ -65,6 +73,6 @@ interface Server {
         options?: {
             headers?: HeadersInit;
             data?: any;
-        },
+        }
     ): boolean;
 }

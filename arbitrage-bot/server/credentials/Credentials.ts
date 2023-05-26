@@ -1,4 +1,4 @@
-import { Wallet, ethers } from 'ethers';
+import { Wallet, ethers } from "ethers";
 import dotenv from "dotenv";
 
 export interface ExchangeCredentials {
@@ -25,7 +25,10 @@ class Credentials {
                     .slice("EXCHANGE_".length, -"_API_KEY".length)
                     .toLowerCase();
                 const apiKey = process.env[envName]!;
-                const secret = process.env[`EXCHANGE_${exchangeName.toUpperCase()}_API_SECRET`]!;
+                const secret =
+                    process.env[
+                        `EXCHANGE_${exchangeName.toUpperCase()}_API_SECRET`
+                    ]!;
                 this.exchanges[exchangeName] = { apiKey, secret };
             }
         }
@@ -36,7 +39,7 @@ class Credentials {
             url: process.env.JSON_RPC_URL!,
         });
         this.wallet = new Wallet(privateKey, provider);
-        console.log("Using wallet address: " + this.wallet.address)
+        console.log("Using wallet address: " + this.wallet.address);
     }
 
     public static shared = new Credentials();

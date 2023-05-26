@@ -19,7 +19,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     }
 });
 
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -29,7 +28,9 @@ const config: HardhatUserConfig = {
         ropsten: {
             url: process.env.ROPSTEN_URL || "",
             accounts:
-                process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+                process.env.PRIVATE_KEY !== undefined
+                    ? [process.env.PRIVATE_KEY]
+                    : [],
         },
     },
     gasReporter: {

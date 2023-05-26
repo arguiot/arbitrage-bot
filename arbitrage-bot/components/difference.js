@@ -2,7 +2,14 @@ import usePriceStore from "../lib/priceDataStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { calculateProfitProbability } from "@/scripts/arbiter/profitChances";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import {
+    Radar,
+    RadarChart,
+    PolarGrid,
+    PolarAngleAxis,
+    PolarRadiusAxis,
+    ResponsiveContainer,
+} from "recharts";
 import { useEffect } from "react";
 import useTradeBookStore from "../lib/tradesStore";
 import { useToast } from "./ui/use-toast";
@@ -51,18 +58,21 @@ export default function Difference() {
     //     });
     // }
 
-    return <>
-        <div className="mt-4 flex justify-between items-center gap-4">
-            <div className="w-full">
-                <div className="text-xl font-bold">Difference: {percentage.toFixed(3)}%</div>
-                <Progress value={percentage} />
-            </div>
-            {/* <div className="w-full">
+    return (
+        <>
+            <div className="mt-4 flex justify-between items-center gap-4">
+                <div className="w-full">
+                    <div className="text-xl font-bold">
+                        Difference: {percentage.toFixed(3)}%
+                    </div>
+                    <Progress value={percentage} />
+                </div>
+                {/* <div className="w-full">
                 <div className="text-xl font-bold">Probability of Profit: {(prob * 100).toFixed(2)}%</div>
                 <Progress value={prob * 100} />
             </div> */}
-        </div>
-        {/* <div className="w-full h-64">
+            </div>
+            {/* <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
                     <PolarGrid />
@@ -73,5 +83,6 @@ export default function Difference() {
                 </RadarChart>
             </ResponsiveContainer>
         </div> */}
-    </>;
+        </>
+    );
 }

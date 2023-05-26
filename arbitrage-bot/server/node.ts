@@ -3,6 +3,8 @@ import { messageTypeSchema } from "./types/request";
 import WebSocket from "ws";
 import dotenv from "dotenv";
 import { ServerWebSocket } from "./types/socket";
+import { getAdapter } from "./data/adapters";
+import { LiquidityCache } from "./data/priceData";
 
 dotenv.config();
 
@@ -26,7 +28,6 @@ interface CustomWebSocket extends WebSocket {
 const server = new WebSocket.Server({ port });
 
 server.on("connection", (ws: CustomWebSocket) => {
-
     // Implement the websocket polyfill
     ws.subscribe = (topic: string) => {
         ws.topics = ws.topics || [];
@@ -45,7 +46,6 @@ server.on("connection", (ws: CustomWebSocket) => {
         }
     };
 
-
     ws.on("message", (message: WebSocket.Data) => {
         try {
             const data = JSON.parse(message.toString());
@@ -60,6 +60,51 @@ server.on("connection", (ws: CustomWebSocket) => {
                 mainActor = new MainActor();
                 mainActor.start({ ws });
                 ws.send(JSON.stringify({ status: "success", topic: "reset" }));
+            } else if (validatedData.topic === "buy") {
+                if (typeof validatedData.query === "undefined")
+                    throw new Error("No query specified");
+                const exchange = validatedData.query.exchange;
+                const amountIn = validatedData.query.amountIn;
+                const amountOut = validatedData.query.amountOut;
+                if (typeof exchange === "undefined")
+                    throw new Error("No exchange specified");
+                if (typeof amountIn === "undefined")
+                    throw new Error("No amountIn specified");
+                if (typeof amountOut === "undefined")
+                    throw new Error("No amountOut specified");
+
+                console.log(
+                    `Buying ${amountOut} ${validatedData.query.tokenB.name} for ${amountIn} ${validatedData.query.tokenA.name} on ${exchange}`
+                );
+
+                const adapter = getAdapter(exchange, mainActor.wallet);
+                adapter.swapExactTokensForTokens(
+                    amountIn,
+                    amountOut,
+                    [validatedData.query.tokenA, validatedData.query.tokenB],
+                    mainActor.wallet.address,
+                    Date.now() + 1000 * 60 // 60 seconds allowance
+                );
+
+                LiquidityCache.shared.invalidate(
+                    exchange,
+                    validatedData.query.tokenA.name
+                );
+                LiquidityCache.shared.invalidate(
+                    exchange,
+                    validatedData.query.tokenB.name
+                );
+
+                console.log("Done buying.");
+
+                ws.send(
+                    JSON.stringify({
+                        status: "success",
+                        topic: "buy",
+                        amountOut,
+                        amountIn,
+                    })
+                );
             }
 
             if (validatedData.topic === "priceData") {
@@ -70,7 +115,9 @@ server.on("connection", (ws: CustomWebSocket) => {
                 );
             } else if (validatedData.topic === "decision") {
                 mainActor.broadcastDecisions = true;
-                ws.send(JSON.stringify({ status: "subscribed", topic: "decision" }));
+                ws.send(
+                    JSON.stringify({ status: "subscribed", topic: "decision" })
+                );
             }
         } catch (e) {
             console.error(e);

@@ -1,11 +1,11 @@
-import useSWR, { mutate } from 'swr'
-import { Button } from "@/components/ui/button"
-import usePriceStore from '../lib/priceDataStore';
+import useSWR, { mutate } from "swr";
+import { Button } from "@/components/ui/button";
+import usePriceStore from "../lib/priceDataStore";
 export default function UniswapPrice({
     factoryAddress,
     routerAddress,
     tokenA,
-    tokenB
+    tokenB,
 }) {
     const { priceData1, priceData2 } = usePriceStore();
 
@@ -22,7 +22,7 @@ export default function UniswapPrice({
                 liquidityA: 100,
                 liquidityB: 100,
                 tokenA,
-                tokenB
+                tokenB,
             }),
         });
         const result = await response.json();
@@ -31,17 +31,19 @@ export default function UniswapPrice({
             // Revalidate the price data
             mutate("/api/priceData");
         }
-    }
+    };
 
     return (
         <div>
-            {priceData.quote.price == 0 ? <>
-                <Button onClick={addLiquidity}>
-                    Add sample liquidity
-                </Button>
-            </> : <>
-                <div>Price: {priceData.quote.price}</div>
-            </>}
+            {priceData.quote.price == 0 ? (
+                <>
+                    <Button onClick={addLiquidity}>Add sample liquidity</Button>
+                </>
+            ) : (
+                <>
+                    <div>Price: {priceData.quote.price}</div>
+                </>
+            )}
         </div>
     );
 }

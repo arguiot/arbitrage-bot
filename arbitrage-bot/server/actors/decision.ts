@@ -5,13 +5,12 @@ import { calculateProfitProbability } from "../../scripts/arbiter/profitChances"
 import Credentials from "../credentials/Credentials";
 import { Opportunity } from "../types/opportunity";
 import { LiquidityCache } from "../data/priceData";
-type DecisionOptions = {
-
-};
+type DecisionOptions = {};
 export default class Decision implements Actor<DecisionOptions> {
     async receive(fromLoop?: string | undefined): Promise<PartialResult> {
         // First, let's get the opportunities
-        const opportunity = PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
+        const opportunity =
+            PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
         if (!opportunity) {
             return {
                 topic: "decision",
@@ -19,8 +18,14 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
         // Then, let's calculate the cost of the transaction
-        const exchange1 = getAdapter(opportunity.exchange1, Credentials.shared.wallet);
-        const exchange2 = getAdapter(opportunity.exchange2, Credentials.shared.wallet);
+        const exchange1 = getAdapter(
+            opportunity.exchange1,
+            Credentials.shared.wallet
+        );
+        const exchange2 = getAdapter(
+            opportunity.exchange2,
+            Credentials.shared.wallet
+        );
 
         const cost1 = await exchange1.estimateTransactionCost(
             opportunity.quote1.amount,
@@ -39,7 +44,10 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         // Verify that both costs is significantly less than the profit. If not, return undefined
-        if (cost1.costInDollars > opportunity.profit || cost2.costInDollars > opportunity.profit) {
+        if (
+            cost1.costInDollars > opportunity.profit ||
+            cost2.costInDollars > opportunity.profit
+        ) {
             return {
                 topic: "decision",
                 opportunity: undefined,
@@ -99,10 +107,22 @@ export default class Decision implements Actor<DecisionOptions> {
             Date.now() + ttf2 * 1000
         );
 
-        LiquidityCache.shared.invalidate(opportunity.exchange1, opportunity.quote1.tokenA.name)
-        LiquidityCache.shared.invalidate(opportunity.exchange1, opportunity.quote1.tokenB.name)
-        LiquidityCache.shared.invalidate(opportunity.exchange2, opportunity.quote2.tokenA.name)
-        LiquidityCache.shared.invalidate(opportunity.exchange2, opportunity.quote2.tokenB.name)
+        LiquidityCache.shared.invalidate(
+            opportunity.exchange1,
+            opportunity.quote1.tokenA.name
+        );
+        LiquidityCache.shared.invalidate(
+            opportunity.exchange1,
+            opportunity.quote1.tokenB.name
+        );
+        LiquidityCache.shared.invalidate(
+            opportunity.exchange2,
+            opportunity.quote2.tokenA.name
+        );
+        LiquidityCache.shared.invalidate(
+            opportunity.exchange2,
+            opportunity.quote2.tokenB.name
+        );
 
         return {
             topic: "decision",

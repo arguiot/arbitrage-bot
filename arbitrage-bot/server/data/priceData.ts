@@ -3,7 +3,6 @@ import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "./adapters";
 import { Token } from "../types/request";
 
-
 export class LiquidityCache {
     static shared = new LiquidityCache();
     cache = new Map<string, number>();
@@ -45,19 +44,11 @@ export default async function priceData({
         LiquidityCache.shared.set(exchange, tokenB.name, balanceB);
     }
 
-    const quote = await adapter.getQuote(
-        balanceA,
-        tokenA,
-        tokenB
-    );
+    const quote = await adapter.getQuote(balanceA, tokenA, tokenB);
 
     PriceDataStore.shared.addQuote(exchange, quote);
 
-    const ttf = await adapter.estimateTransactionTime(
-        balanceA,
-        tokenA,
-        tokenB
-    )
+    const ttf = await adapter.estimateTransactionTime(balanceA, tokenA, tokenB);
 
     return { quote, exchange, ttf, tokenA, tokenB, balanceA, balanceB };
 }

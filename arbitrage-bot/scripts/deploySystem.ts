@@ -25,8 +25,18 @@ async function deployV2({
     // Get contracts
     const tokenA = await ethers.getContractFactory("TokenA");
     const tokenB = await ethers.getContractFactory("TokenB");
-    const tokenAContract = await tokenA.deploy("TokenA", "TKA", 18, totalLiquidityA);
-    const tokenBContract = await tokenB.deploy("TokenB", "TKB", 18, totalLiquidityB);
+    const tokenAContract = await tokenA.deploy(
+        "TokenA",
+        "TKA",
+        18,
+        totalLiquidityA
+    );
+    const tokenBContract = await tokenB.deploy(
+        "TokenB",
+        "TKB",
+        18,
+        totalLiquidityB
+    );
     await tokenAContract.deployed();
     await tokenBContract.deployed();
 
@@ -36,19 +46,24 @@ async function deployV2({
     await tokenAContract.approve(router.address, ethers.constants.MaxUint256);
     await tokenBContract.approve(router.address, ethers.constants.MaxUint256);
 
-    await router.connect(deployer).addLiquidity(
-        tokenAContract.address,
-        tokenBContract.address,
-        liquidityA,
-        liquidityB,
-        0,
-        0,
-        deployer.address,
-        ethers.constants.MaxUint256
-    );
+    await router
+        .connect(deployer)
+        .addLiquidity(
+            tokenAContract.address,
+            tokenBContract.address,
+            liquidityA,
+            liquidityB,
+            0,
+            0,
+            deployer.address,
+            ethers.constants.MaxUint256
+        );
 
     // Check liquidity
-    const pairAddress = await factory.getPair(tokenAContract.address, tokenBContract.address);
+    const pairAddress = await factory.getPair(
+        tokenAContract.address,
+        tokenBContract.address
+    );
     const pair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
     const reserves = await pair.getReserves();
     expect(reserves[0].toString()).to.equal(`${liquidityA}`);

@@ -76,30 +76,63 @@ export class Client {
 
     // MARK: - Exchange messages with server
 
-    subscribeToPriceData(exchange: string, type: "dex" | "cex", tokenA: Token, tokenB: Token) {
-        this.send(JSON.stringify({
-            type: "subscribe",
-            topic: "priceData",
-            query: {
-                exchange,
-                type,
-                tokenA,
-                tokenB
-            },
-        }));
+    subscribeToPriceData(
+        exchange: string,
+        type: "dex" | "cex",
+        tokenA: Token,
+        tokenB: Token
+    ) {
+        this.send(
+            JSON.stringify({
+                type: "subscribe",
+                topic: "priceData",
+                query: {
+                    exchange,
+                    type,
+                    tokenA,
+                    tokenB,
+                },
+            })
+        );
     }
 
     subscribeToDecision() {
-        this.send(JSON.stringify({
-            type: "subscribe",
-            topic: "decision",
-        }));
+        this.send(
+            JSON.stringify({
+                type: "subscribe",
+                topic: "decision",
+            })
+        );
+    }
+
+    buy(
+        exchange: string,
+        tokenA: Token,
+        tokenB: Token,
+        amountOfA: number,
+        amountOfB: number
+    ) {
+        this.send(
+            JSON.stringify({
+                type: "buy",
+                topic: "buy",
+                query: {
+                    exchange,
+                    tokenA,
+                    tokenB,
+                    amountIn: amountOfA,
+                    amountOut: amountOfB,
+                },
+            })
+        );
     }
 
     reset() {
-        this.send(JSON.stringify({
-            type: "reset",
-            topic: "reset",
-        }));
+        this.send(
+            JSON.stringify({
+                type: "reset",
+                topic: "reset",
+            })
+        );
     }
 }

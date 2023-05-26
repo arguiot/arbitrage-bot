@@ -34,7 +34,8 @@ export class PriceDataStore {
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: (profit / (quote1.amount * price1)) * 100,
+                        percentProfit:
+                            (profit / (quote1.amount * price1)) * 100,
                         quote1,
                         quote2,
                     };

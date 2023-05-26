@@ -5,8 +5,13 @@ export interface ServerWebSocket {
     send(data: any, cb?: (err?: Error) => void): void;
     send(
         data: any,
-        options: { mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined },
-        cb?: (err?: Error) => void,
+        options: {
+            mask?: boolean | undefined;
+            binary?: boolean | undefined;
+            compress?: boolean | undefined;
+            fin?: boolean | undefined;
+        },
+        cb?: (err?: Error) => void
     ): void;
     close(code?: number, reason?: string): void;
     subscribe(topic: string): void;

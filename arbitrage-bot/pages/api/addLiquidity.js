@@ -6,15 +6,22 @@ import _TokenB from "../../artifacts/contracts/TokenB.sol/TokenB.json";
 export default async function handler(req, res) {
     // Get router address & factory address from the request body
     const { routerAddress, liquidityA, liquidityB, tokenA, tokenB } = req.body;
-    
+
     // Connect to the JSON-RPC server
-    const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-    const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    const provider = new ethers.providers.JsonRpcProvider(
+        "http://127.0.0.1:8545/"
+    );
+    const privateKey =
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
     const walletWithPK = new ethers.Wallet(privateKey);
     const deployer = walletWithPK.connect(provider);
 
-    const router = new ethers.Contract(routerAddress, _UniswapV2Router02.abi, deployer);
-    
+    const router = new ethers.Contract(
+        routerAddress,
+        _UniswapV2Router02.abi,
+        deployer
+    );
+
     const tokenAContract = new ethers.Contract(tokenA, _TokenA.abi, deployer);
     const tokenBContract = new ethers.Contract(tokenB, _TokenB.abi, deployer);
 
@@ -36,17 +43,19 @@ export default async function handler(req, res) {
             liquidityB
     );
 
-    const [amountA, amountB, liquidity] = await router.connect(deployer).addLiquidity(
-        tokenA,
-        tokenB,
-        liquidityA,
-        liquidityB,
-        0,
-        0,
-        deployer.address,
-        ethers.constants.MaxUint256,
-        { gasLimit: 5000000 } // set the gas limit to 500,000
-    );
-    
+    const [amountA, amountB, liquidity] = await router
+        .connect(deployer)
+        .addLiquidity(
+            tokenA,
+            tokenB,
+            liquidityA,
+            liquidityB,
+            0,
+            0,
+            deployer.address,
+            ethers.constants.MaxUint256,
+            { gasLimit: 5000000 } // set the gas limit to 500,000
+        );
+
     res.status(200).json({ success: true, amountA, amountB, liquidity });
 }

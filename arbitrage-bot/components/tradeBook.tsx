@@ -51,9 +51,10 @@ export function DataTable<TData extends Record<string, any>>({
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext()
+                                              )}
                                     </TableHead>
                                 );
                             })}
@@ -69,14 +70,20 @@ export function DataTable<TData extends Record<string, any>>({
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
                                     </TableCell>
                                 ))}
                             </TableRow>
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                            <TableCell
+                                colSpan={columns.length}
+                                className="h-24 text-center"
+                            >
                                 No results.
                             </TableCell>
                         </TableRow>
@@ -115,13 +122,15 @@ export const columns: ColumnDef<Trade>[] = [
     {
         accessorKey: "profit",
         header: "Profit",
-    }
+    },
 ];
 
 export default function TradeBook() {
     const { trades } = useTradeBookStore();
 
-    return <div className="w-full py-10 px-8">
-        <DataTable columns={columns} data={trades} />
-    </div>
+    return (
+        <div className="w-full py-10 px-8">
+            <DataTable columns={columns} data={trades} />
+        </div>
+    );
 }

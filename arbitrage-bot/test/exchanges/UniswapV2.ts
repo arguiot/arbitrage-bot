@@ -4,11 +4,10 @@ import { ethers } from "hardhat";
 import { deployV2 } from "./deployV2";
 import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
 
-describe("Uniswap V2 Local", function() {
-
+describe("Uniswap V2 Local", function () {
     this.beforeAll(async () => {
         await ethers.provider.send("hardhat_reset", []);
-    })
+    });
 
     it("Should get quote", async () => {
         const { uniswapV2, tokenA, tokenB } = await deployV2({});
@@ -31,20 +30,21 @@ describe("Uniswap V2 Local", function() {
     });
 });
 
-describe("Uniswap V2 Live", function() {
-
+describe("Uniswap V2 Live", function () {
     this.beforeAll(async () => {
         await ethers.provider.send("hardhat_reset", []);
-    })
+    });
 
     it("Should get quote", async () => {
         // Find provider to connect to mainnet (gateway: eth.pr1mer.tech)
         const provider = new ethers.providers.JsonRpcProvider({
             url: process.env.JSON_RPC_URL,
             headers: {
-                "CF-Access-Client-Id": "338db795e927f1cf6e37479542a9be3c.access",
-                "CF-Access-Client-Secret": "6932620374a9680656a7286faa846317728c069cbc54d17870a25ec2b488d05c"
-            }
+                "CF-Access-Client-Id":
+                    "338db795e927f1cf6e37479542a9be3c.access",
+                "CF-Access-Client-Secret":
+                    "6932620374a9680656a7286faa846317728c069cbc54d17870a25ec2b488d05c",
+            },
         });
         // Check if provider is connected
         const block = await provider.getBlockNumber();

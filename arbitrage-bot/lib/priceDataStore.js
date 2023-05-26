@@ -29,8 +29,8 @@ const usePriceStore = create((set, get) => ({
                 const price1 = quote1.ask ?? quote1.price;
                 const price2 = quote2.bid ?? quote2.price;
                 const priceDifference = price1 - price2;
-                console.log({ quote1 })
-                const profit = priceDifference * quote1.amount;
+                const amount = Math.min(quote1.amount, quote2.amount);
+                const profit = priceDifference * amount;
 
                 if (profit > bestProfit) {
                     bestProfit = profit;
@@ -38,7 +38,7 @@ const usePriceStore = create((set, get) => ({
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: (profit / quote1.amount * price1) * 100,
+                        percentProfit: (priceDifference / price1) * 100,
                         quote1,
                         quote2,
                         tokenA: quote1.tokenA,

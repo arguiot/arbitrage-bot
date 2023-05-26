@@ -18,11 +18,21 @@ export async function validateOpportunity({
     exchangeB: Exchange<any>;
 }) {
     // Get the fees
-    const fee = await exchangeA.estimateTransactionCost(amountIn, tokenA, tokenB, "sell");
-    const fee2 = await exchangeB.estimateTransactionCost(amountIn, tokenA, tokenB, "buy");
+    const fee = await exchangeA.estimateTransactionCost(
+        amountIn,
+        tokenA,
+        tokenB,
+        "sell"
+    );
+    const fee2 = await exchangeB.estimateTransactionCost(
+        amountIn,
+        tokenA,
+        tokenB,
+        "buy"
+    );
 
     // Check if the fees are less than the profit
-    const profit = (amountIn * priceA) - (amountIn * priceB);
+    const profit = amountIn * priceA - amountIn * priceB;
     const profitAfterFees = profit - fee - fee2;
     if (profitAfterFees <= 0) {
         return false;

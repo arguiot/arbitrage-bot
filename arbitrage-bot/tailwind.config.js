@@ -6,11 +6,9 @@ module.exports = {
     content: [
         "./pages/**/*.{js,ts,jsx,tsx}",
         "./components/**/*.{js,ts,jsx,tsx}",
-        './app/**/*.{ts,tsx}',
+        "./app/**/*.{ts,tsx}",
     ],
-    safelist: [
-        "prose",
-    ],
+    safelist: ["prose"],
     theme: {
         container: {
             center: true,
@@ -80,6 +78,6 @@ module.exports = {
         require("tailwindcss-animate"),
         require("@tailwindcss/forms"),
         require("@tailwindcss/typography"),
-        require("@tailwindcss/line-clamp")
+        require("@tailwindcss/line-clamp"),
     ],
-}
+};

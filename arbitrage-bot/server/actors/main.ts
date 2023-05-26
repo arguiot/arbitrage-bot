@@ -22,10 +22,11 @@ export default class MainActor implements Actor<MainActorOptions> {
     constructor() {
         (async () => {
             console.log("Connected to provider: " + process.env.JSON_RPC_URL);
-            console.log("Block number: " + await this.wallet.provider.getBlockNumber())
+            console.log(
+                "Block number: " + (await this.wallet.provider.getBlockNumber())
+            );
         })();
     }
-
 
     // MARK: - Actor
     start(options: MainActorOptions): void {
