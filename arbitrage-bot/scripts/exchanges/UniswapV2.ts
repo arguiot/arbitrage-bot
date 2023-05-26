@@ -15,24 +15,26 @@ export class UniswapV2 implements Exchange<Contract> {
     wallet: Wallet;
 
     constructor(
-        delegate?: Contract,
-        source?: Contract,
+        delegate?: Contract | string,
+        source?: Contract | string,
         wallet: Wallet = Wallet.createRandom()
     ) {
-        if (delegate) {
+        if (delegate instanceof Contract) {
             this.delegate = delegate;
         } else {
-            const routerAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+            const routerAddress =
+                delegate ?? "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
             this.delegate = new ethers.Contract(
                 routerAddress,
                 _UniswapV2Router02.abi,
                 wallet
             );
         }
-        if (source) {
+        if (source instanceof Contract) {
             this.source = source;
         } else {
-            const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
+            const factoryAddress =
+                source ?? "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
             this.source = new ethers.Contract(
                 factoryAddress,
                 _UniswapV2Factory.abi,
@@ -89,6 +91,8 @@ export class UniswapV2 implements Exchange<Contract> {
             price,
             tokenA,
             tokenB,
+            routerAddress: this.delegate.address,
+            factoryAddress: this.source.address,
         };
     }
 

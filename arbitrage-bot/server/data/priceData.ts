@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "./adapters";
 import { Token } from "../types/request";
@@ -25,13 +25,17 @@ export default async function priceData({
     tokenA,
     tokenB,
     wallet,
+    routerAddress,
+    factoryAddress,
 }: {
     exchange: string;
     tokenA: Token;
     tokenB: Token;
     wallet: ethers.Wallet;
+    routerAddress?: string;
+    factoryAddress?: string;
 }) {
-    const adapter = getAdapter(exchange, wallet);
+    const adapter = getAdapter(exchange, wallet, routerAddress, factoryAddress);
 
     let balanceA = LiquidityCache.shared.get(exchange, tokenA.name);
     if (typeof balanceA === "undefined") {

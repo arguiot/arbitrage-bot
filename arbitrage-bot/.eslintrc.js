@@ -20,6 +20,10 @@ module.exports = {
             "error",
             { ignores: ["modules"] },
         ],
+        "node/no-unpublished-import": "off",
+        "no-unused-vars": "warn",
+        "no-unused-expressions": "warn",
+        eqeqeq: "warn",
     },
     settings: {
         node: {

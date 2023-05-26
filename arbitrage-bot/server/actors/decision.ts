@@ -20,11 +20,15 @@ export default class Decision implements Actor<DecisionOptions> {
         // Then, let's calculate the cost of the transaction
         const exchange1 = getAdapter(
             opportunity.exchange1,
-            Credentials.shared.wallet
+            Credentials.shared.wallet,
+            opportunity.quote1.routerAddress,
+            opportunity.quote1.factoryAddress
         );
         const exchange2 = getAdapter(
             opportunity.exchange2,
-            Credentials.shared.wallet
+            Credentials.shared.wallet,
+            opportunity.quote2.routerAddress,
+            opportunity.quote2.factoryAddress
         );
 
         const cost1 = await exchange1.estimateTransactionCost(
@@ -44,10 +48,7 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         // Verify that both costs is significantly less than the profit. If not, return undefined
-        if (
-            cost1.costInDollars > opportunity.profit ||
-            cost2.costInDollars > opportunity.profit
-        ) {
+        if (cost1.costInDollars + cost2.costInDollars > opportunity.profit) {
             return {
                 topic: "decision",
                 opportunity: undefined,

@@ -9,4 +9,6 @@ export type Quote = {
     tokenB: Token;
     ask?: number;
     bid?: number;
+    routerAddress?: string;
+    factoryAddress?: string;
 };

@@ -16,8 +16,28 @@ export const messageTypeSchema = z.object({
             tokenB: tokenSchema,
             amountIn: z.number().optional(),
             amountOut: z.number().optional(),
+            routerAddress: z.string().optional(),
+            factoryAddress: z.string().optional(),
         })
-        .optional(),
+        .optional()
+        .refine(
+            (data) => {
+                if (data?.type === "dex") {
+                    return (
+                        (data.routerAddress === undefined &&
+                            data.factoryAddress === undefined) ||
+                        (data.routerAddress !== undefined &&
+                            data.factoryAddress !== undefined)
+                    );
+                } else {
+                    return true;
+                }
+            },
+            {
+                message:
+                    "When type is 'dex', both routerAddress and factoryAddress should be either present or absent.",
+            }
+        ),
 });
 
 export type Token = z.TypeOf<typeof tokenSchema>;

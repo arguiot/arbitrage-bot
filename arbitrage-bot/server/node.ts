@@ -77,7 +77,12 @@ server.on("connection", (ws: CustomWebSocket) => {
                     `Buying ${amountOut} ${validatedData.query.tokenB.name} for ${amountIn} ${validatedData.query.tokenA.name} on ${exchange}`
                 );
 
-                const adapter = getAdapter(exchange, mainActor.wallet);
+                const adapter = getAdapter(
+                    exchange,
+                    mainActor.wallet,
+                    validatedData.query.routerAddress,
+                    validatedData.query.factoryAddress
+                );
                 adapter.swapExactTokensForTokens(
                     amountIn,
                     amountOut,
