@@ -7,6 +7,7 @@ import { Opportunity } from "../types/opportunity";
 import { LiquidityCache } from "../data/priceData";
 type DecisionOptions = {};
 export default class Decision implements Actor<DecisionOptions> {
+    // MARK: - Event handler
     async receive(fromLoop?: string | undefined): Promise<PartialResult> {
         // First, let's get the opportunities
         const opportunity =

@@ -30,4 +30,5 @@ module.exports = {
             tryExtensions: [".js", ".json", ".node", ".ts"],
         },
     },
+    ignorePatterns: ["*.css"],
 };
