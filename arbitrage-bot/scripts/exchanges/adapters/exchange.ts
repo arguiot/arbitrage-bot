@@ -18,12 +18,12 @@ export interface Exchange<T> {
     // Properties
     delegate: T;
     // Methods
-    getQuote(amount: number, tokenA: Token, tokenB: Token): Promise<Quote>; // Returns a quote for the given amount of tokenA
-    estimateTransactionTime(
-        amountIn: number,
+    getQuote(
+        maxAvailableAmount: number,
         tokenA: Token,
         tokenB: Token
-    ): Promise<number>; // Returns the estimated time to execute a transaction
+    ): Promise<Quote>; // Returns the best quote for the maximum given amount of tokenA
+    estimateTransactionTime(tokenA: Token, tokenB: Token): Promise<number>; // Returns the estimated time to execute a transaction
     estimateTransactionCost(
         amountIn: number,
         price: number,

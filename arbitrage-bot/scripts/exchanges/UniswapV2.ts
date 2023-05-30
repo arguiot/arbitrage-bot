@@ -44,49 +44,132 @@ export class UniswapV2 implements Exchange<Contract> {
         this.wallet = wallet;
     }
 
-    async getQuote(
-        amountIn: number,
-        tokenA: Token,
-        tokenB: Token
-    ): Promise<Quote> {
-        // First convert ETH to WETH if necessary
+    normalizeToken(token: Token): Token {
+        // Convert ETH to WETH if necessary
         const wethAddress =
             process.env.WETH_CONTRACT_ADDRESS ??
             "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-        if (tokenA.address === ethers.constants.AddressZero) {
-            tokenA = {
+        if (token.address === ethers.constants.AddressZero) {
+            return {
                 name: "WETH",
                 address: wethAddress,
             };
         }
-        if (tokenB.address === ethers.constants.AddressZero) {
-            tokenB = {
-                name: "WETH",
-                address: wethAddress,
-            };
+        return token;
+    }
+
+    // MARK: - Smart Contract Methods
+    sortTokens(tokenA: string, tokenB: string): [string, string] {
+        if (tokenA === tokenB) {
+            throw new Error("IDENTICAL_ADDRESSES");
         }
-        // Get quote
-        const _quote = await this.delegate.getAmountsOut(
-            ethers.utils.parseEther(amountIn.toString()),
-            [tokenA.address, tokenB.address]
+        const [token0, token1] =
+            tokenA.toLowerCase() < tokenB.toLowerCase()
+                ? [tokenA, tokenB]
+                : [tokenB, tokenA];
+        if (token0 === ethers.constants.AddressZero) {
+            throw new Error("ZERO_ADDRESS");
+        }
+        return [token0, token1];
+    }
+
+    pairFor(factory: string, tokenA: string, tokenB: string): string {
+        const [token0, token1] =
+            tokenA.toLowerCase() < tokenB.toLowerCase()
+                ? [tokenA, tokenB]
+                : [tokenB, tokenA];
+        const initCodeHash =
+            "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
+        const salt = ethers.utils.solidityKeccak256(
+            ["address", "address"],
+            [token0, token1]
         );
+        const bytecode = `0xff${factory.slice(2)}${salt.slice(
+            2
+        )}${initCodeHash.slice(2)}`;
+        const pair = ethers.utils.getAddress(
+            `0x${ethers.utils.keccak256(bytecode).slice(-40)}`
+        );
+        return pair;
+    }
+
+    async getReserves(
+        factory: string,
+        tokenA: string,
+        tokenB: string
+    ): Promise<[BigNumber, BigNumber]> {
+        const pair = new ethers.Contract(
+            this.pairFor(factory, tokenA, tokenB),
+            IUniswapV2Pair.abi,
+            this.wallet.provider
+        );
+        const [reserve0, reserve1] = await pair.getReserves();
+        const [token0] = this.sortTokens(tokenA, tokenB);
+        return tokenA === token0 ? [reserve0, reserve1] : [reserve1, reserve0];
+    }
+
+    getAmountOut(
+        amountIn: BigNumber,
+        reserveIn: BigNumber,
+        reserveOut: BigNumber
+    ): BigNumber {
+        if (amountIn.lte(0)) {
+            throw new Error("INSUFFICIENT_INPUT_AMOUNT");
+        }
+        if (reserveIn.lte(0) || reserveOut.lte(0)) {
+            throw new Error("INSUFFICIENT_LIQUIDITY");
+        }
+        const amountInWithFee = amountIn.mul(997);
+        const numerator = amountInWithFee.mul(reserveOut);
+        const denominator = reserveIn.mul(1000).add(amountInWithFee);
+        const amountOut = numerator.div(denominator);
+        return amountOut;
+    }
+
+    async getQuote(
+        maxAvailableAmount: number,
+        tokenA: Token,
+        tokenB: Token
+    ): Promise<Quote> {
+        // Normalize the tokens
+        tokenA = this.normalizeToken(tokenA);
+        tokenB = this.normalizeToken(tokenB);
+        // Get reserves
+        const [reserveA, reserveB] = await this.getReserves(
+            this.source.address,
+            tokenA.address,
+            tokenB.address
+        );
+        // Get the optimal amount In (amountIn = sqrt(k / (1 + fee)))
+        const bestAmountIn = sqrt(
+            reserveA
+                .mul(reserveB)
+                .mul(1000000)
+                .div(1000000 + 3000)
+        );
+
+        // Amount in is the minimum between the max available amount (in ethers) and the best amount in (in wei)
+        const amountIn = bestAmountIn.lt(
+            ethers.utils.parseEther(maxAvailableAmount.toString())
+        )
+            ? bestAmountIn
+            : ethers.utils.parseEther(maxAvailableAmount.toString());
+
+        const _quote = this.getAmountOut(amountIn, reserveA, reserveB);
         // Convert back from wei to ether
         const quote = Number(
             ethers.utils.formatUnits(
-                _quote[1],
-                tokenA.name == "WETH" ? "mwei" : "ether"
+                _quote,
+                tokenA.name === "WETH" ? "mwei" : "ether"
             )
         );
-        // For the price, we need to order the tokens by their symbol. If tokenA is first, then the price is amountIn / quote otherwise it's quote / amountIn
-        let price;
-        if (tokenA.name.localeCompare(tokenB.name) === 0) {
-            price = amountIn / quote;
-        } else {
-            price = quote / amountIn;
-        }
+
+        const amountInEther = Number(ethers.utils.formatEther(amountIn));
+
+        const price = quote / amountInEther;
 
         return {
-            amount: amountIn,
+            amount: amountInEther,
             amountOut: quote,
             price,
             tokenA,
@@ -97,20 +180,19 @@ export class UniswapV2 implements Exchange<Contract> {
     }
 
     async estimateTransactionTime(
-        amountIn: number,
         tokenA: Token,
         tokenB: Token
     ): Promise<number> {
         // Get the provider
         const provider = this.wallet.provider;
 
-        // Estimate gas required for the transaction
-        const { gas } = await this.estimateTransactionCost(
-            amountIn,
-            0,
-            tokenA,
-            tokenB
-        ); // Here the price doesn't matter
+        // // Estimate gas required for the transaction
+        // const { gas } = await this.estimateTransactionCost(
+        //     1,
+        //     0,
+        //     tokenA,
+        //     tokenB
+        // ); // Here the price doesn't matter
 
         // Get the current block number
         const currentBlockNumber = await provider.getBlockNumber();
@@ -123,7 +205,7 @@ export class UniswapV2 implements Exchange<Contract> {
 
         // Estimate the time for the transaction to be confirmed
 
-        const estimatedTime = (averageBlockTime * (gas?.toNumber() ?? 1)) / 100;
+        const estimatedTime = averageBlockTime; // To be improved
 
         return estimatedTime;
     }
@@ -256,4 +338,17 @@ export class UniswapV2 implements Exchange<Contract> {
             )
         );
     }
+}
+
+function sqrt(number: BigNumber): BigNumber {
+    const a = number.toBigInt();
+    if (a < 0n)
+        throw new Error("square root of negative numbers is not supported");
+    if (a < 2n) return number;
+    function newtonIteration(n: bigint, x0: bigint): bigint {
+        const x1 = (n / x0 + x0) >> 1n;
+        if (x0 === x1 || x0 === x1 - 1n) return x0;
+        return newtonIteration(n, x1);
+    }
+    return BigNumber.from(newtonIteration(a, 1n));
 }

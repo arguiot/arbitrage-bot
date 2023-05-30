@@ -48,11 +48,14 @@ export default async function priceData({
         LiquidityCache.shared.set(exchange, tokenB.name, balanceB);
     }
 
-    const quote = await adapter.getQuote(balanceA, tokenA, tokenB);
+    const amounts = Array.from(PriceDataStore.shared.quotes.values()).map(quote => quote.amount);
+    const maxAvailable = Math.min(...amounts, balanceA);
+
+    const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB);
 
     PriceDataStore.shared.addQuote(exchange, quote);
 
-    const ttf = await adapter.estimateTransactionTime(balanceA, tokenA, tokenB);
+    const ttf = await adapter.estimateTransactionTime(tokenA, tokenB);
 
     return { quote, exchange, ttf, tokenA, tokenB, balanceA, balanceB };
 }

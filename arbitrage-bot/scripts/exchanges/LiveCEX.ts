@@ -37,7 +37,7 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     }
 
     async getQuote(
-        amountIn: number,
+        maxAvailableAmount: number,
         tokenA: Token,
         tokenB: Token
     ): Promise<Quote> {
@@ -50,8 +50,8 @@ export class LiveCEX implements Exchange<CCXTExchange> {
         );
 
         return {
-            amount: amountIn,
-            amountOut: amountIn * (price.last ?? 0),
+            amount: maxAvailableAmount,
+            amountOut: maxAvailableAmount * (price.last ?? 0),
             price: price.last ?? 0,
             bid: price.bid ?? 0,
             ask: price.ask ?? 0,
@@ -61,7 +61,6 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     }
 
     async estimateTransactionTime(
-        amountIn: number,
         tokenA: Token,
         tokenB: Token
     ): Promise<number> {
