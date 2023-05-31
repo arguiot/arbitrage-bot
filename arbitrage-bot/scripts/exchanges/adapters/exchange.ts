@@ -9,6 +9,7 @@ export type Cost = {
 export type Token = {
     name: string;
     address: string;
+    decimals?: number;
 };
 
 export interface Exchange<T> {

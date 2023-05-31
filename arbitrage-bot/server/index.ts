@@ -136,6 +136,6 @@ export default {
         close(ws, code, message) {
             ws.unsubscribe("priceData");
         }, // a socket is closed
-        drain(ws) { }, // the socket is ready to receive more data
+        drain(ws) {}, // the socket is ready to receive more data
     },
 };

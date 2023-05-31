@@ -141,4 +141,19 @@ export default class MainActor implements Actor<MainActorOptions> {
             });
         }
     }
+
+    unsubscribeFromPriceData(query: Query) {
+        if (typeof query === "undefined") return;
+        if (query.type === "dex") {
+            const peer = this.onChainPeers.find((peer) => peer.topic === "priceData");
+            if (peer) {
+                this.removePeer(peer);
+            }
+        } else {
+            const peer = this.offChainPeers.find((peer) => peer.topic === "priceData");
+            if (peer) {
+                this.removePeer(peer);
+            }
+        }
+    }
 }

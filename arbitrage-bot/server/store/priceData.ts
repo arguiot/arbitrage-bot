@@ -5,6 +5,7 @@ export class PriceDataStore {
     static shared = new PriceDataStore();
 
     quotes: Map<string, Quote> = new Map();
+    betSizes: Map<string, number> = new Map();
 
     addQuote(exchange: string, quote: Quote) {
         this.quotes.set(exchange, quote);
@@ -12,6 +13,24 @@ export class PriceDataStore {
 
     getQuote(exchange: string): Quote | undefined {
         return this.quotes.get(exchange);
+    }
+
+    addBetSize(exchange: string, betSize: number) {
+        this.betSizes.set(exchange, betSize);
+    }
+
+    getBetSize(exchange: string): number | undefined {
+        return this.betSizes.get(exchange);
+    }
+
+    getLowestBetSize(): number {
+        let lowestBetSize = Infinity;
+        for (const betSize of this.betSizes.values()) {
+            if (betSize < lowestBetSize) {
+                lowestBetSize = betSize;
+            }
+        }
+        return lowestBetSize;
     }
 
     getArbitrageOpportunity(): Opportunity | null {
@@ -25,8 +44,8 @@ export class PriceDataStore {
 
                 const price1 = quote1.ask ?? quote1.price;
                 const price2 = quote2.bid ?? quote2.price;
-                const priceDifference = price1 - price2;
-                const profit = priceDifference * quote1.amount;
+                const priceDifference = price2 - price1;
+                const profit = priceDifference * quote2.amount;
 
                 if (profit > bestProfit) {
                     bestProfit = profit;
@@ -34,7 +53,7 @@ export class PriceDataStore {
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: profit / (quote1.amount * price1),
+                        percentProfit: profit / (quote2.amount * price2),
                         quote1,
                         quote2,
                     };

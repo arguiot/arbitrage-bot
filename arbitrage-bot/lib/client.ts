@@ -1,6 +1,7 @@
 "use client";
 
 import { Token } from "../scripts/exchanges/adapters/exchange";
+import { ExchangesList } from "./exchanges";
 import usePriceStore from "./priceDataStore";
 import { create } from "zustand";
 interface WebSocket {
@@ -15,8 +16,18 @@ interface WebSocket {
 export const useClientState = create((set) => ({
     connected: false,
     decisions: false,
+    buy: null,
+    buying: false,
     setConnnected: (connected: boolean) => set({ connected }),
     setDecisions: (decisions: boolean) => set({ decisions }),
+    setBuy: (buy: any | null) => set({ buy }),
+    setBuying: (buying: boolean) => {
+        if (buying === false) {
+            set({ buying, buy: null });
+        } else {
+            set({ buying });
+        }
+    },
 }));
 
 export class Client {
@@ -61,6 +72,10 @@ export class Client {
                     });
                 }
                 break;
+            case "buy":
+                if (message.status === "success") {
+                    useClientState.getState().setBuying(false);
+                }
             default:
                 console.log("Unknown message", message);
         }
@@ -78,19 +93,22 @@ export class Client {
 
     subscribeToPriceData(
         exchange: string,
-        type: "dex" | "cex",
+        environment: "development" | "production",
         tokenA: Token,
         tokenB: Token
     ) {
+        const exchangeMetadata = ExchangesList[environment][exchange];
         this.send(
             JSON.stringify({
                 type: "subscribe",
                 topic: "priceData",
                 query: {
                     exchange,
-                    type,
+                    type: exchangeMetadata.type,
                     tokenA,
                     tokenB,
+                    routerAddress: exchangeMetadata.routerAddress,
+                    factoryAddress: exchangeMetadata.factoryAddress,
                 },
             })
         );
@@ -107,21 +125,27 @@ export class Client {
 
     buy(
         exchange: string,
+        environment: "development" | "production",
         tokenA: Token,
         tokenB: Token,
         amountOfA: number,
         amountOfB: number
     ) {
+        useClientState.getState().setBuying(true);
+        const exchangeMetadata = ExchangesList[environment][exchange];
         this.send(
             JSON.stringify({
                 type: "buy",
                 topic: "buy",
                 query: {
                     exchange,
+                    type: exchangeMetadata.type,
                     tokenA,
                     tokenB,
                     amountIn: amountOfA,
                     amountOut: amountOfB,
+                    routerAddress: exchangeMetadata.routerAddress,
+                    factoryAddress: exchangeMetadata.factoryAddress,
                 },
             })
         );

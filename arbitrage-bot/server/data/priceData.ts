@@ -2,6 +2,8 @@ import { ethers } from "ethers";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "./adapters";
 import { Token } from "../types/request";
+import { betSize } from "../../scripts/arbiter/betSize";
+import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
 
 export class LiquidityCache {
     static shared = new LiquidityCache();
@@ -48,8 +50,38 @@ export default async function priceData({
         LiquidityCache.shared.set(exchange, tokenB.name, balanceB);
     }
 
-    const amounts = Array.from(PriceDataStore.shared.quotes.values()).map(quote => quote.amount);
-    const maxAvailable = Math.min(...amounts, balanceA);
+    const amounts = Array.from(PriceDataStore.shared.quotes.values()).map(
+        (quote) => quote.amount
+    );
+
+    const arbitrage = PriceDataStore.shared.getArbitrageOpportunity();
+    let bet = 0;
+    if (arbitrage) {
+        const profitDelta = arbitrage.percentProfit;
+        const profitProbability = calculateProfitProbability({
+            type: adapter.type,
+            delta: profitDelta,
+            ttf:
+                (arbitrage.exchange1 == exchange
+                    ? arbitrage.quote1.ttf : arbitrage.quote2.ttf) ?? 1,
+        });
+        bet = betSize({
+            profitProbability,
+            profitDelta,
+            maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
+        });
+    } else {
+        bet = betSize({
+            profitProbability: 0.9, // 90% chance of success (arbitrary)
+            profitDelta: 0.01, // 1% profit (arbitrary)
+            maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
+        });
+    }
+
+    const size = balanceA * bet;
+    PriceDataStore.shared.addBetSize(exchange, size);
+
+    const maxAvailable = PriceDataStore.shared.getLowestBetSize();
 
     const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB);
 
@@ -57,5 +89,7 @@ export default async function priceData({
 
     const ttf = await adapter.estimateTransactionTime(tokenA, tokenB);
 
-    return { quote, exchange, ttf, tokenA, tokenB, balanceA, balanceB };
+    quote.ttf = ttf;
+
+    return { quote, exchange, tokenA, tokenB, balanceA, balanceB };
 }

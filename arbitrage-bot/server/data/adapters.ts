@@ -1,3 +1,4 @@
+import { ExchangesList } from "../../lib/exchanges";
 import { Exchange } from "../../scripts/exchanges/adapters/exchange";
 import { LiveCEX } from "../../scripts/exchanges/LiveCEX";
 import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
@@ -9,9 +10,14 @@ export function getAdapter(
     routerAddress?: string,
     factoryAddress?: string
 ): Exchange<any> {
-    switch (exchange) {
+    const environment = process.env.USE_TESTNET ? "development" : "production";
+    const adapter = ExchangesList[environment][exchange].adapter ?? exchange;
+
+    switch (adapter) {
         case "uniswap":
-            return new UniswapV2(routerAddress, factoryAddress, wallet);
+            const uniswap = new UniswapV2(routerAddress, factoryAddress, wallet);
+            uniswap.name = exchange; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.
+            return uniswap;
         case "binance":
         case "kraken":
         default:

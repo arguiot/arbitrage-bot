@@ -45,7 +45,7 @@ export function calculateProfitProbability({
     type = "dex",
     delta,
     ttf,
-    commission = 0.02,
+    commission = 0, // Commission is only used for CEXs
 }: {
     type: "dex" | "cex";
     delta: number;
@@ -53,7 +53,7 @@ export function calculateProfitProbability({
     commission?: number;
 }): number {
     if (type === "dex") {
-        const availabilityScore = polynomial2DFunction(ttf, delta);
+        const availabilityScore = polynomial2DFunction(ttf, delta * 100);
         return availabilityScore * (1 - commission);
     }
     return delta > commission ? 1 : 0;

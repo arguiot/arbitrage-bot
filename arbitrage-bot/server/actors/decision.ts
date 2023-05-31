@@ -46,13 +46,13 @@ export default class Decision implements Actor<DecisionOptions> {
 
         const probability1 = calculateProfitProbability({
             type: exchange1.type,
-            delta: opportunity.profit,
+            delta: opportunity.percentProfit,
             ttf: ttf1,
         });
 
         const probability2 = calculateProfitProbability({
             type: exchange2.type,
-            delta: opportunity.profit,
+            delta: opportunity.percentProfit,
             ttf: ttf2,
         });
 
@@ -63,12 +63,38 @@ export default class Decision implements Actor<DecisionOptions> {
             maximumSlippage: 0.001,
         });
 
-        const bidAmount1 = bidSize * opportunity.quote1.amount;
-        const bidAmount2 = bidSize * opportunity.quote2.amount;
+        const bidAmount = [
+            opportunity.quote1.amount,
+            opportunity.quote2.amount,
+            bidSize *
+            (LiquidityCache.shared.get(
+                opportunity.exchange1,
+                opportunity.quote1.tokenB.name
+            ) ?? 0),
+            bidSize *
+            (LiquidityCache.shared.get(
+                opportunity.exchange2,
+                opportunity.quote2.tokenA.name
+            ) ?? 0)
+        ].filter((x) => x > 0).reduce((a, b) => Math.min(a, b));
+
+        console.log({
+            quote1: opportunity.quote1.amount,
+            quote2: opportunity.quote2.amount,
+            liquidityB1: LiquidityCache.shared.get(
+                opportunity.exchange1,
+                opportunity.quote1.tokenB.name
+            ),
+            liquidityA2: LiquidityCache.shared.get(
+                opportunity.exchange2,
+                opportunity.quote2.tokenA.name
+            ),
+            bidSize,
+        })
 
         // Then, let's calculate the cost of the transaction
         const cost1 = await exchange1.estimateTransactionCost(
-            bidAmount1,
+            bidAmount,
             opportunity.quote1.price,
             opportunity.quote1.tokenB,
             opportunity.quote1.tokenA,
@@ -76,7 +102,7 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         const cost2 = await exchange2.estimateTransactionCost(
-            bidAmount2,
+            bidAmount,
             opportunity.quote2.price,
             opportunity.quote2.tokenA,
             opportunity.quote2.tokenB,
@@ -89,6 +115,8 @@ export default class Decision implements Actor<DecisionOptions> {
                 topic: "decision",
                 opportunity: undefined,
                 reason: "Cost is too high",
+                cost1,
+                cost2,
             };
         }
 
@@ -97,14 +125,24 @@ export default class Decision implements Actor<DecisionOptions> {
                 topic: "decision",
                 opportunity: undefined,
                 reason: "Probability of success is too low",
-                probability: Math.min(probability1, probability2),
+                probability1,
+                probability2,
             };
         }
+
+        console.log(
+            `Was about to buy ${bidAmount} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${opportunity.quote1.amountOut} ${opportunity.quote1.tokenB.name}`
+        );
+        console.log(
+            `And sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`
+        );
+
+        throw new Error();
 
         // If we get here, we have a good opportunity
         // Let's perform the transaction
         const tx1 = await exchange1.swapExactTokensForTokens(
-            bidAmount1,
+            bidAmount,
             opportunity.quote1.amountOut,
             [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
@@ -112,8 +150,8 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         const tx2 = await exchange2.swapExactTokensForTokens(
-            bidAmount2,
             opportunity.quote2.amountOut,
+            bidAmount,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
             Date.now() + ttf2 * 1000

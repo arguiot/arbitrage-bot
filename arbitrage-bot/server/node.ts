@@ -46,7 +46,7 @@ server.on("connection", (ws: CustomWebSocket) => {
         }
     };
 
-    ws.on("message", (message: WebSocket.Data) => {
+    ws.on("message", async (message: WebSocket.Data) => {
         try {
             const data = JSON.parse(message.toString());
             const validatedData = messageTypeSchema.parse(data);
@@ -83,7 +83,7 @@ server.on("connection", (ws: CustomWebSocket) => {
                     validatedData.query.routerAddress,
                     validatedData.query.factoryAddress
                 );
-                adapter.swapExactTokensForTokens(
+                await adapter.swapExactTokensForTokens(
                     amountIn,
                     amountOut,
                     [validatedData.query.tokenA, validatedData.query.tokenB],

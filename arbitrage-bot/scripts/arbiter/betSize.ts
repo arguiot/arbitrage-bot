@@ -13,7 +13,12 @@ export function betSize({
     profitDelta: number; // The percentage of profit you want to make
     maximumSlippage: number; // The maximum slippage you are willing to take
 }): number {
+    if (profitProbability > 1 || profitProbability < 0) {
+        throw new Error("Profit probability must be between 0 and 1");
+    }
     const winningOutcome = profitProbability / (1 - maximumSlippage);
-    const loosingOutcome = (1 - profitProbability) / profitDelta;
-    return winningOutcome - loosingOutcome;
+    const loosingOutcome = (1 - profitProbability) / (1 - profitDelta);
+    const p = winningOutcome - loosingOutcome;
+    // Make sure the bet size is between 0 and 50%
+    return Math.min(Math.max(p, 0), 0.5);
 }

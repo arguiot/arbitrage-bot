@@ -44,15 +44,16 @@ export class UniswapV2 implements Exchange<Contract> {
         this.wallet = wallet;
     }
 
+    wethAddress =
+        process.env.WETH_CONTRACT_ADDRESS ??
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+
     normalizeToken(token: Token): Token {
         // Convert ETH to WETH if necessary
-        const wethAddress =
-            process.env.WETH_CONTRACT_ADDRESS ??
-            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
         if (token.address === ethers.constants.AddressZero) {
             return {
                 name: "WETH",
-                address: wethAddress,
+                address: this.wethAddress,
             };
         }
         return token;
@@ -79,7 +80,9 @@ export class UniswapV2 implements Exchange<Contract> {
                 ? [tokenA, tokenB]
                 : [tokenB, tokenA];
         const initCodeHash =
-            "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
+            this.name === "pancakeswap"
+                ? "0xd0d4c4cd0848c93cb4fd1f498d7013ee6bfb25783ea21593d5834f5d250ece66"
+                : "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
         const salt = ethers.utils.solidityKeccak256(
             ["address", "address"],
             [token0, token1]
@@ -98,8 +101,9 @@ export class UniswapV2 implements Exchange<Contract> {
         tokenA: string,
         tokenB: string
     ): Promise<[BigNumber, BigNumber]> {
+        const computedPair = this.pairFor(factory, tokenA, tokenB);
         const pair = new ethers.Contract(
-            this.pairFor(factory, tokenA, tokenB),
+            computedPair,
             IUniswapV2Pair.abi,
             this.wallet.provider
         );
@@ -119,7 +123,7 @@ export class UniswapV2 implements Exchange<Contract> {
         if (reserveIn.lte(0) || reserveOut.lte(0)) {
             throw new Error("INSUFFICIENT_LIQUIDITY");
         }
-        const amountInWithFee = amountIn.mul(997);
+        const amountInWithFee = amountIn.mul(this.name === "pancakeswap" ? 998 : 997);
         const numerator = amountInWithFee.mul(reserveOut);
         const denominator = reserveIn.mul(1000).add(amountInWithFee);
         const amountOut = numerator.div(denominator);
@@ -145,7 +149,7 @@ export class UniswapV2 implements Exchange<Contract> {
             reserveA
                 .mul(reserveB)
                 .mul(1000000)
-                .div(1000000 + 3000)
+                .div(1000000 + (this.name === "pancakeswap" ? 2500 : 3000))
         );
 
         // Amount in is the minimum between the max available amount (in ethers) and the best amount in (in wei)
@@ -154,13 +158,12 @@ export class UniswapV2 implements Exchange<Contract> {
         )
             ? bestAmountIn
             : ethers.utils.parseEther(maxAvailableAmount.toString());
-
         const _quote = this.getAmountOut(amountIn, reserveA, reserveB);
         // Convert back from wei to ether
         const quote = Number(
             ethers.utils.formatUnits(
                 _quote,
-                tokenA.name === "WETH" ? "mwei" : "ether"
+                tokenA.address === this.wethAddress ? "mwei" : "ether"
             )
         );
 
@@ -281,7 +284,7 @@ export class UniswapV2 implements Exchange<Contract> {
         } catch (e) {
             return {
                 gas: BigNumber.from(21000 * 100),
-                costInDollars: 21000 * 100 * 4000 * 10e-9,
+                costInDollars: 210 * 100 * 4000 * 10e-9,
             }; // default gas
         }
     }
@@ -293,30 +296,39 @@ export class UniswapV2 implements Exchange<Contract> {
         to: string,
         deadline: number
     ): Promise<void> {
-        if (process.env.USE_TESTNET === "TRUE") {
+        // if (process.env.USE_TESTNET === "TRUE") {
+        //     console.log({
+        //         from: "uniswap",
+        //         amountIn,
+        //         amountOutMin,
+        //         path,
+        //     });
+        //     return;
+        // }
+        try {
+            const amount = ethers.utils.parseEther(amountIn.toString());
+            const amountOut = ethers.utils.parseEther(amountOutMin.toString());
             console.log({
-                from: "uniswap",
-                amountIn,
-                amountOutMin,
+                amount,
+                amountOut,
                 path,
             });
-            return;
+            const amounts = await this.delegate.swapExactTokensForTokens(
+                amount,
+                0,
+                path.map((token) => token.address),
+                to,
+                deadline,
+                { gasLimit: 1000000 }
+            );
+            console.log(`Swapped ${amountIn} ${path[0].name} for ${amountOutMin} ${path[1].name}`);
+            console.log({ amounts });
+        } catch (e) {
+            console.error(e);
         }
-        const amount = ethers.utils.parseEther(amountIn.toString());
-        const amountOut = ethers.utils.parseEther(amountOutMin.toString());
-        return await this.delegate.swapExactTokensForTokens(
-            amount,
-            amountOut,
-            path.map((token) => token.address),
-            to,
-            deadline
-        );
     }
 
     async liquidityFor(token: Token): Promise<number> {
-        if (process.env.USE_TESTNET === "TRUE") {
-            return 100;
-        }
         // Returns the amount of token the wallet has.
         if (token.address === ethers.constants.AddressZero) {
             const balance = await this.wallet.getBalance();
@@ -334,7 +346,7 @@ export class UniswapV2 implements Exchange<Contract> {
         return Number(
             ethers.utils.formatUnits(
                 balance,
-                token.name == "WETH" ? "mwei" : "ether"
+                token.address === this.wethAddress ? "mwei" : "ether"
             )
         );
     }

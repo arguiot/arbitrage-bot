@@ -1,9 +1,13 @@
-import { ethers, Contract, Signer } from "ethers";
+import { ethers, Contract } from "ethers";
 import _UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
 import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
 import _WETH9 from "@uniswap/v2-periphery/build/WETH9.json";
+import dotenv from "dotenv";
 
-export async function deployUniswapV2(deployer: Signer): Promise<{
+export async function deployUniswapV2(
+    deployer: ethers.Wallet,
+    network: string
+): Promise<{
     factory: Contract;
     router: Contract;
     weth: Contract;
@@ -43,4 +47,33 @@ export async function deployUniswapV2(deployer: Signer): Promise<{
         router,
         weth,
     };
+}
+
+async function main() {
+    dotenv.config();
+    const network = process.argv[2];
+
+    let provider, deployer;
+    if (network === "bscTestnet") {
+        provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+        const wallet = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
+        deployer = wallet;
+    } else {
+        throw new Error("Network not supported");
+    }
+
+    const { factory, router, weth } = await deployUniswapV2(deployer, network);
+
+    console.log("Uniswap V2 Factory deployed at:", factory.address);
+    console.log("Uniswap V2 Router deployed at:", router.address);
+    console.log("WETH9 deployed at:", weth.address);
+}
+
+if (import.meta.main) {
+    main()
+        .then(() => process.exit(0))
+        .catch(error => {
+            console.error(error);
+            process.exit(1);
+        });
 }

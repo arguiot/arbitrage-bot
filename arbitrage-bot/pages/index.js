@@ -20,8 +20,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
-
-export default function Index() {
+import { PairList } from "../lib/pairs";
+export default function Index({ environment }) {
     const { connected, decisions, setDecisions } = useClientState();
     useEffect(() => {
         Client.shared = new Client();
@@ -41,55 +41,9 @@ export default function Index() {
     const { reset: uniswapReset } = useUniswapStore();
 
     const selectedPair = async (pair) => {
-        switch (pair) {
-            case "ETH/USDT":
-                setTokenA({
-                    name: "ETH",
-                    address: "0x0000000000000000000000000000000000000000",
-                });
-                setTokenB({
-                    name: "USDT",
-                    address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-                });
-                break;
-            case "ETH/USDC":
-                setTokenA({
-                    name: "ETH",
-                    address: "0x0000000000000000000000000000000000000000",
-                });
-                setTokenB({
-                    name: "USDC",
-                    address: "0x3c3aA68bc795e72833218229b0e53eFB4143A152",
-                });
-                break;
-            case "ETH/BTC":
-                setTokenA({
-                    name: "ETH",
-                    address: "0x0000000000000000000000000000000000000000",
-                });
-                setTokenB({
-                    name: "BTC",
-                    address: null,
-                });
-                break;
-            case "AAVE/ETH":
-                setTokenA({
-                    name: "AAVE",
-                    address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-                });
-                setTokenB({
-                    name: "ETH",
-                    address: "0x0000000000000000000000000000000000000000",
-                });
-                break;
-            case "TKA/TKB":
-                const { tokenA: addressA, tokenB: addressB } = await deploy();
-                toast({
-                    title: "Deployed Token A and Token B",
-                    description: `Token A address: ${addressA} Token B address: ${addressB}`,
-                });
-                break;
-        }
+        const { tokenA, tokenB } = PairList[environment][pair];
+        setTokenA(tokenA);
+        setTokenB(tokenB);
     };
 
     return (
@@ -120,17 +74,13 @@ export default function Index() {
                                 <SelectValue placeholder="Pair" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="ETH/USDT">
-                                    ETH/USDT
-                                </SelectItem>
-                                <SelectItem value="ETH/USDC">
-                                    ETH/USDC
-                                </SelectItem>
-                                <SelectItem value="ETH/BTC">ETH/BTC</SelectItem>
-                                <SelectItem value="AAVE/ETH">
-                                    AAVE/ETH
-                                </SelectItem>
-                                <SelectItem value="TKA/TKB">TKA/TKB</SelectItem>
+                                {Object.keys(PairList[environment]).map(
+                                    (pair) => (
+                                        <SelectItem key={pair} value={pair}>
+                                            {pair}
+                                        </SelectItem>
+                                    )
+                                )}
                             </SelectContent>
                         </Select>
                     ) : (
@@ -140,8 +90,8 @@ export default function Index() {
                 <div className="flex justify-between gap-4">
                     {connected ? (
                         <>
-                            <ExchangeCard id={1} />
-                            <ExchangeCard id={2} />
+                            <ExchangeCard environment={environment} />
+                            <ExchangeCard environment={environment} />
                         </>
                     ) : (
                         <>
@@ -191,4 +141,13 @@ export default function Index() {
             )}
         </>
     );
+}
+
+export async function getStaticProps() {
+    const env = process.env.USE_TESTNET ? "development" : "production";
+    return {
+        props: {
+            environment: env,
+        },
+    };
 }

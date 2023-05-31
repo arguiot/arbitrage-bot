@@ -8,6 +8,7 @@ export const tokenSchema = z.object({
 export const messageTypeSchema = z.object({
     type: z.enum(["subscribe", "unsubscribe", "silent", "reset", "buy"]),
     topic: z.enum(["priceData", "decision", "reset", "buy"]),
+    environment: z.enum(["development", "production"]).default("production"),
     query: z
         .object({
             exchange: z.string(),

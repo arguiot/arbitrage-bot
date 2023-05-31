@@ -20,7 +20,7 @@ import UniswapPrice from "./uniswapPrice";
 import usePriceStore from "../lib/priceDataStore";
 import usePairStore from "../lib/tokenStore";
 import CexPrice from "./cexPrice";
-import { Client } from "../lib/client";
+import { Client, useClientState } from "../lib/client";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -31,96 +31,34 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExchangesList } from "../lib/exchanges";
 
-export default function ExchangeCard({ id }) {
+export default function ExchangeCard({ environment }) {
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { getQuote } = usePriceStore();
+    const { buy, setBuy, buying, setBuying } = useClientState();
 
     const { isDeployed, deploy, factory, router } = useUniswapStore();
 
     const [isDeploying, setIsDeploying] = useState(false);
-    const [buy, setBuy] = useState(null);
 
     const priceData = getQuote(exchange);
 
     async function deployExchange(value) {
         setIsDeploying(true);
-        switch (value) {
-            case "local-cex":
-                // return;
-                break;
-            case "binance":
-                Client.shared.subscribeToPriceData(
-                    value,
-                    "cex",
-                    tokenA,
-                    tokenB
-                );
-                break;
-            case "kraken":
-                Client.shared.subscribeToPriceData(
-                    value,
-                    "cex",
-                    tokenA,
-                    tokenB
-                );
-                break;
-            case "local-uniswap":
-                await deploy();
-                break;
-            case "uniswap":
-                Client.shared.subscribeToPriceData(
-                    value,
-                    "dex",
-                    tokenA,
-                    tokenB
-                );
-                break;
+        if (value === "local-uniswap") {
+            await deploy();
+        } else {
+            Client.shared.subscribeToPriceData(
+                value,
+                environment,
+                tokenA,
+                tokenB
+            );
         }
         setExchange(value);
         setIsDeploying(false);
-    }
-
-    function nameFor(exchange) {
-        switch (exchange) {
-            case "local-cex":
-                return "Local CEX";
-            case "binance":
-                return "Binance";
-            case "kraken":
-                return "Kraken";
-            case "local-uniswap":
-                return "Local Uniswap";
-            case "uniswap":
-                return "Uniswap V2";
-            default:
-                return "Unknown";
-        }
-    }
-
-    function getExchange(exchange) {
-        switch (exchange) {
-            case "local-cex":
-                return <CexPrice priceData={priceData} />;
-            case "binance":
-                return <CexPrice priceData={priceData} />;
-            case "kraken":
-                return <CexPrice priceData={priceData} />;
-            case "local-uniswap":
-                return (
-                    <UniswapPrice
-                        factoryAddress={factory}
-                        routerAddress={router}
-                        tokenA={tokenA}
-                        tokenB={tokenB}
-                    />
-                );
-            case "uniswap":
-                return <CexPrice priceData={priceData} />;
-            default:
-                return null;
-        }
     }
 
     function buyTokens() {
@@ -130,8 +68,10 @@ export default function ExchangeCard({ id }) {
             buy.token == tokenB
                 ? buy.amount / priceData.price
                 : buy.amount * priceData.price;
+        setBuying(true);
         Client.shared.buy(
             buy.exchange,
+            environment,
             _tokenA,
             _tokenB,
             amountIn,
@@ -151,9 +91,11 @@ export default function ExchangeCard({ id }) {
                 <SelectValue placeholder="Connect exchange" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="uniswap">Uniswap V2</SelectItem>
-                <SelectItem value="binance">Binance</SelectItem>
-                <SelectItem value="kraken">Kraken</SelectItem>
+                {Object.entries(ExchangesList[environment]).map(([key, value]) => (
+                    <SelectItem key={key} value={key}>
+                        {value.name}
+                    </SelectItem>
+                ))}
             </SelectContent>
         </Select>
     );
@@ -168,7 +110,7 @@ export default function ExchangeCard({ id }) {
                     </CardHeader>
                     <CardContent>
                         <div className="flex justify-between flex-col">
-                            {getExchange(exchange)}
+                            <CexPrice priceData={priceData} />
                             <div className="flex justify-between">
                                 {priceData && (
                                     <>
@@ -210,7 +152,7 @@ export default function ExchangeCard({ id }) {
                                                 <DialogHeader>
                                                     <DialogTitle>
                                                         Buy {buy.token.name} on{" "}
-                                                        {nameFor(buy.exchange)}
+                                                        {ExchangesList[environment][buy.exchange].name}
                                                     </DialogTitle>
                                                     <DialogDescription>
                                                         Current balance:{" "}
@@ -252,23 +194,21 @@ export default function ExchangeCard({ id }) {
                                                             </Label>
                                                             <Input
                                                                 id="name"
-                                                                value={`${
-                                                                    buy.token ==
+                                                                value={`${buy.token ==
                                                                     tokenB
-                                                                        ? buy.amount /
-                                                                          priceData.price
-                                                                        : buy.amount *
-                                                                          priceData.price
-                                                                } ${
-                                                                    buy.token ==
-                                                                    tokenB
+                                                                    ? buy.amount /
+                                                                    priceData.price
+                                                                    : buy.amount *
+                                                                    priceData.price
+                                                                    } ${buy.token ==
+                                                                        tokenB
                                                                         ? priceData
-                                                                              .tokenA
-                                                                              .name
+                                                                            .tokenA
+                                                                            .name
                                                                         : priceData
-                                                                              .tokenB
-                                                                              .name
-                                                                }`}
+                                                                            .tokenB
+                                                                            .name
+                                                                    }`}
                                                                 className="col-span-3"
                                                                 disabled
                                                             />
@@ -276,9 +216,9 @@ export default function ExchangeCard({ id }) {
                                                     </div>
                                                     <Button
                                                         onClick={buyTokens}
-                                                        disabled={buy.buying}
+                                                        disabled={buying}
                                                     >
-                                                        {buy.buying && (
+                                                        {buying && (
                                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                         )}
                                                         🤑 Buy {buy.amount}{" "}
