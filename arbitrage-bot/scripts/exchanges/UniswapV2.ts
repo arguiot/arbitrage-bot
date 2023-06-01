@@ -1,5 +1,5 @@
 import { ethers, BigNumber, Contract, Wallet } from "ethers";
-import { Exchange, Cost, Token } from "./adapters/exchange";
+import { Exchange, Cost, Token, Receipt } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
 const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json");
 const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
@@ -123,7 +123,9 @@ export class UniswapV2 implements Exchange<Contract> {
         if (reserveIn.lte(0) || reserveOut.lte(0)) {
             throw new Error("INSUFFICIENT_LIQUIDITY");
         }
-        const amountInWithFee = amountIn.mul(this.name === "pancakeswap" ? 998 : 997);
+        const amountInWithFee = amountIn.mul(
+            this.name === "pancakeswap" ? 998 : 997
+        );
         const numerator = amountInWithFee.mul(reserveOut);
         const denominator = reserveIn.mul(1000).add(amountInWithFee);
         const amountOut = numerator.div(denominator);
@@ -158,6 +160,7 @@ export class UniswapV2 implements Exchange<Contract> {
         )
             ? bestAmountIn
             : ethers.utils.parseEther(maxAvailableAmount.toString());
+
         const _quote = this.getAmountOut(amountIn, reserveA, reserveB);
         // Convert back from wei to ether
         const quote = Number(
@@ -169,7 +172,10 @@ export class UniswapV2 implements Exchange<Contract> {
 
         const amountInEther = Number(ethers.utils.formatEther(amountIn));
 
-        const price = quote / amountInEther;
+        const precision = ethers.BigNumber.from("1000000000000000000"); // 10^18 for 18 decimal places
+        const priceBig = reserveB.mul(precision).div(reserveA);
+
+        const price = Number(ethers.utils.formatUnits(priceBig, "ether"));
 
         return {
             amount: amountInEther,
@@ -289,43 +295,70 @@ export class UniswapV2 implements Exchange<Contract> {
         }
     }
 
-    async swapExactTokensForTokens(
+    async buyAtMaximumOutput(
         amountIn: number,
-        amountOutMin: number,
         path: Token[],
         to: string,
         deadline: number
-    ): Promise<void> {
-        // if (process.env.USE_TESTNET === "TRUE") {
-        //     console.log({
-        //         from: "uniswap",
-        //         amountIn,
-        //         amountOutMin,
-        //         path,
-        //     });
-        //     return;
-        // }
-        try {
-            const amount = ethers.utils.parseEther(amountIn.toString());
-            const amountOut = ethers.utils.parseEther(amountOutMin.toString());
-            console.log({
-                amount,
-                amountOut,
-                path,
-            });
-            const amounts = await this.delegate.swapExactTokensForTokens(
-                amount,
-                0,
-                path.map((token) => token.address),
-                to,
-                deadline,
-                { gasLimit: 1000000 }
-            );
-            console.log(`Swapped ${amountIn} ${path[0].name} for ${amountOutMin} ${path[1].name}`);
-            console.log({ amounts });
-        } catch (e) {
-            console.error(e);
-        }
+    ): Promise<Receipt> {
+        const amount = ethers.utils.parseEther(amountIn.toString());
+        const tx = await this.delegate.swapExactTokensForTokens(
+            amount,
+            0,
+            path.map((token) => token.address),
+            to,
+            deadline,
+            { gasLimit: 1000000 }
+        );
+
+        const receipt = await tx.wait();
+
+        const transactionHash = receipt.logs[1].transactionHash;
+        const amountOutHex = receipt.logs[1].data as string;
+        const amountOut = Number(ethers.utils.formatEther(amountOutHex));
+        const price = amountIn / amountOut;
+
+        return {
+            amountIn,
+            amountOut,
+            transactionHash,
+            price,
+            tokenA: path[0],
+            tokenB: path[1],
+        };
+    }
+
+    async buyAtMinimumInput(
+        amountOut: number,
+        path: Token[],
+        to: string,
+        deadline: number
+    ): Promise<Receipt> {
+        const amount = ethers.utils.parseEther(amountOut.toString());
+        const tx = await this.delegate.swapTokensForExactTokens(
+            amount,
+            ethers.constants.MaxUint256, // max amount of input token
+            path.map((token) => token.address),
+            to,
+            deadline,
+            { gasLimit: 1000000 }
+        );
+
+        const receipt = await tx.wait();
+
+        const transactionHash = receipt.transactionHash;
+        const amountInHex = receipt.logs[1].data as string;
+        const amountIn = Number(ethers.utils.formatEther(amountInHex));
+        const price = amountIn / amountOut;
+
+        return {
+            amountIn,
+            amountOut,
+            transactionHash,
+            price,
+            tokenA: path[0],
+            tokenB: path[1],
+        };
     }
 
     async liquidityFor(token: Token): Promise<number> {

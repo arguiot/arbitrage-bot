@@ -8,8 +8,18 @@ import { LiquidityCache } from "../data/priceData";
 import { betSize } from "../../scripts/arbiter/betSize";
 type DecisionOptions = {};
 export default class Decision implements Actor<DecisionOptions> {
+    locked = false;
+
     // MARK: - Event handler
     async receive(fromLoop?: string | undefined): Promise<PartialResult> {
+        if (this.locked) {
+            return {
+                topic: "decision",
+                opportunity: undefined,
+                reason: "Locked",
+            };
+        }
+
         // First, let's get the opportunities
         const opportunity =
             PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
@@ -67,30 +77,18 @@ export default class Decision implements Actor<DecisionOptions> {
             opportunity.quote1.amount,
             opportunity.quote2.amount,
             bidSize *
-            (LiquidityCache.shared.get(
-                opportunity.exchange1,
-                opportunity.quote1.tokenB.name
-            ) ?? 0),
+                (LiquidityCache.shared.get(
+                    opportunity.exchange1,
+                    opportunity.quote1.tokenB.name
+                ) ?? 0),
             bidSize *
-            (LiquidityCache.shared.get(
-                opportunity.exchange2,
-                opportunity.quote2.tokenA.name
-            ) ?? 0)
-        ].filter((x) => x > 0).reduce((a, b) => Math.min(a, b));
-
-        console.log({
-            quote1: opportunity.quote1.amount,
-            quote2: opportunity.quote2.amount,
-            liquidityB1: LiquidityCache.shared.get(
-                opportunity.exchange1,
-                opportunity.quote1.tokenB.name
-            ),
-            liquidityA2: LiquidityCache.shared.get(
-                opportunity.exchange2,
-                opportunity.quote2.tokenA.name
-            ),
-            bidSize,
-        })
+                (LiquidityCache.shared.get(
+                    opportunity.exchange2,
+                    opportunity.quote2.tokenA.name
+                ) ?? 0),
+        ]
+            .filter((x) => x > 0)
+            .reduce((a, b) => Math.min(a, b));
 
         // Then, let's calculate the cost of the transaction
         const cost1 = await exchange1.estimateTransactionCost(
@@ -120,13 +118,21 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
 
-        if (Math.min(probability1, probability2) < 0.5) {
+        // if (Math.min(probability1, probability2) < 0.5) {
+        //     return {
+        //         topic: "decision",
+        //         opportunity: undefined,
+        //         reason: "Probability of success is too low",
+        //         probability1,
+        //         probability2,
+        //     };
+        // }
+
+        // Sometimes, concurrency issues can cause this to happen
+        if (this.locked) {
             return {
                 topic: "decision",
                 opportunity: undefined,
-                reason: "Probability of success is too low",
-                probability1,
-                probability2,
             };
         }
 
@@ -137,24 +143,32 @@ export default class Decision implements Actor<DecisionOptions> {
             `And sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`
         );
 
-        throw new Error();
+        this.locked = true;
 
         // If we get here, we have a good opportunity
         // Let's perform the transaction
-        const tx1 = await exchange1.swapExactTokensForTokens(
+        const tx1 = await exchange1.buyAtMinimumInput(
             bidAmount,
-            opportunity.quote1.amountOut,
             [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
             Date.now() + ttf1 * 1000
         );
 
-        const tx2 = await exchange2.swapExactTokensForTokens(
-            opportunity.quote2.amountOut,
+        console.log(`Transaction on ${exchange1.name} is successful`);
+        console.log(
+            `Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`
+        );
+
+        const tx2 = await exchange2.buyAtMaximumOutput(
             bidAmount,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
             Date.now() + ttf2 * 1000
+        );
+
+        console.log(`Transaction on ${exchange2.name} is successful`);
+        console.log(
+            `Sold ${tx2.amountIn} ${tx2.tokenA.name} for ${tx2.amountOut} ${tx2.tokenB.name}`
         );
 
         LiquidityCache.shared.invalidate(
@@ -177,8 +191,14 @@ export default class Decision implements Actor<DecisionOptions> {
         return {
             topic: "decision",
             opportunity,
-            tx1,
-            tx2,
+            tx1: {
+                ...tx1,
+                exchange: opportunity.exchange1,
+            },
+            tx2: {
+                ...tx2,
+                exchange: opportunity.exchange2,
+            },
         };
     }
 

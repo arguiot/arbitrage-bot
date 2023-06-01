@@ -12,6 +12,15 @@ export type Token = {
     decimals?: number;
 };
 
+export type Receipt = {
+    transactionHash?: string;
+    amountIn: number;
+    amountOut: number;
+    price: number;
+    tokenA: Token;
+    tokenB: Token;
+};
+
 export interface Exchange<T> {
     name: string;
     type: "dex" | "cex";
@@ -33,14 +42,21 @@ export interface Exchange<T> {
         direction: "buy" | "sell"
     ): Promise<Cost>; // Returns the estimated cost to execute a transaction in dollars
 
-    // Swap methods
-    swapExactTokensForTokens(
+    /// Buy with fixed input
+    buyAtMaximumOutput(
         amountIn: number,
-        amountOutMin: number,
         path: Token[],
         to: string,
         deadline: number
-    ): Promise<void>; // Swaps an exact amount of tokens for another token
+    ): Promise<Receipt>; // Buys an exact amount of tokens for another token
+
+    /// Buy with fixed output
+    buyAtMinimumInput(
+        amountOut: number,
+        path: Token[],
+        to: string,
+        deadline: number
+    ): Promise<Receipt>; // Buys an exact amount of tokens for another token
 
     // Liquidity methods
     liquidityFor(token: Token): Promise<number>; // Returns the liquidity for the given token

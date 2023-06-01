@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { Exchange, Cost, Token } from "./adapters/exchange";
+import { Exchange, Cost, Token, Receipt } from "./adapters/exchange";
 import { Quote } from "./types/Quote";
 import { version, exchanges, Exchange as CCXTExchange, pro } from "ccxt";
 import Credentials, {
@@ -78,13 +78,12 @@ export class LiveCEX implements Exchange<CCXTExchange> {
         return { costInDollars: Math.random() * 0.009 + 0.001 };
     }
 
-    async swapExactTokensForTokens(
+    async buyAtMaximumOutput(
         amountIn: number,
-        amountOutMin: number,
         path: Token[],
         to: string,
         deadline: number
-    ): Promise<void> {
+    ): Promise<Receipt> {
         // First we need to sort the tokens by their symbol
         const [tokenA, tokenB] = path.map((token) => token.name);
         const [token1, token2] = [tokenA, tokenB].sort((a, b) =>
@@ -93,14 +92,50 @@ export class LiveCEX implements Exchange<CCXTExchange> {
         const symbol = `${token1}/${token2}`;
         const side = tokenA === symbol.split("/")[0] ? "sell" : "buy";
         const type = this.delegate.has.createMarketOrder ? "market" : "limit";
-        const amount = side === "sell" ? amountIn : amountOutMin;
         const order = await this.delegate.createOrder(
             symbol,
             type,
             side,
-            amount
+            amountIn
         );
         console.log(order);
+        return {
+            amountIn,
+            amountOut: order.amount,
+            price: order.price,
+            tokenA: path[0],
+            tokenB: path[1],
+        };
+    }
+
+    async buyAtMinimumInput(
+        amountOut: number,
+        path: Token[],
+        to: string,
+        deadline: number
+    ): Promise<Receipt> {
+        // First we need to sort the tokens by their symbol
+        const [tokenA, tokenB] = path.map((token) => token.name);
+        const [token1, token2] = [tokenA, tokenB].sort((a, b) =>
+            a.localeCompare(b)
+        );
+        const symbol = `${token1}/${token2}`;
+        const side = tokenA === symbol.split("/")[0] ? "sell" : "buy";
+        const type = this.delegate.has.createMarketOrder ? "market" : "limit";
+        const order = await this.delegate.createOrder(
+            symbol,
+            type,
+            side,
+            amountOut
+        );
+        console.log(order);
+        return {
+            amountIn: order.amount,
+            amountOut,
+            price: order.price,
+            tokenA: path[0],
+            tokenB: path[1],
+        };
     }
 
     async liquidityFor(token: Token): Promise<number> {

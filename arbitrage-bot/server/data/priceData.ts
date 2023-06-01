@@ -55,15 +55,16 @@ export default async function priceData({
     );
 
     const arbitrage = PriceDataStore.shared.getArbitrageOpportunity();
-    let bet = 0;
+    let bet = 0.5;
     if (arbitrage) {
         const profitDelta = arbitrage.percentProfit;
         const profitProbability = calculateProfitProbability({
             type: adapter.type,
             delta: profitDelta,
             ttf:
-                (arbitrage.exchange1 == exchange
-                    ? arbitrage.quote1.ttf : arbitrage.quote2.ttf) ?? 1,
+                (arbitrage.exchange1 === exchange
+                    ? arbitrage.quote1.ttf
+                    : arbitrage.quote2.ttf) ?? 20,
         });
         bet = betSize({
             profitProbability,
@@ -78,7 +79,8 @@ export default async function priceData({
         });
     }
 
-    const size = balanceA * bet;
+    const size = balanceA * (bet <= 0 ? 0.5 : bet);
+
     PriceDataStore.shared.addBetSize(exchange, size);
 
     const maxAvailable = PriceDataStore.shared.getLowestBetSize();

@@ -75,8 +75,10 @@ export default class MainActor implements Actor<MainActorOptions> {
     async receive(): Promise<PartialResult> {
         if (this.broadcastDecisions) {
             const result = await this.decisionPeer.receive();
-            console.log("Decision: ", result);
-            if (this.ws) {
+            if (result.reason) {
+                console.log(result.reason);
+            }
+            if (this.ws && result.opportunity) {
                 this.ws.publish(result.topic, JSON.stringify(result));
             }
         }
@@ -145,12 +147,16 @@ export default class MainActor implements Actor<MainActorOptions> {
     unsubscribeFromPriceData(query: Query) {
         if (typeof query === "undefined") return;
         if (query.type === "dex") {
-            const peer = this.onChainPeers.find((peer) => peer.topic === "priceData");
+            const peer = this.onChainPeers.find(
+                (peer) => peer.topic === "priceData"
+            );
             if (peer) {
                 this.removePeer(peer);
             }
         } else {
-            const peer = this.offChainPeers.find((peer) => peer.topic === "priceData");
+            const peer = this.offChainPeers.find(
+                (peer) => peer.topic === "priceData"
+            );
             if (peer) {
                 this.removePeer(peer);
             }

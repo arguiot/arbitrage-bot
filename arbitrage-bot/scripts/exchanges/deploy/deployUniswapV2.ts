@@ -55,8 +55,13 @@ async function main() {
 
     let provider, deployer;
     if (network === "bscTestnet") {
-        provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
-        const wallet = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
+        provider = new ethers.providers.JsonRpcProvider(
+            "https://data-seed-prebsc-1-s1.binance.org:8545"
+        );
+        const wallet = new ethers.Wallet(
+            process.env.WALLET_PRIVATE_KEY,
+            provider
+        );
         deployer = wallet;
     } else {
         throw new Error("Network not supported");
@@ -72,7 +77,7 @@ async function main() {
 if (import.meta.main) {
     main()
         .then(() => process.exit(0))
-        .catch(error => {
+        .catch((error) => {
             console.error(error);
             process.exit(1);
         });

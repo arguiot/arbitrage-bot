@@ -32,8 +32,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ExchangesList } from "../lib/exchanges";
+import { useToast } from "./ui/use-toast";
 
 export default function ExchangeCard({ environment }) {
+    const { toast } = useToast();
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { getQuote } = usePriceStore();
@@ -91,11 +93,13 @@ export default function ExchangeCard({ environment }) {
                 <SelectValue placeholder="Connect exchange" />
             </SelectTrigger>
             <SelectContent>
-                {Object.entries(ExchangesList[environment]).map(([key, value]) => (
-                    <SelectItem key={key} value={key}>
-                        {value.name}
-                    </SelectItem>
-                ))}
+                {Object.entries(ExchangesList[environment]).map(
+                    ([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                            {value.name}
+                        </SelectItem>
+                    )
+                )}
             </SelectContent>
         </Select>
     );
@@ -152,7 +156,11 @@ export default function ExchangeCard({ environment }) {
                                                 <DialogHeader>
                                                     <DialogTitle>
                                                         Buy {buy.token.name} on{" "}
-                                                        {ExchangesList[environment][buy.exchange].name}
+                                                        {
+                                                            ExchangesList[
+                                                                environment
+                                                            ][buy.exchange].name
+                                                        }
                                                     </DialogTitle>
                                                     <DialogDescription>
                                                         Current balance:{" "}
@@ -194,21 +202,23 @@ export default function ExchangeCard({ environment }) {
                                                             </Label>
                                                             <Input
                                                                 id="name"
-                                                                value={`${buy.token ==
+                                                                value={`${
+                                                                    buy.token ==
                                                                     tokenB
-                                                                    ? buy.amount /
-                                                                    priceData.price
-                                                                    : buy.amount *
-                                                                    priceData.price
-                                                                    } ${buy.token ==
-                                                                        tokenB
+                                                                        ? buy.amount /
+                                                                          priceData.price
+                                                                        : buy.amount *
+                                                                          priceData.price
+                                                                } ${
+                                                                    buy.token ==
+                                                                    tokenB
                                                                         ? priceData
-                                                                            .tokenA
-                                                                            .name
+                                                                              .tokenA
+                                                                              .name
                                                                         : priceData
-                                                                            .tokenB
-                                                                            .name
-                                                                    }`}
+                                                                              .tokenB
+                                                                              .name
+                                                                }`}
                                                                 className="col-span-3"
                                                                 disabled
                                                             />

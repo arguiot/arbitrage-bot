@@ -15,7 +15,11 @@ export function getAdapter(
 
     switch (adapter) {
         case "uniswap":
-            const uniswap = new UniswapV2(routerAddress, factoryAddress, wallet);
+            const uniswap = new UniswapV2(
+                routerAddress,
+                factoryAddress,
+                wallet
+            );
             uniswap.name = exchange; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.
             return uniswap;
         case "binance":

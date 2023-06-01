@@ -1,9 +1,11 @@
 "use client";
 
+import { toast } from "../components/ui/use-toast";
 import { Token } from "../scripts/exchanges/adapters/exchange";
 import { ExchangesList } from "./exchanges";
 import usePriceStore from "./priceDataStore";
 import { create } from "zustand";
+import useTradeBookStore from "./tradesStore";
 interface WebSocket {
     onclose: ((event: CloseEvent) => void) | null;
     onerror: ((event: Event) => void) | null;
@@ -75,7 +77,68 @@ export class Client {
             case "buy":
                 if (message.status === "success") {
                     useClientState.getState().setBuying(false);
+                    const receipt = message.receipt;
+                    toast({
+                        title: "Success",
+                        description: (
+                            <>
+                                {`Bought ${receipt.amountOut} ${receipt.tokenB.name} for ${receipt.amountIn} ${receipt.tokenA.name}`}
+                                <br />
+                                <a
+                                    href={`https://etherscan.io/tx/${receipt.transactionHash}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    View on Etherscan
+                                </a>
+                            </>
+                        ),
+                    });
                 }
+                break;
+            case "decision":
+                if (!message.tx1 && !message.tx2) {
+                    break;
+                }
+                const tx1 = message.tx1;
+                const tx2 = message.tx2;
+                toast({
+                    title: "Decision",
+                    description: (
+                        <>
+                            {`Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`}
+                            <br />
+                            <a
+                                href={`https://etherscan.io/tx/${tx1.transactionHash}`}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                View on Etherscan
+                            </a>
+                            <br />
+                            {`Bought ${tx2.amountOut} ${tx2.tokenB.name} for ${tx2.amountIn} ${tx2.tokenA.name}`}
+                            <br />
+                            <a
+                                href={`https://etherscan.io/tx/${tx2.transactionHash}`}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                View on Etherscan
+                            </a>
+                        </>
+                    ),
+                });
+
+                useTradeBookStore.getState().addTrade({
+                    timestamp: Date.now(),
+                    pair: `${tx1.tokenA.name}/${tx1.tokenB.name}`,
+                    exchange1: tx1.exchange,
+                    exchange2: tx2.exchange,
+                    price1: tx1.price,
+                    price2: tx2.price,
+                    profit: tx1.amountOut - tx2.amountIn,
+                });
+                break;
             default:
                 console.log("Unknown message", message);
         }

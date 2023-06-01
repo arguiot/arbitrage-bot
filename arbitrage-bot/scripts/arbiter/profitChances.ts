@@ -1,5 +1,3 @@
-import { type } from "os";
-
 const modelJson = {
     coefficients: [
         3.2249590845866583, -0.008487893619997352, -8.289355052151508,
@@ -53,7 +51,7 @@ export function calculateProfitProbability({
     commission?: number;
 }): number {
     if (type === "dex") {
-        const availabilityScore = polynomial2DFunction(ttf, delta * 100);
+        const availabilityScore = polynomial2DFunction(ttf * 10, delta * 10);
         return availabilityScore * (1 - commission);
     }
     return delta > commission ? 1 : 0;

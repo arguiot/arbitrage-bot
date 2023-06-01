@@ -83,12 +83,12 @@ server.on("connection", (ws: CustomWebSocket) => {
                     validatedData.query.routerAddress,
                     validatedData.query.factoryAddress
                 );
-                await adapter.swapExactTokensForTokens(
-                    amountIn,
+
+                const receipt = await adapter.buyAtMinimumInput(
                     amountOut,
                     [validatedData.query.tokenA, validatedData.query.tokenB],
                     mainActor.wallet.address,
-                    Date.now() + 1000 * 60 // 60 seconds allowance
+                    Date.now() + 1000 * 120 // 120 seconds allowance
                 );
 
                 LiquidityCache.shared.invalidate(
@@ -106,8 +106,7 @@ server.on("connection", (ws: CustomWebSocket) => {
                     JSON.stringify({
                         status: "success",
                         topic: "buy",
-                        amountOut,
-                        amountIn,
+                        receipt,
                     })
                 );
             }
