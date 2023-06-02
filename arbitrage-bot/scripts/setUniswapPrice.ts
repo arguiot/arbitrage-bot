@@ -10,6 +10,7 @@ const WETH_ADDRESS = "0x272473bFB0C70e7316Ec04cFbae03EB3571A8D8F";
 const ROUTER_ABI = [
     "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
     "function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB)",
+    "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
 ];
 
 const FACTORY_ABI = [
@@ -60,7 +61,11 @@ async function getCurrentPrice(log: boolean = false): Promise<number> {
     return currentPrice;
 }
 
-async function approveIfNeeded(contract: ethers.Contract, spender: string, amount: BigNumberish) {
+async function approveIfNeeded(
+    contract: ethers.Contract,
+    spender: string,
+    amount: BigNumberish
+) {
     const allowance = await contract.allowance(wallet.address, spender);
     if (allowance.lt(amount)) {
         const tx = await contract.approve(spender, amount);
@@ -68,6 +73,43 @@ async function approveIfNeeded(contract: ethers.Contract, spender: string, amoun
         console.log(`Allowed ${spender} to spend ${amount}`);
     }
 }
+
+async function performSwapToMatchPrice(pair: ethers.Contract, desiredPrice: number) {
+    const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
+
+    const { reserve0, reserve1 } = await pair.getReserves();
+    const reserve0Big = BigNumber.from(reserve0);
+    const reserve1Big = BigNumber.from(reserve1);
+    const desiredPriceBig = BigNumber.from(Math.floor(desiredPrice * 1e6)).mul(
+        BigNumber.from(10).pow(12)
+    );
+
+    const inputAmount = reserve0Big
+        .mul(BigNumber.from(10).pow(18))
+        .div(desiredPriceBig)
+        .sub(reserve1Big);
+
+    await approveIfNeeded(usdt, ROUTER_ADDRESS, inputAmount);
+
+    const tx = await router.swapExactTokensForTokens(
+        inputAmount,
+        0,
+        [USDT_ADDRESS, WETH_ADDRESS],
+        wallet.address,
+        DEADLINE,
+        { gasLimit: 1000000 }
+    );
+
+    const receipt = await tx.wait();
+
+    console.log(
+        `Performed swap to match desired price, view on BSCScan: https://testnet.bscscan.com/tx/${receipt.transactionHash}`
+    );
+
+    const newPrice = await getCurrentPrice(true);
+    console.log(`New price after performing swap: ${newPrice}`);
+}
+
 
 async function adjustLiquidityToMatch(desiredPrice: number) {
     const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
@@ -77,12 +119,23 @@ async function adjustLiquidityToMatch(desiredPrice: number) {
 
     const amountWETH = BigNumber.from(100).mul(BigNumber.from(10).pow(18));
     const amountUSDT = amountWETH
-        .mul(BigNumber.from(Math.floor(desiredPrice * 1e6)).mul(
-            BigNumber.from(10).pow(12)
-        )).div(BigNumber.from(10).pow(18));
+        .mul(
+            BigNumber.from(Math.floor(desiredPrice * 1e6)).mul(
+                BigNumber.from(10).pow(12)
+            )
+        )
+        .div(BigNumber.from(10).pow(18));
 
     console.log(`Preparing to add liquidity:`);
-    console.log(`Amount WETH: ${ethers.utils.formatUnits(amountWETH, 18)} WETH and Amount USDT: ${ethers.utils.formatUnits(amountUSDT, 18)} USDT`);
+    console.log(
+        `Amount WETH: ${ethers.utils.formatUnits(
+            amountWETH,
+            18
+        )} WETH and Amount USDT: ${ethers.utils.formatUnits(
+            amountUSDT,
+            18
+        )} USDT`
+    );
 
     const liquidity = await pair.balanceOf(wallet.address);
 
@@ -131,6 +184,9 @@ async function adjustLiquidityToMatch(desiredPrice: number) {
     console.log(
         `Added liquidity, view on BSCScan: https://testnet.bscscan.com/tx/${receipt2.transactionHash}`
     );
+
+    // Swap
+    await performSwapToMatchPrice(pair, desiredPrice);
 
     const newPrice = await getCurrentPrice(true);
     console.log(`New price after adjusting liquidity: ${newPrice}`);

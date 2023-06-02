@@ -60,7 +60,7 @@ export default function Index({ environment }) {
                             ·
                         </span>
                     </h1>
-                    <ConnectKitButton />
+                    {/* <ConnectKitButton /> */}
                 </div>
                 <Separator className="mb-8" />
                 <div className="flex justify-between items-center">
@@ -121,7 +121,17 @@ export default function Index({ environment }) {
                         <Button
                             variant={decisions ? "destructive" : "primary"}
                             onClick={() => {
-                                Client.shared.subscribeToDecision();
+                                if (!decisions) {
+                                    Client.shared.subscribeToDecision();
+                                } else {
+                                    pairReset();
+                                    uniswapReset();
+                                    Client.shared.reset();
+                                    toast({
+                                        title: "Reset",
+                                        description: "Reset all data",
+                                    });
+                                }
                                 setDecisions(!decisions);
                             }}
                         >

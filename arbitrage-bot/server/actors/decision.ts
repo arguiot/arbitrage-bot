@@ -6,12 +6,15 @@ import Credentials from "../credentials/Credentials";
 import { Opportunity } from "../types/opportunity";
 import { LiquidityCache } from "../data/priceData";
 import { betSize } from "../../scripts/arbiter/betSize";
-type DecisionOptions = {};
+import { ServerWebSocket } from "../types/socket";
+type DecisionOptions = {
+    ws: ServerWebSocket;
+};
 export default class Decision implements Actor<DecisionOptions> {
     locked = false;
 
     // MARK: - Event handler
-    async receive(fromLoop?: string | undefined): Promise<PartialResult> {
+    async receive({ ws }: DecisionOptions): Promise<PartialResult> {
         if (this.locked) {
             return {
                 topic: "decision",
@@ -143,6 +146,14 @@ export default class Decision implements Actor<DecisionOptions> {
             `And sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`
         );
 
+        ws.send(
+            JSON.stringify({
+                topic: "notify",
+                title: "Arbitrage Opportunity",
+                message: `Buy ${bidAmount} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${opportunity.quote1.amountOut} ${opportunity.quote1.tokenB.name} and sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`,
+            })
+        );
+
         this.locked = true;
 
         // If we get here, we have a good opportunity
@@ -159,6 +170,14 @@ export default class Decision implements Actor<DecisionOptions> {
             `Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`
         );
 
+        ws.send(
+            JSON.stringify({
+                topic: "notify",
+                title: `Transaction on ${exchange1.name} is successful`,
+                message: `Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`,
+            })
+        );
+
         const tx2 = await exchange2.buyAtMaximumOutput(
             bidAmount,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
@@ -169,6 +188,14 @@ export default class Decision implements Actor<DecisionOptions> {
         console.log(`Transaction on ${exchange2.name} is successful`);
         console.log(
             `Sold ${tx2.amountIn} ${tx2.tokenA.name} for ${tx2.amountOut} ${tx2.tokenB.name}`
+        );
+
+        ws.send(
+            JSON.stringify({
+                topic: "notify",
+                title: `Transaction on ${exchange2.name} is successful`,
+                message: `Sold ${tx2.amountIn} ${tx2.tokenA.name} for ${tx2.amountOut} ${tx2.tokenB.name} `,
+            })
         );
 
         LiquidityCache.shared.invalidate(

@@ -295,6 +295,14 @@ export class UniswapV2 implements Exchange<Contract> {
         }
     }
 
+    priceForTokenPair(path: Token[], amountIn: number, amountOut: number) {
+        // First, we sort the tokens
+        const sortedTokens = this.sortTokens(path[0].address, path[1].address);
+        // If path is sorted, then the price is amountOut / amountIn, otherwise it's the opposite
+        const price = sortedTokens[0] === path[0].address ? amountIn / amountOut : amountOut / amountIn;
+        return price;
+    }
+
     async buyAtMaximumOutput(
         amountIn: number,
         path: Token[],
@@ -314,9 +322,9 @@ export class UniswapV2 implements Exchange<Contract> {
         const receipt = await tx.wait();
 
         const transactionHash = receipt.logs[1].transactionHash;
-        const amountOutHex = receipt.logs[1].data as string;
+        const amountOutHex = receipt.logs[2].data as string;
         const amountOut = Number(ethers.utils.formatEther(amountOutHex));
-        const price = amountIn / amountOut;
+        const price = this.priceForTokenPair(path, amountIn, amountOut);
 
         return {
             amountIn,
@@ -349,7 +357,7 @@ export class UniswapV2 implements Exchange<Contract> {
         const transactionHash = receipt.transactionHash;
         const amountInHex = receipt.logs[1].data as string;
         const amountIn = Number(ethers.utils.formatEther(amountInHex));
-        const price = amountIn / amountOut;
+        const price = this.priceForTokenPair(path, amountIn, amountOut);
 
         return {
             amountIn,

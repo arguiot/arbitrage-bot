@@ -6,7 +6,7 @@ export interface PartialResult {
 
 export interface Actor<T, U extends T = T> {
     /// Receive a signal from the actor's parent.
-    receive(fromLoop?: string): Promise<PartialResult>;
+    receive(options: T): Promise<PartialResult>;
     /// Add a child actor.
     addPeer(peer: Actor<U>): void;
     /// Remove a child actor.

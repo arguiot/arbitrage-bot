@@ -73,12 +73,14 @@ export default class MainActor implements Actor<MainActorOptions> {
     }
 
     async receive(): Promise<PartialResult> {
-        if (this.broadcastDecisions) {
-            const result = await this.decisionPeer.receive();
+        if (this.broadcastDecisions && this.ws) {
+            const result = await this.decisionPeer.receive({
+                ws: this.ws,
+            });
             if (result.reason) {
                 console.log(result.reason);
             }
-            if (this.ws && result.opportunity) {
+            if (result.opportunity) {
                 this.ws.publish(result.topic, JSON.stringify(result));
             }
         }

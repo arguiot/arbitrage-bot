@@ -65,6 +65,12 @@ export class Client {
     onMessage(event: MessageEvent) {
         const message = JSON.parse(event.data);
         switch (message.topic) {
+            case "notify":
+                toast({
+                    title: message.title,
+                    description: message.message,
+                });
+                break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
                     usePriceStore.getState().addQuote(message.exchange, {
@@ -136,7 +142,7 @@ export class Client {
                     exchange2: tx2.exchange,
                     price1: tx1.price,
                     price2: tx2.price,
-                    profit: tx1.amountOut - tx2.amountIn,
+                    profit: tx2.amountOut - tx1.amountIn,
                 });
                 break;
             default:

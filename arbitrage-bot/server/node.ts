@@ -53,13 +53,28 @@ server.on("connection", (ws: CustomWebSocket) => {
 
             if (validatedData.type === "subscribe") {
                 ws.subscribe(validatedData.topic);
+                ws.send(
+                    JSON.stringify({
+                        status: "success",
+                        topic: "notify",
+                        title: "Subscribed",
+                        message: `Subscribed to ${validatedData.topic}.`,
+                    })
+                );
             } else if (validatedData.type === "unsubscribe") {
                 ws.unsubscribe(validatedData.topic);
             } else if (validatedData.type === "reset") {
                 ws.unsubscribe("priceData");
                 mainActor = new MainActor();
                 mainActor.start({ ws });
-                ws.send(JSON.stringify({ status: "success", topic: "reset" }));
+                ws.send(
+                    JSON.stringify({
+                        status: "success",
+                        topic: "notify",
+                        title: "Reset",
+                        message: "Reset successful.",
+                    })
+                );
             } else if (validatedData.topic === "buy") {
                 if (typeof validatedData.query === "undefined")
                     throw new Error("No query specified");
