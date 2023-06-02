@@ -1,7 +1,7 @@
 import { ExchangesList } from "../../lib/exchanges";
 import { Exchange } from "../../scripts/exchanges/adapters/exchange";
 import { LiveCEX } from "../../scripts/exchanges/LiveCEX";
-import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
+import { UniswapV2, UniType } from "../../scripts/exchanges/UniswapV2";
 import { Wallet } from "ethers";
 
 export function getAdapter(
@@ -20,7 +20,7 @@ export function getAdapter(
                 factoryAddress,
                 wallet
             );
-            uniswap.name = exchange; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.
+            uniswap.name = exchange as UniType; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.
             return uniswap;
         case "binance":
         case "kraken":

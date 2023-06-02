@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { Runnable } from "../tasks/runnable";
 import { ServerWebSocket } from "../types/socket";
 import { Actor, PartialResult } from "./actor";
+import priceData from "../data/priceData";
 
 export type OnChainOptions = {
     ws: ServerWebSocket;
@@ -11,9 +12,11 @@ export type OnChainOptions = {
 export default class OnChain implements Actor<OnChainOptions> {
     task: Runnable;
     topic: string;
-    constructor(topic: string, task: Runnable) {
+    constructor(topic: string, query: any) {
         this.topic = topic;
-        this.task = task;
+        this.task = async () => {
+            return await priceData(query);
+        };
     }
 
     // This function is called when actor receives a signal
@@ -28,11 +31,7 @@ export default class OnChain implements Actor<OnChainOptions> {
         }
     }
 
-    addPeer(peer: Actor<OnChainOptions>): void {
-        throw new Error("Method not implemented.");
-    }
-
-    removePeer(peer: Actor<OnChainOptions>): void {
+    addPeer(topic: string, type: any, query: any): void {
         throw new Error("Method not implemented.");
     }
 }

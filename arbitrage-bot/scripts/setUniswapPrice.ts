@@ -1,8 +1,10 @@
 import { ethers, BigNumberish, BigNumber } from "ethers";
 
 // Constants
-const FACTORY_ADDRESS = "0xADf1687e201d1DCb466D902F350499D008811e84";
-const ROUTER_ADDRESS = "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20";
+// const FACTORY_ADDRESS = "0xADf1687e201d1DCb466D902F350499D008811e84";
+// const ROUTER_ADDRESS = "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20";
+const FACTORY_ADDRESS = "0x5722F3b02b9fe2003b3045D73E9230684707B257";
+const ROUTER_ADDRESS = "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B";
 const USDT_ADDRESS = "0x0a1B8D7450F69d33803e8b084aBA9d2F858f6574";
 const WETH_ADDRESS = "0x272473bFB0C70e7316Ec04cFbae03EB3571A8D8F";
 
@@ -15,6 +17,7 @@ const ROUTER_ABI = [
 
 const FACTORY_ABI = [
     "function getPair(address tokenA, address tokenB) external view returns (address pair)",
+    "function createPair(address tokenA, address tokenB) external returns (address pair)",
 ];
 
 // ABI for ERC20 and Uniswap V2 Pair
@@ -47,8 +50,38 @@ const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
 const usdt = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, wallet);
 const weth = new ethers.Contract(WETH_ADDRESS, ERC20_ABI, wallet);
 
+async function checkContractExistence(contractAddress) {
+    const code = await provider.getCode(contractAddress);
+    return code !== "0x";
+}
+
 async function getCurrentPrice(log: boolean = false): Promise<number> {
     const pairAddress = await factory.getPair(USDT_ADDRESS, WETH_ADDRESS);
+
+    if (!(await checkContractExistence(pairAddress))) {
+        console.log("Pair does not exist");
+        // Create pair
+        // Approve USDT to be spent by the factory
+        await approveIfNeeded(
+            usdt,
+            FACTORY_ADDRESS,
+            ethers.constants.MaxUint256
+        );
+        // Approve WETH to be spent by the factory
+        await approveIfNeeded(
+            weth,
+            FACTORY_ADDRESS,
+            ethers.constants.MaxUint256
+        );
+        // Create pair
+        const tx = await factory.createPair(USDT_ADDRESS, WETH_ADDRESS, {
+            gasLimit: 5000000,
+        });
+        await tx.wait();
+        console.log("Pair created at address: ", pairAddress);
+        return 0;
+    }
+
     const pair = new ethers.Contract(pairAddress, PAIR_ABI, wallet);
     const { reserve0, reserve1 } = await pair.getReserves();
     if (log) {
@@ -74,7 +107,10 @@ async function approveIfNeeded(
     }
 }
 
-async function performSwapToMatchPrice(pair: ethers.Contract, desiredPrice: number) {
+async function performSwapToMatchPrice(
+    pair: ethers.Contract,
+    desiredPrice: number
+) {
     const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
 
     const { reserve0, reserve1 } = await pair.getReserves();
@@ -109,7 +145,6 @@ async function performSwapToMatchPrice(pair: ethers.Contract, desiredPrice: numb
     const newPrice = await getCurrentPrice(true);
     console.log(`New price after performing swap: ${newPrice}`);
 }
-
 
 async function adjustLiquidityToMatch(desiredPrice: number) {
     const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now

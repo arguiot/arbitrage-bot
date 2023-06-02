@@ -48,7 +48,7 @@ export default function Index({ environment }) {
 
     return (
         <>
-            <div className="prose mx-auto mt-8">
+            <div className="prose max-w-none mx-auto mt-8 px-8">
                 <div className="flex justify-between items-center">
                     <h1>
                         Arbitrage Bot{" "}
@@ -92,9 +92,11 @@ export default function Index({ environment }) {
                         <>
                             <ExchangeCard environment={environment} />
                             <ExchangeCard environment={environment} />
+                            <ExchangeCard environment={environment} />
                         </>
                     ) : (
                         <>
+                            <Skeleton className="w-1/2 h-96" />
                             <Skeleton className="w-1/2 h-96" />
                             <Skeleton className="w-1/2 h-96" />
                         </>

@@ -5,8 +5,19 @@ const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json"
 const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
 const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
 
+const hashes = {
+    apeswap:
+        "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
+    pancakeswap:
+        "0xd0d4c4cd0848c93cb4fd1f498d7013ee6bfb25783ea21593d5834f5d250ece66",
+    uniswap:
+        "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
+};
+
+export type UniType = keyof typeof hashes;
+
 export class UniswapV2 implements Exchange<Contract> {
-    name = "uniswap";
+    name: UniType = "uniswap";
     type: "dex" | "cex" = "dex";
 
     delegate: Contract;
@@ -79,10 +90,7 @@ export class UniswapV2 implements Exchange<Contract> {
             tokenA.toLowerCase() < tokenB.toLowerCase()
                 ? [tokenA, tokenB]
                 : [tokenB, tokenA];
-        const initCodeHash =
-            this.name === "pancakeswap"
-                ? "0xd0d4c4cd0848c93cb4fd1f498d7013ee6bfb25783ea21593d5834f5d250ece66"
-                : "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
+        const initCodeHash = hashes[this.name];
         const salt = ethers.utils.solidityKeccak256(
             ["address", "address"],
             [token0, token1]
@@ -124,7 +132,7 @@ export class UniswapV2 implements Exchange<Contract> {
             throw new Error("INSUFFICIENT_LIQUIDITY");
         }
         const amountInWithFee = amountIn.mul(
-            this.name === "pancakeswap" ? 998 : 997
+            this.name === "pancakeswap" || this.name === "apeswap" ? 998 : 997
         );
         const numerator = amountInWithFee.mul(reserveOut);
         const denominator = reserveIn.mul(1000).add(amountInWithFee);
@@ -151,7 +159,12 @@ export class UniswapV2 implements Exchange<Contract> {
             reserveA
                 .mul(reserveB)
                 .mul(1000000)
-                .div(1000000 + (this.name === "pancakeswap" ? 2500 : 3000))
+                .div(
+                    1000000 +
+                    (this.name === "pancakeswap" || this.name === "apeswap"
+                        ? 2500
+                        : 3000)
+                )
         );
 
         // Amount in is the minimum between the max available amount (in ethers) and the best amount in (in wei)
@@ -299,7 +312,10 @@ export class UniswapV2 implements Exchange<Contract> {
         // First, we sort the tokens
         const sortedTokens = this.sortTokens(path[0].address, path[1].address);
         // If path is sorted, then the price is amountOut / amountIn, otherwise it's the opposite
-        const price = sortedTokens[0] === path[0].address ? amountIn / amountOut : amountOut / amountIn;
+        const price =
+            sortedTokens[0] === path[0].address
+                ? amountIn / amountOut
+                : amountOut / amountIn;
         return price;
     }
 

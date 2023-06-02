@@ -66,6 +66,10 @@ export default function Difference() {
                         Difference: {percentage.toFixed(3)}%
                     </div>
                     <Progress value={percentage} />
+                    <span className="text-sm text-gray-500">
+                        {" "}
+                        {arbitrage.exchange1} - {arbitrage.exchange2}
+                    </span>
                 </div>
                 {/* <div className="w-full">
                 <div className="text-xl font-bold">Probability of Profit: {(prob * 100).toFixed(2)}%</div>

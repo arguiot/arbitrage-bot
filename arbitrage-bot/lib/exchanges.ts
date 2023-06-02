@@ -31,6 +31,13 @@ export const ExchangesList: IExchangesList = {
             factoryAddress: "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
             routerAddress: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
         },
+        apeswap: {
+            name: "ApeSwap",
+            type: "dex",
+            adapter: "uniswap",
+            factoryAddress: "0x5722F3b02b9fe2003b3045D73E9230684707B257",
+            routerAddress: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B",
+        },
     },
     production: {
         uniswap: {

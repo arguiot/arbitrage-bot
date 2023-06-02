@@ -12,10 +12,11 @@ type DecisionOptions = {
 };
 export default class Decision implements Actor<DecisionOptions> {
     locked = false;
+    softLocked = false;
 
     // MARK: - Event handler
     async receive({ ws }: DecisionOptions): Promise<PartialResult> {
-        if (this.locked) {
+        if (this.softLocked || this.locked) {
             return {
                 topic: "decision",
                 opportunity: undefined,
@@ -26,7 +27,9 @@ export default class Decision implements Actor<DecisionOptions> {
         // First, let's get the opportunities
         const opportunity =
             PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
+
         if (!opportunity) {
+            console.log("No opportunity");
             return {
                 topic: "decision",
                 opportunity: undefined,
@@ -80,15 +83,15 @@ export default class Decision implements Actor<DecisionOptions> {
             opportunity.quote1.amount,
             opportunity.quote2.amount,
             bidSize *
-                (LiquidityCache.shared.get(
-                    opportunity.exchange1,
-                    opportunity.quote1.tokenB.name
-                ) ?? 0),
+            (LiquidityCache.shared.get(
+                opportunity.exchange1,
+                opportunity.quote1.tokenB.name
+            ) ?? 0),
             bidSize *
-                (LiquidityCache.shared.get(
-                    opportunity.exchange2,
-                    opportunity.quote2.tokenA.name
-                ) ?? 0),
+            (LiquidityCache.shared.get(
+                opportunity.exchange2,
+                opportunity.quote2.tokenA.name
+            ) ?? 0),
         ]
             .filter((x) => x > 0)
             .reduce((a, b) => Math.min(a, b));
@@ -136,6 +139,7 @@ export default class Decision implements Actor<DecisionOptions> {
             return {
                 topic: "decision",
                 opportunity: undefined,
+                reason: "Locked",
             };
         }
 
@@ -155,6 +159,7 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         this.locked = true;
+        this.softLocked = true;
 
         // If we get here, we have a good opportunity
         // Let's perform the transaction
@@ -215,6 +220,8 @@ export default class Decision implements Actor<DecisionOptions> {
             opportunity.quote2.tokenB.name
         );
 
+        this.softLocked = false;
+
         return {
             topic: "decision",
             opportunity,
@@ -229,11 +236,7 @@ export default class Decision implements Actor<DecisionOptions> {
         };
     }
 
-    addPeer(peer: Actor<DecisionOptions>): void {
-        throw new Error("Method not implemented.");
-    }
-
-    removePeer(peer: Actor<DecisionOptions>): void {
+    addPeer(topic: string, type: any, query: any): void {
         throw new Error("Method not implemented.");
     }
 }
