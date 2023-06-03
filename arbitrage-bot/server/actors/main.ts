@@ -10,6 +10,7 @@ import Decision from "./decision";
 import Credentials from "../credentials/Credentials";
 import { Worker } from "worker_threads";
 import path from "path";
+import PriceDataWorker from "./priceDataWorker";
 
 type MainActorOptions = {
     ws: ServerWebSocket;
@@ -46,22 +47,14 @@ export default class MainActor implements Actor<MainActorOptions> {
         // On chain peers
         // Clear provider events
         this.wallet.provider.removeAllListeners("block");
-        // this.wallet.provider.on("block", async (blockNumber) => {
-        //     console.log("New block: " + blockNumber);
-        //     await this.receive();
-        //     this.onChainPeers.forEach(async (peer) => {
-        //         const timeStart = performance.now();
-        //         const result = await peer.receive();
-        //         const timeEnd = performance.now();
-        //         const queryTime = timeEnd - timeStart;
-        //         result.queryTime = queryTime;
-        //         if (this.ws) {
-        //             this.ws.publish(result.topic, JSON.stringify(result));
-        //         } else {
-        //             console.log("No WebSocket connection");
-        //         }
-        //     });
-        // });
+        this.wallet.provider.on("block", async (blockNumber) => {
+            console.log("New block: " + blockNumber);
+            await this.receive();
+            this.onChainPeers.forEach(async (peer) => {
+                peer.ws = this.ws;
+                await peer.receive();
+            });
+        });
 
         // Main loop
         const interval = setInterval(async () => {
@@ -71,16 +64,10 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     async mainLoop() {
         await this.receive();
-        // for (const peer of this.offChainPeers) {
-        //     const timeStart = performance.now();
-        //     const result = await peer.receive();
-        //     const timeEnd = performance.now();
-        //     const queryTime = timeEnd - timeStart;
-        //     result.queryTime = queryTime;
-        //     if (this.ws) {
-        //         this.ws.publish(result.topic, JSON.stringify(result));
-        //     }
-        // }
+        for (const peer of this.offChainPeers) {
+            peer.ws = this.ws;
+            await peer.receive();
+        }
     }
 
     async receive(): Promise<PartialResult> {
@@ -102,8 +89,8 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     decisionPeer = new Decision();
 
-    onChainPeers: Worker[] = [];
-    offChainPeers: Worker[] = [];
+    onChainPeers: PriceDataWorker[] = [];
+    offChainPeers: PriceDataWorker[] = [];
 
     addPeer(
         topic: string,
@@ -118,11 +105,13 @@ export default class MainActor implements Actor<MainActorOptions> {
             workerPath: path.join(__dirname, "spawnActor.ts"),
         });
 
+        const peer = new PriceDataWorker({ worker });
+
         if (type === "on-chain") {
-            this.onChainPeers.push(worker);
+            this.onChainPeers.push(peer);
         }
         if (type === "off-chain") {
-            this.offChainPeers.push(worker);
+            this.offChainPeers.push(peer);
         }
     }
 
