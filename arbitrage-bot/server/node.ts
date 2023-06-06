@@ -53,14 +53,6 @@ server.on("connection", (ws: CustomWebSocket) => {
 
             if (validatedData.type === "subscribe") {
                 ws.subscribe(validatedData.topic);
-                ws.send(
-                    JSON.stringify({
-                        status: "success",
-                        topic: "notify",
-                        title: "Subscribed",
-                        message: `Subscribed to ${validatedData.topic}.`,
-                    })
-                );
             } else if (validatedData.type === "unsubscribe") {
                 ws.unsubscribe(validatedData.topic);
             } else if (validatedData.type === "reset") {
@@ -132,7 +124,12 @@ server.on("connection", (ws: CustomWebSocket) => {
                 const query = validatedData.query;
                 mainActor.subscribeToPriceData(query);
                 ws.send(
-                    JSON.stringify({ status: "subscribed", topic: "priceData" })
+                    JSON.stringify({
+                        status: "success",
+                        topic: "notify",
+                        title: "Subscribed",
+                        message: `Watching price on ${query?.exchange}.`,
+                    })
                 );
             } else if (validatedData.topic === "decision") {
                 mainActor.broadcastDecisions =

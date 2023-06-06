@@ -2,28 +2,19 @@ import MainActor from "./actors/main";
 import { ServerWebSocket } from "./types/socket";
 import { messageTypeSchema } from "./types/request";
 import { getAdapter } from "./data/adapters";
-import { LiquidityCache } from "./data/priceData";
+import { LiquidityCache } from "./store/LiquidityCache";
 
-type HeadersInit = Headers | string[][] | Record<string, string>;
-interface Server {
-    pendingWebsockets: number;
-    publish(
-        topic: string,
-        data: string | ArrayBufferView | ArrayBuffer,
-        compress?: boolean
-    ): number;
-    upgrade(
-        req: Request,
-        options?: {
-            headers?: HeadersInit;
-            data?: any;
-        }
-    ): boolean;
-}
+console.log("Server listening on port 8080, url: http://localhost:8080");
 
 let mainActor = new MainActor();
 
-console.log("Server listening on port 8080, url: http://localhost:8080");
+interface Server {
+    development: boolean;
+    hostname: string;
+    port: number;
+    pendingRequests: number;
+    stop(): void;
+}
 
 export default {
     port: 8080,
@@ -35,7 +26,7 @@ export default {
         return new Response("Upgrade failed :(", { status: 500 });
     },
     websocket: {
-        message(
+        async message(
             ws: ServerWebSocket,
             message: string | ArrayBuffer | Uint8Array
         ) {
@@ -45,6 +36,14 @@ export default {
 
                 if (validatedData.type === "subscribe") {
                     ws.subscribe(validatedData.topic);
+                    ws.send(
+                        JSON.stringify({
+                            status: "success",
+                            topic: "notify",
+                            title: "Subscribed",
+                            message: `Subscribed to ${validatedData.topic}.`,
+                        })
+                    );
                 } else if (validatedData.type === "unsubscribe") {
                     ws.unsubscribe(validatedData.topic);
                 } else if (validatedData.type === "reset") {
@@ -52,7 +51,12 @@ export default {
                     mainActor = new MainActor();
                     mainActor.start({ ws });
                     ws.send(
-                        JSON.stringify({ status: "success", topic: "reset" })
+                        JSON.stringify({
+                            status: "success",
+                            topic: "notify",
+                            title: "Reset",
+                            message: "Reset successful.",
+                        })
                     );
                 } else if (validatedData.topic === "buy") {
                     if (typeof validatedData.query === "undefined")
@@ -77,22 +81,24 @@ export default {
                         validatedData.query.routerAddress,
                         validatedData.query.factoryAddress
                     );
-                    adapter.swapExactTokensForTokens(
-                        amountIn,
+
+                    const receipt = await adapter.buyAtMinimumInput(
                         amountOut,
                         [
                             validatedData.query.tokenA,
                             validatedData.query.tokenB,
                         ],
                         mainActor.wallet.address,
-                        Date.now() + 1000 * 60 // 60 seconds allowance
+                        Date.now() + 1000 * 120 // 120 seconds allowance
                     );
 
-                    await LiquidityCache.shared.invalidate(
+                    const liquidityCache = new LiquidityCache(mainActor.memory);
+
+                    await liquidityCache.invalidate(
                         exchange,
                         validatedData.query.tokenA.name
                     );
-                    await LiquidityCache.shared.invalidate(
+                    await liquidityCache.invalidate(
                         exchange,
                         validatedData.query.tokenB.name
                     );
@@ -103,8 +109,7 @@ export default {
                         JSON.stringify({
                             status: "success",
                             topic: "buy",
-                            amountOut,
-                            amountIn,
+                            receipt,
                         })
                     );
                 }
@@ -119,23 +124,26 @@ export default {
                         })
                     );
                 } else if (validatedData.topic === "decision") {
+                    mainActor.broadcastDecisions =
+                        validatedData.type === "subscribe";
                     ws.send(
                         JSON.stringify({
-                            status: "subscribed",
+                            status: `${validatedData.type}d`,
                             topic: "decision",
                         })
                     );
                 }
             } catch (e) {
+                console.error(e);
                 ws.send(JSON.stringify({ error: e }));
             }
         }, // a message is received
         open(ws: ServerWebSocket) {
             mainActor.start({ ws }); // Starts the main actor
         }, // a socket is opened
-        close(ws, code, message) {
+        close(ws: ServerWebSocket, _code, _message) {
             ws.unsubscribe("priceData");
         }, // a socket is closed
-        drain(ws) {}, // the socket is ready to receive more data
+        drain(ws: ServerWebSocket) {}, // the socket is ready to receive more data
     },
 };

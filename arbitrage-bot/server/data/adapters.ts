@@ -14,7 +14,7 @@ export function getAdapter(
     const adapter = ExchangesList[environment][exchange].adapter ?? exchange;
 
     switch (adapter) {
-        case "uniswap":
+        case "uniswap": {
             const uniswap = new UniswapV2(
                 routerAddress,
                 factoryAddress,
@@ -22,6 +22,7 @@ export function getAdapter(
             );
             uniswap.name = exchange as UniType; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.
             return uniswap;
+        }
         case "binance":
         case "kraken":
         default:

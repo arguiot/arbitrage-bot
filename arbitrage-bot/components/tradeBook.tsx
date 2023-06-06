@@ -34,7 +34,8 @@ import {
     MoreHorizontal,
     ChevronDown,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { set } from "zod";
 
 export type Trade = {
     timestamp: number;
@@ -280,11 +281,17 @@ export const columns: ColumnDef<Trade>[] = [
 ];
 
 export default function TradeBook() {
-    const { getTrade } = useTradeBookStore();
+    const { trades } = useTradeBookStore();
+
+    const [hydratedTrades, setHydratedTrades] = useState<Trade[]>([]);
+
+    useEffect(() => {
+        setHydratedTrades(trades);
+    }, [trades]);
 
     return (
         <div className="w-full py-10 px-8">
-            <DataTable columns={columns} data={getTrade()} />
+            <DataTable columns={columns} data={hydratedTrades} />
         </div>
     );
 }

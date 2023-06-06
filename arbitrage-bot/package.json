@@ -1,11 +1,14 @@
 {
-    "name": "hardhat-project",
+    "name": "bot-arbitrage",
     "scripts": {
         "test": "hardhat test",
         "node": "hardhat node",
         "dev": "next dev",
         "server": "bun run server/index.ts --watch",
         "server-node": "ts-node server/node.ts node --inspect"
+    },
+    "engines": {
+        "node": ">=14.0.0"
     },
     "devDependencies": {
         "@nomiclabs/hardhat-ethers": "^2.2.3",
