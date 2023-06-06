@@ -33,7 +33,7 @@ const useTradeBookStore = create(
         }),
         {
             name: "trade-store",
-            storage: createJSONStorage(() => sessionStorage),
+            storage: createJSONStorage(() => localStorage),
         }
     )
 );

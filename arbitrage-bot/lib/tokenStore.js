@@ -24,7 +24,7 @@ const usePairStore = create(
         }),
         {
             name: "token-store",
-            storage: createJSONStorage(() => sessionStorage),
+            storage: createJSONStorage(() => localStorage),
         }
     )
 );
