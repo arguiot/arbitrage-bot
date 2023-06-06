@@ -33,7 +33,9 @@ export class SharedMemory {
         // @ts-expect-error
         await Atomics.waitAsync(int32View, 0, v0);
 
-        const decoded = new TextDecoder().decode(view.slice(4, int32View[0] + 4));
+        const decoded = new TextDecoder().decode(
+            view.slice(4, int32View[0] + 4)
+        );
         const parsed = decoded ? JSON.parse(decoded) : {};
         parsed[`${name}`] = value;
 

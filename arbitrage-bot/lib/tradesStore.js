@@ -28,7 +28,8 @@ const useTradeBookStore = create(
                         },
                     ],
                 })),
-            getTrade: () => get().trades.sort((a, b) => b.timestamp - a.timestamp),
+            getTrade: () =>
+                get().trades.sort((a, b) => b.timestamp - a.timestamp),
         }),
         {
             name: "trade-store",

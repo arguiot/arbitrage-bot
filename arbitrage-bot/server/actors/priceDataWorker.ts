@@ -105,10 +105,13 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
         });
 
         return new Promise((resolve, reject) => {
-            this.callbacks.set(`buyAtMaximumOutput-${id}`, (message: InOutMessage) => {
-                const result = message.payload;
-                resolve(result.receipt);
-            });
+            this.callbacks.set(
+                `buyAtMaximumOutput-${id}`,
+                (message: InOutMessage) => {
+                    const result = message.payload;
+                    resolve(result.receipt);
+                }
+            );
         });
     }
 
@@ -125,7 +128,7 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
         this.worker.postMessage({
             id,
             action: "buyAtMinimumInput",
-            payload: { 
+            payload: {
                 amountOut,
                 path,
                 to,
@@ -135,10 +138,13 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
         });
 
         return new Promise((resolve, reject) => {
-            this.callbacks.set(`buyAtMinimumInput-${id}`, (message: InOutMessage) => {
-                const result = message.payload;
-                resolve(result.receipt);
-            });
+            this.callbacks.set(
+                `buyAtMinimumInput-${id}`,
+                (message: InOutMessage) => {
+                    const result = message.payload;
+                    resolve(result.receipt);
+                }
+            );
         });
     }
 

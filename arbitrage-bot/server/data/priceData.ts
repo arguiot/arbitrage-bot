@@ -8,7 +8,6 @@ import { LiquidityCache } from "../store/LiquidityCache";
 import { SharedMemory } from "../store/SharedMemory";
 import { PriceDataQuery, PriceData } from "../types/priceDataQuery";
 
-
 export default async function priceData(
     memory: SharedMemory,
     {
@@ -18,7 +17,8 @@ export default async function priceData(
         wallet,
         routerAddress,
         factoryAddress,
-    }: PriceDataQuery): Promise<PriceData> {
+    }: PriceDataQuery
+): Promise<PriceData> {
     const adapter = getAdapter(exchange, wallet, routerAddress, factoryAddress);
 
     const liquidityCache = new LiquidityCache(memory);

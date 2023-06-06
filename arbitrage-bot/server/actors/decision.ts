@@ -26,7 +26,11 @@ export default class Decision implements Actor<DecisionOptions> {
     }
 
     // MARK: - Event handler
-    async receive({ ws, onChainPeers, offChainPeers }: DecisionOptions): Promise<PartialResult> {
+    async receive({
+        ws,
+        onChainPeers,
+        offChainPeers,
+    }: DecisionOptions): Promise<PartialResult> {
         if (this.softLocked || this.locked) {
             return {
                 topic: "decision",
@@ -96,15 +100,15 @@ export default class Decision implements Actor<DecisionOptions> {
             opportunity.quote1.amount,
             opportunity.quote2.amount,
             bidSize *
-            (await liquidityCache.get(
-                opportunity.exchange1,
-                opportunity.quote1.tokenB.name
-            ) ?? 0),
+                ((await liquidityCache.get(
+                    opportunity.exchange1,
+                    opportunity.quote1.tokenB.name
+                )) ?? 0),
             bidSize *
-            (await liquidityCache.get(
-                opportunity.exchange2,
-                opportunity.quote2.tokenA.name
-            ) ?? 0),
+                ((await liquidityCache.get(
+                    opportunity.exchange2,
+                    opportunity.quote2.tokenA.name
+                )) ?? 0),
         ]
             .filter((x) => x > 0)
             .reduce((a, b) => Math.min(a, b));
@@ -174,8 +178,14 @@ export default class Decision implements Actor<DecisionOptions> {
         this.locked = true;
         this.softLocked = true;
 
-        const peer1: PriceDataWorker = exchange1.type === "cex" ? offChainPeers.get(exchange1.name)! : onChainPeers.get(exchange1.name)!;
-        const peer2: PriceDataWorker = exchange2.type === "cex" ? offChainPeers.get(exchange2.name)! : onChainPeers.get(exchange2.name)!;
+        const peer1: PriceDataWorker =
+            exchange1.type === "cex"
+                ? offChainPeers.get(exchange1.name)!
+                : onChainPeers.get(exchange1.name)!;
+        const peer2: PriceDataWorker =
+            exchange2.type === "cex"
+                ? offChainPeers.get(exchange2.name)!
+                : onChainPeers.get(exchange2.name)!;
         // If we get here, we have a good opportunity
         const nonce = await Credentials.shared.wallet.getTransactionCount();
         // Let's perform the transaction
@@ -183,7 +193,7 @@ export default class Decision implements Actor<DecisionOptions> {
             bidAmount,
             [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
-            Date.now() + ttf1 * 1000,
+            Date.now() + ttf1 * 1000
             // nonce + 1
         );
 
@@ -191,7 +201,7 @@ export default class Decision implements Actor<DecisionOptions> {
             bidAmount,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
-            Date.now() + ttf2 * 1000,
+            Date.now() + ttf2 * 1000
             // nonce + 2
         );
 

@@ -39,7 +39,7 @@ export default function Worker({
 
     parentPort.on("message", async (message: InOutMessage) => {
         const id = message.id;
-        const action = message.action; 
+        const action = message.action;
         const payload = message.payload;
         switch (action) {
             case "receive":
@@ -55,7 +55,13 @@ export default function Worker({
                     id,
                     action,
                     payload: {
-                        receipt: await actor.buyAtMinimumInput(payload.amountOut, payload.path, payload.to, payload.deadline, payload.nonce),
+                        receipt: await actor.buyAtMinimumInput(
+                            payload.amountOut,
+                            payload.path,
+                            payload.to,
+                            payload.deadline,
+                            payload.nonce
+                        ),
                     },
                 });
                 break;
@@ -65,7 +71,13 @@ export default function Worker({
                     id,
                     action,
                     payload: {
-                        receipt: await actor.buyAtMaximumOutput(payload.amountIn, payload.path, payload.to, payload.deadline, payload.nonce),
+                        receipt: await actor.buyAtMaximumOutput(
+                            payload.amountIn,
+                            payload.path,
+                            payload.to,
+                            payload.deadline,
+                            payload.nonce
+                        ),
                     },
                 });
                 break;

@@ -19,16 +19,21 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react"
-import { ChevronDown } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+    ArrowDown,
+    ArrowUp,
+    ArrowUpDown,
+    MoreHorizontal,
+    ChevronDown,
+} from "lucide-react";
 import React from "react";
 
 export type Trade = {
@@ -50,13 +55,14 @@ export function DataTable<TData extends Record<string, any>>({
     columns,
     data,
 }: DataTableProps<TData>) {
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: "timestamp", desc: true }])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
+    const [sorting, setSorting] = React.useState<SortingState>([
+        { id: "timestamp", desc: true },
+    ]);
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
+        React.useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = React.useState({});
 
     const table = useReactTable({
         data,
@@ -82,9 +88,15 @@ export function DataTable<TData extends Record<string, any>>({
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter transactions..."
-                    value={(table.getColumn("exchange1")?.getFilterValue() as string) ?? ""}
+                    value={
+                        (table
+                            .getColumn("exchange1")
+                            ?.getFilterValue() as string) ?? ""
+                    }
                     onChange={(event) =>
-                        table.getColumn("exchange1")?.setFilterValue(event.target.value)
+                        table
+                            .getColumn("exchange1")
+                            ?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
@@ -110,7 +122,7 @@ export function DataTable<TData extends Record<string, any>>({
                                     >
                                         {column.id}
                                     </DropdownMenuCheckboxItem>
-                                )
+                                );
                             })}
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -126,11 +138,12 @@ export function DataTable<TData extends Record<string, any>>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext()
+                                                  )}
                                         </TableHead>
-                                    )
+                                    );
                                 })}
                             </TableRow>
                         ))}
@@ -140,7 +153,9 @@ export function DataTable<TData extends Record<string, any>>({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
+                                    data-state={
+                                        row.getIsSelected() && "selected"
+                                    }
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -204,17 +219,23 @@ export const columns: ColumnDef<Trade>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
                 >
                     Time
-                    {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
-                    {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
+                    {column.getIsSorted() === "asc" && (
+                        <ArrowUp className="ml-2 h-4 w-4" />
+                    )}
+                    {column.getIsSorted() === "desc" && (
+                        <ArrowDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
-            )
+            );
         },
         cell: ({ cell }) => {
-            return <div>{formatDate(cell.getValue())}</div>
-        }
+            return <div>{formatDate(cell.getValue())}</div>;
+        },
     },
     {
         accessorKey: "pair",
@@ -242,13 +263,19 @@ export const columns: ColumnDef<Trade>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
                 >
                     Profit
-                    {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
-                    {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
+                    {column.getIsSorted() === "asc" && (
+                        <ArrowUp className="ml-2 h-4 w-4" />
+                    )}
+                    {column.getIsSorted() === "desc" && (
+                        <ArrowDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
-            )
+            );
         },
     },
 ];
