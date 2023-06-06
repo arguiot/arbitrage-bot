@@ -8,23 +8,23 @@ import { PriceDataQuery } from "../types/priceDataQuery";
 import { Receipt, Token } from "../../scripts/exchanges/adapters/exchange";
 import { getAdapter } from "../data/adapters";
 
-export type OffChainOptions = {
+export type ExchangeOptions = {
     ws: ServerWebSocket;
     provider: ethers.providers.JsonRpcProvider;
 };
 
-type OffChainQuery = {
+type ExchangeQuery = {
     query: PriceDataQuery;
     wallet: ethers.Wallet;
 };
 
-export default class OffChain implements Actor<OffChainOptions> {
+export default class ExchangeController implements Actor<ExchangeOptions> {
     query: PriceDataQuery;
     topic: string;
     memory: SharedMemory;
     wallet: ethers.Wallet;
 
-    constructor(topic: string, memory: SharedMemory, query: OffChainQuery) {
+    constructor(topic: string, memory: SharedMemory, query: ExchangeQuery) {
         this.topic = topic;
         this.memory = memory;
         this.query = query.query;
@@ -34,7 +34,11 @@ export default class OffChain implements Actor<OffChainOptions> {
     // This function is called when actor receives a signal
     async receive(): Promise<PartialResult> {
         try {
-            const quote = await priceData(this.memory, this.query);
+            const priceQuery = {
+                ...this.query,
+                wallet: this.wallet,
+            };
+            const quote = await priceData(this.memory, priceQuery);
             const result = {
                 topic: this.topic,
                 ...quote,
@@ -60,8 +64,6 @@ export default class OffChain implements Actor<OffChainOptions> {
             this.query.factoryAddress
         );
 
-        console.log("buyAtMaximumOutput", amountIn, path, to, deadline, nonce);
-
         return await exchange.buyAtMaximumOutput(
             amountIn,
             path,
@@ -84,8 +86,6 @@ export default class OffChain implements Actor<OffChainOptions> {
             this.query.routerAddress,
             this.query.factoryAddress
         );
-
-        console.log("buyAtMinimumInput", amountOut, path, to, deadline, nonce);
 
         return await exchange.buyAtMinimumInput(
             amountOut,

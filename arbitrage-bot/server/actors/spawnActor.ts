@@ -1,17 +1,10 @@
 import Credentials from "../credentials/Credentials";
-import OnChain from "./onChain";
-import OffChain from "./offChain";
 import { MessagePort } from "worker_threads";
 import { PartialResult } from "./actor";
 import { SharedMemory } from "../store/SharedMemory";
-
-const actors = {
-    "on-chain": OnChain,
-    "off-chain": OffChain,
-};
+import ExchangeController from "./ExchangeController";
 
 type WorkerData = {
-    actorClass: keyof typeof actors;
     parentPort: MessagePort;
     options: any;
     topic: string;
@@ -25,14 +18,13 @@ type InOutMessage = {
 };
 
 export default function Worker({
-    actorClass,
     parentPort,
     options,
     topic,
     memory,
 }: WorkerData) {
     const sharedMemory = new SharedMemory(memory.store);
-    const actor = new actors[actorClass](topic, sharedMemory, {
+    const actor = new ExchangeController(topic, sharedMemory, {
         query: options,
         wallet: Credentials.shared.wallet,
     });

@@ -1,9 +1,4 @@
-import { ethers } from "ethers";
 import { ServerWebSocket } from "../types/socket";
-import OnChain from "./onChain";
-import OffChain from "./offChain";
-import { Runnable } from "../tasks/runnable";
-import priceData from "../data/priceData";
 import { Actor, PartialResult } from "./actor";
 import { Query, Token } from "../types/request";
 import Decision from "./decision";
@@ -34,6 +29,8 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     broadcastDecisions = false;
 
+    interval: NodeJS.Timeout | undefined = undefined;
+
     constructor() {
         (async () => {
             console.log("Connected to provider: " + process.env.JSON_RPC_URL);
@@ -63,7 +60,11 @@ export default class MainActor implements Actor<MainActorOptions> {
         });
 
         // Main loop
-        const interval = setInterval(async () => {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+
+        this.interval = setInterval(async () => {
             await this.mainLoop();
         }, 1000);
     }
@@ -104,7 +105,6 @@ export default class MainActor implements Actor<MainActorOptions> {
     addPeer(topic: string, type: ActorType, query: PriceQuery): void {
         const worker = spawnActor({
             ws: () => this.ws,
-            actor: type,
             options: query,
             topic: topic,
             workerPath: path.join(__dirname, "spawnActor.ts"),
@@ -160,7 +160,6 @@ export default class MainActor implements Actor<MainActorOptions> {
 
 type ActorOptions = {
     ws: () => ServerWebSocket | undefined;
-    actor: ActorType;
     workerPath: string;
     options: PriceQuery;
     topic: string;
@@ -169,7 +168,6 @@ type ActorOptions = {
 
 export function spawnActor({
     ws,
-    actor,
     workerPath,
     options,
     topic,
@@ -182,7 +180,6 @@ export function spawnActor({
             passedOptions: {
                 options,
                 topic,
-                actorClass: actor,
             },
         },
         // @ts-expect-error

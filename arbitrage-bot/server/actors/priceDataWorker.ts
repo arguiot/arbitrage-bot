@@ -1,21 +1,9 @@
-import { ethers } from "ethers";
-import { Runnable } from "../tasks/runnable";
 import { ServerWebSocket } from "../types/socket";
 import { Actor, PartialResult } from "./actor";
-import priceData from "../data/priceData";
-import Credentials from "../credentials/Credentials";
-import OnChain from "./onChain";
-import OffChain from "./offChain";
-import { MessagePort, Worker } from "worker_threads";
-import { spawnActor } from "./main";
+import { Worker } from "worker_threads";
 import crypto from "crypto";
 import { SharedMemory } from "../store/SharedMemory";
 import { Receipt, Token } from "../../scripts/exchanges/adapters/exchange";
-
-const actors = {
-    "on-chain": OnChain,
-    "off-chain": OffChain,
-};
 
 type PriceDataWorkerOptions = {
     worker: Worker;
