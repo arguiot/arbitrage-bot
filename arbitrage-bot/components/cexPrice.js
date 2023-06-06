@@ -1,6 +1,13 @@
+import { EstimatedTime } from "./ui/estimated-time";
+
 export default function CexPrice({ priceData }) {
     if (!priceData) {
-        return <div>Loading...</div>;
+        return (
+            <div>
+                <h4>Starting worker... </h4>
+                <EstimatedTime expectedTime={10000} />
+            </div>
+        );
     }
 
     return (

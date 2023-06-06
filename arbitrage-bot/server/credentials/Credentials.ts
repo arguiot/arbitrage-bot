@@ -1,5 +1,6 @@
 import { Wallet, ethers } from "ethers";
 import dotenv from "dotenv";
+import { isMainThread } from "worker_threads";
 
 export interface ExchangeCredentials {
     apiKey: string;
@@ -39,7 +40,9 @@ class Credentials {
             url: process.env.JSON_RPC_URL!,
         });
         this.wallet = new Wallet(privateKey, provider);
-        console.log("Using wallet address: " + this.wallet.address);
+        if (isMainThread) {
+            console.log("Using wallet address: " + this.wallet.address);
+        }
     }
 
     public static shared = new Credentials();

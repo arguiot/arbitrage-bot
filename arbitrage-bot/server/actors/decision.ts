@@ -90,28 +90,36 @@ export default class Decision implements Actor<DecisionOptions> {
         });
 
         // Let's calculate the size of the bid
-        const bidSize = betSize({
+        const balance1 =
+            (await liquidityCache.get(
+                exchange1.type === "dex" ? "dex" : opportunity.exchange1,
+                opportunity.quote1.tokenB.name
+            )) ?? 0;
+        const balance2 =
+            (await liquidityCache.get(
+                exchange2.type === "dex" ? "dex" : opportunity.exchange2,
+                opportunity.quote2.tokenA.name
+            )) ?? 0;
+
+        const bidAmount = betSize({
             profitProbability: Math.min(probability1, probability2),
             profitDelta: opportunity.percentProfit,
             maximumSlippage: 0.001,
+            balance: Math.min(
+                balance1,
+                balance2,
+                opportunity.quote1.amount,
+                opportunity.quote2.amount
+            ),
         });
 
-        const bidAmount = [
-            opportunity.quote1.amount,
-            opportunity.quote2.amount,
-            bidSize *
-                ((await liquidityCache.get(
-                    opportunity.exchange1,
-                    opportunity.quote1.tokenB.name
-                )) ?? 0),
-            bidSize *
-                ((await liquidityCache.get(
-                    opportunity.exchange2,
-                    opportunity.quote2.tokenA.name
-                )) ?? 0),
-        ]
-            .filter((x) => x > 0)
-            .reduce((a, b) => Math.min(a, b));
+        if (bidAmount <= 0) {
+            return {
+                topic: "decision",
+                opportunity: undefined,
+                reason: "Bid amount is too low",
+            };
+        }
 
         // Then, let's calculate the cost of the transaction
         const cost1 = await exchange1.estimateTransactionCost(
@@ -141,15 +149,15 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
 
-        // if (Math.min(probability1, probability2) < 0.5) {
-        //     return {
-        //         topic: "decision",
-        //         opportunity: undefined,
-        //         reason: "Probability of success is too low",
-        //         probability1,
-        //         probability2,
-        //     };
-        // }
+        if (Math.min(probability1, probability2) < 0.5) {
+            return {
+                topic: "decision",
+                opportunity: undefined,
+                reason: "Probability of success is too low",
+                probability1,
+                probability2,
+            };
+        }
 
         // Sometimes, concurrency issues can cause this to happen
         if (this.locked) {
@@ -170,6 +178,7 @@ export default class Decision implements Actor<DecisionOptions> {
         ws.send(
             JSON.stringify({
                 topic: "notify",
+                action: "started_arbitrage",
                 title: "Arbitrage Opportunity",
                 message: `Buy ${bidAmount} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${opportunity.quote1.amountOut} ${opportunity.quote1.tokenB.name} and sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`,
             })
@@ -186,8 +195,7 @@ export default class Decision implements Actor<DecisionOptions> {
             exchange2.type === "cex"
                 ? offChainPeers.get(exchange2.name)!
                 : onChainPeers.get(exchange2.name)!;
-        // If we get here, we have a good opportunity
-        const nonce = await Credentials.shared.wallet.getTransactionCount();
+
         // Let's perform the transaction
         const tx1 = await peer1.buyAtMinimumInput(
             bidAmount,
@@ -211,23 +219,24 @@ export default class Decision implements Actor<DecisionOptions> {
         const receipt2 = tx2;
 
         await liquidityCache.invalidate(
-            opportunity.exchange1,
+            exchange1.type === "dex" ? "dex" : opportunity.exchange1,
             opportunity.quote1.tokenA.name
         );
         await liquidityCache.invalidate(
-            opportunity.exchange1,
+            exchange1.type === "dex" ? "dex" : opportunity.exchange1,
             opportunity.quote1.tokenB.name
         );
         await liquidityCache.invalidate(
-            opportunity.exchange2,
+            exchange2.type === "dex" ? "dex" : opportunity.exchange2,
             opportunity.quote2.tokenA.name
         );
         await liquidityCache.invalidate(
-            opportunity.exchange2,
+            exchange2.type === "dex" ? "dex" : opportunity.exchange2,
             opportunity.quote2.tokenB.name
         );
 
         this.softLocked = false;
+        this.locked = false;
 
         return {
             topic: "decision",

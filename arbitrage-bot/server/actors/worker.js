@@ -8,12 +8,14 @@ require("ts-node").register({
 });
 try {
     const worker = require(path.resolve(__dirname, workerData.path));
+    console.log(
+        `Starting ${workerData.passedOptions.options.exchange} worker...`
+    );
     worker.default({
         ...workerData.passedOptions,
         parentPort,
         memory: workerData.memory,
     });
 } catch (e) {
-    debugger;
     console.error(e);
 }

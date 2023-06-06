@@ -54,4 +54,9 @@ export class SharedMemory {
         // Unlock int32View[0]
         Atomics.notify(int32View, 0, 1);
     }
+
+    clear() {
+        const int32View = new Int32Array(this.store);
+        Atomics.store(int32View, 0, 0);
+    }
 }

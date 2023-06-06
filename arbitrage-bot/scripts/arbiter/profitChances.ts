@@ -51,7 +51,11 @@ export function calculateProfitProbability({
     commission?: number;
 }): number {
     if (type === "dex") {
+        if (process.env.USE_TESTNET === "true") {
+            return 1;
+        }
         const availabilityScore = polynomial2DFunction(ttf * 10, delta * 10);
+
         return availabilityScore * (1 - commission);
     }
     return delta > commission ? 1 : 0;

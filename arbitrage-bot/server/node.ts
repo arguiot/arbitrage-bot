@@ -10,7 +10,7 @@ dotenv.config();
 
 const port = parseInt(process.env.PORT || "8080");
 
-let mainActor = new MainActor();
+const mainActor = new MainActor();
 
 console.log(`Server listening on port ${port}, url: http://localhost:${port}`);
 
@@ -65,7 +65,7 @@ server.on("connection", (ws: CustomWebSocket) => {
                 ws.unsubscribe(validatedData.topic);
             } else if (validatedData.type === "reset") {
                 ws.unsubscribe("priceData");
-                mainActor = new MainActor();
+
                 mainActor.start({ ws });
                 ws.send(
                     JSON.stringify({
@@ -135,9 +135,13 @@ server.on("connection", (ws: CustomWebSocket) => {
                     JSON.stringify({ status: "subscribed", topic: "priceData" })
                 );
             } else if (validatedData.topic === "decision") {
-                mainActor.broadcastDecisions = true;
+                mainActor.broadcastDecisions =
+                    validatedData.type === "subscribe";
                 ws.send(
-                    JSON.stringify({ status: "subscribed", topic: "decision" })
+                    JSON.stringify({
+                        status: `${validatedData.type}d`,
+                        topic: "decision",
+                    })
                 );
             }
         } catch (e) {
@@ -150,6 +154,5 @@ server.on("connection", (ws: CustomWebSocket) => {
         ws.unsubscribe("priceData");
     });
 
-    mainActor = new MainActor(); // Reset the actor
     mainActor.start({ ws });
 });

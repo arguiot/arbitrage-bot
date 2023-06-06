@@ -21,8 +21,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
 import { PairList } from "../lib/pairs";
+import { EstimatedTime } from "../components/ui/estimated-time";
 export default function Index({ environment }) {
-    const { connected, decisions, setDecisions } = useClientState();
+    const { connected, decisions, setDecisions, arbitrage } = useClientState();
     useEffect(() => {
         Client.shared = new Client();
     }, []);
@@ -103,6 +104,7 @@ export default function Index({ environment }) {
                     )}
                 </div>
                 {connected && <Difference />}
+                {arbitrage && <EstimatedTime expectedTime={15000} />}
                 <Separator className="mt-8" />
                 <div className="flex justify-between mt-12">
                     <Button
@@ -126,12 +128,11 @@ export default function Index({ environment }) {
                                 if (!decisions) {
                                     Client.shared.subscribeToDecision();
                                 } else {
-                                    pairReset();
-                                    uniswapReset();
-                                    Client.shared.reset();
+                                    Client.shared.unsubscribeFromDecision();
                                     toast({
-                                        title: "Reset",
-                                        description: "Reset all data",
+                                        title: "Arbitrage Stopped",
+                                        description:
+                                            "The bot is no longer looking for arbitrage opportunities",
                                     });
                                 }
                                 setDecisions(!decisions);
@@ -144,13 +145,7 @@ export default function Index({ environment }) {
                     )}
                 </div>
             </div>
-            {connected ? (
-                <TradeBook />
-            ) : (
-                <div className="py-10 px-8">
-                    <Skeleton className="w-full h-32" />
-                </div>
-            )}
+            <TradeBook />
         </>
     );
 }

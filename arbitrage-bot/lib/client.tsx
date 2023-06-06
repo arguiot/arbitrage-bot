@@ -20,9 +20,11 @@ export const useClientState = create((set) => ({
     decisions: false,
     buy: null,
     buying: false,
+    arbitrage: false,
     setConnnected: (connected: boolean) => set({ connected }),
     setDecisions: (decisions: boolean) => set({ decisions }),
     setBuy: (buy: any | null) => set({ buy }),
+    setArbitrage: (arbitrage: boolean) => set({ arbitrage }),
     setBuying: (buying: boolean) => {
         if (buying === false) {
             set({ buying, buy: null });
@@ -70,6 +72,9 @@ export class Client {
                     title: message.title,
                     description: message.message,
                 });
+                if (message.action === "started_arbitrage") {
+                    useClientState.getState().setArbitrage(true);
+                }
                 break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
@@ -144,6 +149,8 @@ export class Client {
                     price2: tx2.price,
                     profit: tx2.amountOut - tx1.amountIn,
                 });
+
+                useClientState.getState().setArbitrage(false);
                 break;
             default:
                 console.log("Unknown message", message);
@@ -187,6 +194,15 @@ export class Client {
         this.send(
             JSON.stringify({
                 type: "subscribe",
+                topic: "decision",
+            })
+        );
+    }
+
+    unsubscribeFromDecision() {
+        this.send(
+            JSON.stringify({
+                type: "unsubscribe",
                 topic: "decision",
             })
         );

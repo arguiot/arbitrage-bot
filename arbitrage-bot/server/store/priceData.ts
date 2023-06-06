@@ -72,6 +72,7 @@ export class PriceDataStore {
         for (const [exchange1, quote1] of quotes) {
             for (const [exchange2, quote2] of quotes) {
                 if (exchange1 === exchange2) continue;
+                if (quote1.amount === 0 || quote2.amount === 0) continue;
 
                 const price1 = quote1.transactionPrice;
                 const price2 = quote2.transactionPrice;

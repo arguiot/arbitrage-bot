@@ -22,47 +22,44 @@ export default async function priceData(
     const adapter = getAdapter(exchange, wallet, routerAddress, factoryAddress);
 
     const liquidityCache = new LiquidityCache(memory);
-    let balanceA = await liquidityCache.get(exchange, tokenA.name);
+    const cacheName = adapter.type === "dex" ? "dex" : exchange;
+    let balanceA = await liquidityCache.get(cacheName, tokenA.name);
     if (typeof balanceA === "undefined") {
         balanceA = await adapter.liquidityFor(tokenA);
-        await liquidityCache.set(exchange, tokenA.name, balanceA);
+        await liquidityCache.set(cacheName, tokenA.name, balanceA);
     }
-    let balanceB = await liquidityCache.get(exchange, tokenB.name);
+    let balanceB = await liquidityCache.get(cacheName, tokenB.name);
     if (typeof balanceB === "undefined") {
         balanceB = await adapter.liquidityFor(tokenB);
-        await liquidityCache.set(exchange, tokenB.name, balanceB);
+        await liquidityCache.set(cacheName, tokenB.name, balanceB);
     }
 
     const priceDataStore = new PriceDataStore(memory);
 
-    const arbitrage = priceDataStore.getArbitrageOpportunity();
-    let bet = 0.5;
-    if (arbitrage) {
-        const profitDelta = arbitrage.percentProfit;
-        const profitProbability = calculateProfitProbability({
-            type: adapter.type,
-            delta: profitDelta,
-            ttf:
-                (arbitrage.exchange1 === exchange
-                    ? arbitrage.quote1.ttf
-                    : arbitrage.quote2.ttf) ?? 20,
-        });
-        bet = betSize({
-            profitProbability,
-            profitDelta,
-            maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
-        });
-    } else {
-        bet = betSize({
-            profitProbability: 0.9, // 90% chance of success (arbitrary)
-            profitDelta: 0.01, // 1% profit (arbitrary)
-            maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
-        });
-    }
+    const arbitrage = priceDataStore.getArbitrageOpportunity() || {
+        percentProfit: 0.9,
+        profit: 1.09,
+        exchange1: exchange,
+        quote1: { ttf: 20 },
+        quote2: { ttf: 20 },
+    };
+    const profitDelta = arbitrage.profit;
+    const profitProbability = calculateProfitProbability({
+        type: adapter.type,
+        delta: arbitrage.profit,
+        ttf:
+            (arbitrage.exchange1 === exchange
+                ? arbitrage.quote1.ttf
+                : arbitrage.quote2.ttf) ?? 20,
+    });
+    const bet = betSize({
+        profitProbability,
+        profitDelta,
+        maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
+        balance: balanceA,
+    });
 
-    const size = balanceA * (bet <= 0 ? 0.5 : bet);
-
-    await priceDataStore.addBetSize(exchange, size);
+    await priceDataStore.addBetSize(exchange, bet);
 
     const maxAvailable = priceDataStore.getLowestBetSize();
 

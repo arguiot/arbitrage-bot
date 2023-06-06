@@ -45,7 +45,8 @@ export default class MainActor implements Actor<MainActorOptions> {
     }
 
     // MARK: - Actor
-    start(options: MainActorOptions): void {
+    async start(options: MainActorOptions): Promise<void> {
+        await this.clearTasks(); // Clear tasks and reset the memory
         this.ws = options.ws;
 
         // On chain peers
@@ -132,6 +133,20 @@ export default class MainActor implements Actor<MainActorOptions> {
         }
     }
 
+    async clearTasks() {
+        for (const [_exchange, peer] of this.onChainPeers) {
+            await peer.worker.terminate();
+        }
+        for (const [_exchange, peer] of this.offChainPeers) {
+            await peer.worker.terminate();
+        }
+        this.onChainPeers.clear();
+        this.offChainPeers.clear();
+
+        // Clear memory
+        this.memory.clear();
+    }
+
     // MARK: - Tasks
     subscribeToPriceData(query: Query) {
         if (typeof query === "undefined") return;
@@ -143,23 +158,23 @@ export default class MainActor implements Actor<MainActorOptions> {
     }
 }
 
-type ActorOptions<T> = {
+type ActorOptions = {
     ws: () => ServerWebSocket | undefined;
     actor: ActorType;
     workerPath: string;
-    options: T;
+    options: PriceQuery;
     topic: string;
     memory: SharedMemory;
 };
 
-export function spawnActor<T>({
+export function spawnActor({
     ws,
     actor,
     workerPath,
     options,
     topic,
     memory,
-}: ActorOptions<T>) {
+}: ActorOptions) {
     const worker = new Worker(path.join(__dirname, "worker.js"), {
         workerData: {
             memory,
@@ -170,6 +185,8 @@ export function spawnActor<T>({
                 actorClass: actor,
             },
         },
+        // @ts-expect-error
+        name: options.exchange,
     });
 
     worker.on("message", (result: PartialResult) => {
@@ -181,7 +198,6 @@ export function spawnActor<T>({
     });
 
     worker.on("error", (error) => {
-        debugger;
         console.error(error);
     });
 

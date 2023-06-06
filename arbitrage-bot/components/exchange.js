@@ -16,7 +16,6 @@ import {
 import useUniswapStore from "../lib/uniswapStore";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import UniswapPrice from "./uniswapPrice";
 import usePriceStore from "../lib/priceDataStore";
 import usePairStore from "../lib/tokenStore";
 import CexPrice from "./cexPrice";
@@ -35,13 +34,12 @@ import { ExchangesList } from "../lib/exchanges";
 import { useToast } from "./ui/use-toast";
 
 export default function ExchangeCard({ environment }) {
-    const { toast } = useToast();
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { getQuote } = usePriceStore();
     const { buy, setBuy, buying, setBuying } = useClientState();
 
-    const { isDeployed, deploy, factory, router } = useUniswapStore();
+    const { deploy } = useUniswapStore();
 
     const [isDeploying, setIsDeploying] = useState(false);
 
