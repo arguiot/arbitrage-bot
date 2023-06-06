@@ -3,32 +3,97 @@ import { Runnable } from "../tasks/runnable";
 import { ServerWebSocket } from "../types/socket";
 import { Actor, PartialResult } from "./actor";
 import priceData from "../data/priceData";
+import { SharedMemory } from "../store/SharedMemory";
+import { PriceDataQuery } from "../types/priceDataQuery";
+import { Receipt, Token } from "../../scripts/exchanges/adapters/exchange";
+import { getAdapter } from "../data/adapters";
 
 export type OnChainOptions = {
     ws: ServerWebSocket;
     provider: ethers.providers.JsonRpcProvider;
 };
 
+type OnChainQuery = {
+    query: PriceDataQuery;
+    wallet: ethers.Wallet;
+};
+
 export default class OnChain implements Actor<OnChainOptions> {
-    task: Runnable;
+    query: PriceDataQuery;
     topic: string;
-    constructor(topic: string, query: any) {
+    memory: SharedMemory;
+    wallet: ethers.Wallet;
+
+    constructor(topic: string, memory: SharedMemory, query: OnChainQuery) {
         this.topic = topic;
-        this.task = async () => {
-            return await priceData(query);
-        };
+        this.memory = memory;
+        this.query = query.query;
+        this.wallet = query.wallet;
     }
 
     // This function is called when actor receives a signal
     async receive(): Promise<PartialResult> {
         try {
-            const result = await this.task();
-            result.topic = this.topic;
+            const priceQuery = {
+                ...this.query,
+                wallet: this.wallet,
+            };
+            const quote = await priceData(this.memory, priceQuery);
+            const result = {
+                topic: this.topic,
+                ...quote,
+            };
             return result;
         } catch (e) {
             console.error(e);
             return { topic: this.topic, error: e };
         }
+    }
+
+    async buyAtMaximumOutput(
+        amountIn: number,
+        path: Token[],
+        to: string,
+        deadline: number,
+        nonce?: number
+    ): Promise<Receipt> {
+        const exchange = getAdapter(
+            this.query.exchange,
+            this.wallet,
+            this.query.routerAddress,
+            this.query.factoryAddress
+        );
+
+        return await exchange.buyAtMaximumOutput(
+            amountIn,
+            path,
+            to,
+            deadline,
+            nonce
+        );
+    }
+
+    async buyAtMinimumInput(
+        amountOut: number,
+        path: Token[],
+        to: string,
+        deadline: number,
+        nonce?: number
+    ): Promise<Receipt> {
+        const exchange = getAdapter(
+            this.query.exchange,
+            this.wallet,
+            this.query.routerAddress,
+            this.query.factoryAddress
+        );
+
+        return await exchange.buyAtMinimumInput(
+            amountOut,
+            path,
+            to,
+            deadline,
+            nonce
+        );
     }
 
     addPeer(topic: string, type: any, query: any): void {

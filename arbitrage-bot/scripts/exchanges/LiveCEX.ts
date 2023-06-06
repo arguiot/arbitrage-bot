@@ -49,10 +49,15 @@ export class LiveCEX implements Exchange<CCXTExchange> {
             `${token1.name}/${token2.name}`
         );
 
+        // Transaction price would be bid if pair is token1/token2, ask if token2/token1
+        const transactionPrice =
+            token1.name === tokenA.name ? price.bid : price.ask;
+
         return {
             amount: maxAvailableAmount,
             amountOut: maxAvailableAmount * (price.last ?? 0),
             price: price.last ?? 0,
+            transactionPrice: transactionPrice ?? price.last ?? 0,
             bid: price.bid ?? 0,
             ask: price.ask ?? 0,
             tokenA,

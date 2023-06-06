@@ -11,6 +11,7 @@ import Credentials from "../credentials/Credentials";
 import { Worker } from "worker_threads";
 import path from "path";
 import PriceDataWorker from "./priceDataWorker";
+import { SharedMemory } from "../store/SharedMemory";
 
 type MainActorOptions = {
     ws: ServerWebSocket;
@@ -23,11 +24,13 @@ type PriceQuery = {
     tokenB: Token;
     routerAddress?: string;
     factoryAddress?: string;
-}
+};
 export default class MainActor implements Actor<MainActorOptions> {
     ws?: ServerWebSocket = undefined;
 
     wallet = Credentials.shared.wallet;
+
+    memory = new SharedMemory();
 
     broadcastDecisions = false;
 
@@ -38,6 +41,7 @@ export default class MainActor implements Actor<MainActorOptions> {
                 "Block number: " + (await this.wallet.provider.getBlockNumber())
             );
         })();
+        this.decisionPeer = new Decision(this.memory);
     }
 
     // MARK: - Actor
@@ -52,6 +56,7 @@ export default class MainActor implements Actor<MainActorOptions> {
             await this.receive();
             this.onChainPeers.forEach(async (peer) => {
                 peer.ws = this.ws;
+                peer.memory = this.memory;
                 await peer.receive();
             });
         });
@@ -64,8 +69,9 @@ export default class MainActor implements Actor<MainActorOptions> {
 
     async mainLoop() {
         await this.receive();
-        for (const peer of this.offChainPeers) {
+        for (const [_exchange, peer] of this.offChainPeers) {
             peer.ws = this.ws;
+            peer.memory = this.memory;
             await peer.receive();
         }
     }
@@ -74,6 +80,8 @@ export default class MainActor implements Actor<MainActorOptions> {
         if (this.broadcastDecisions && this.ws) {
             const result = await this.decisionPeer.receive({
                 ws: this.ws,
+                onChainPeers: this.onChainPeers,
+                offChainPeers: this.offChainPeers,
             });
             if (result.reason) {
                 console.log(result.reason);
@@ -87,31 +95,28 @@ export default class MainActor implements Actor<MainActorOptions> {
         };
     }
 
-    decisionPeer = new Decision();
+    decisionPeer: Decision;
 
-    onChainPeers: PriceDataWorker[] = [];
-    offChainPeers: PriceDataWorker[] = [];
+    onChainPeers: Map<string, PriceDataWorker> = new Map();
+    offChainPeers: Map<string, PriceDataWorker> = new Map();
 
-    addPeer(
-        topic: string,
-        type: ActorType,
-        query: PriceQuery
-    ): void {
+    addPeer(topic: string, type: ActorType, query: PriceQuery): void {
         const worker = spawnActor({
             ws: () => this.ws,
             actor: type,
             options: query,
             topic: topic,
             workerPath: path.join(__dirname, "spawnActor.ts"),
+            memory: this.memory,
         });
 
-        const peer = new PriceDataWorker({ worker });
+        const peer = new PriceDataWorker(this.memory, { worker });
 
         if (type === "on-chain") {
-            this.onChainPeers.push(peer);
+            this.onChainPeers.set(query.exchange, peer);
         }
         if (type === "off-chain") {
-            this.offChainPeers.push(peer);
+            this.offChainPeers.set(query.exchange, peer);
         }
     }
 
@@ -144,24 +149,31 @@ type ActorOptions<T> = {
     workerPath: string;
     options: T;
     topic: string;
+    memory: SharedMemory;
 };
 
-export function spawnActor<T>({ ws, actor, workerPath, options, topic }: ActorOptions<T>) {
+export function spawnActor<T>({
+    ws,
+    actor,
+    workerPath,
+    options,
+    topic,
+    memory,
+}: ActorOptions<T>) {
     const worker = new Worker(path.join(__dirname, "worker.js"), {
         workerData: {
+            memory,
             path: workerPath,
             passedOptions: {
                 options,
                 topic,
-                actorClass: actor
+                actorClass: actor,
             },
         },
     });
 
     worker.on("message", (result: PartialResult) => {
         if (typeof result !== "object") return;
-        // Handle result from worker
-        result.queryTime = performance.now() - result.queryTime;
         const webSocket = ws();
         if (webSocket) {
             webSocket.publish(result.topic, JSON.stringify(result));
@@ -169,6 +181,7 @@ export function spawnActor<T>({ ws, actor, workerPath, options, topic }: ActorOp
     });
 
     worker.on("error", (error) => {
+        debugger;
         console.error(error);
     });
 

@@ -47,7 +47,8 @@ export interface Exchange<T> {
         amountIn: number,
         path: Token[],
         to: string,
-        deadline: number
+        deadline: number,
+        nonce?: number
     ): Promise<Receipt>; // Buys an exact amount of tokens for another token
 
     /// Buy with fixed output
@@ -55,7 +56,8 @@ export interface Exchange<T> {
         amountOut: number,
         path: Token[],
         to: string,
-        deadline: number
+        deadline: number,
+        nonce?: number
     ): Promise<Receipt>; // Buys an exact amount of tokens for another token
 
     // Liquidity methods

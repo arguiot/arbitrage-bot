@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 const useTradeBookStore = create(
     persist(
-        (set) => ({
+        (set, get) => ({
             trades: [],
             addTrade: ({
                 timestamp,
@@ -28,6 +28,7 @@ const useTradeBookStore = create(
                         },
                     ],
                 })),
+            getTrade: () => get().trades.sort((a, b) => b.timestamp - a.timestamp),
         }),
         {
             name: "trade-store",

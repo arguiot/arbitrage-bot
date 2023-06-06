@@ -4,18 +4,29 @@ import { getAdapter } from "../data/adapters";
 import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
 import Credentials from "../credentials/Credentials";
 import { Opportunity } from "../types/opportunity";
-import { LiquidityCache } from "../data/priceData";
+import { LiquidityCache } from "../store/LiquidityCache";
 import { betSize } from "../../scripts/arbiter/betSize";
 import { ServerWebSocket } from "../types/socket";
+import { SharedMemory } from "../store/SharedMemory";
+import PriceDataWorker from "./priceDataWorker";
+
 type DecisionOptions = {
     ws: ServerWebSocket;
+    onChainPeers: Map<string, PriceDataWorker>;
+    offChainPeers: Map<string, PriceDataWorker>;
 };
 export default class Decision implements Actor<DecisionOptions> {
     locked = false;
     softLocked = false;
 
+    memory: SharedMemory;
+
+    constructor(memory: SharedMemory) {
+        this.memory = memory;
+    }
+
     // MARK: - Event handler
-    async receive({ ws }: DecisionOptions): Promise<PartialResult> {
+    async receive({ ws, onChainPeers, offChainPeers }: DecisionOptions): Promise<PartialResult> {
         if (this.softLocked || this.locked) {
             return {
                 topic: "decision",
@@ -24,9 +35,11 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
 
+        const priceDataStore = new PriceDataStore(this.memory);
+        const liquidityCache = new LiquidityCache(this.memory);
         // First, let's get the opportunities
         const opportunity =
-            PriceDataStore.shared.getArbitrageOpportunity() as Opportunity;
+            priceDataStore.getArbitrageOpportunity() as Opportunity;
 
         if (!opportunity) {
             console.log("No opportunity");
@@ -83,12 +96,12 @@ export default class Decision implements Actor<DecisionOptions> {
             opportunity.quote1.amount,
             opportunity.quote2.amount,
             bidSize *
-            (LiquidityCache.shared.get(
+            (await liquidityCache.get(
                 opportunity.exchange1,
                 opportunity.quote1.tokenB.name
             ) ?? 0),
             bidSize *
-            (LiquidityCache.shared.get(
+            (await liquidityCache.get(
                 opportunity.exchange2,
                 opportunity.quote2.tokenA.name
             ) ?? 0),
@@ -161,61 +174,45 @@ export default class Decision implements Actor<DecisionOptions> {
         this.locked = true;
         this.softLocked = true;
 
+        const peer1: PriceDataWorker = exchange1.type === "cex" ? offChainPeers.get(exchange1.name)! : onChainPeers.get(exchange1.name)!;
+        const peer2: PriceDataWorker = exchange2.type === "cex" ? offChainPeers.get(exchange2.name)! : onChainPeers.get(exchange2.name)!;
         // If we get here, we have a good opportunity
+        const nonce = await Credentials.shared.wallet.getTransactionCount();
         // Let's perform the transaction
-        const tx1 = await exchange1.buyAtMinimumInput(
+        const tx1 = await peer1.buyAtMinimumInput(
             bidAmount,
             [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
-            Date.now() + ttf1 * 1000
+            Date.now() + ttf1 * 1000,
+            // nonce + 1
         );
 
-        console.log(`Transaction on ${exchange1.name} is successful`);
-        console.log(
-            `Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`
-        );
-
-        ws.send(
-            JSON.stringify({
-                topic: "notify",
-                title: `Transaction on ${exchange1.name} is successful`,
-                message: `Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`,
-            })
-        );
-
-        const tx2 = await exchange2.buyAtMaximumOutput(
+        const tx2 = await peer2.buyAtMaximumOutput(
             bidAmount,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
-            Date.now() + ttf2 * 1000
+            Date.now() + ttf2 * 1000,
+            // nonce + 2
         );
 
-        console.log(`Transaction on ${exchange2.name} is successful`);
-        console.log(
-            `Sold ${tx2.amountIn} ${tx2.tokenA.name} for ${tx2.amountOut} ${tx2.tokenB.name}`
-        );
+        // Let's wait for the transactions to complete
+        // const [receipt1, receipt2] = await Promise.all([tx1, tx2]);
+        const receipt1 = tx1;
+        const receipt2 = tx2;
 
-        ws.send(
-            JSON.stringify({
-                topic: "notify",
-                title: `Transaction on ${exchange2.name} is successful`,
-                message: `Sold ${tx2.amountIn} ${tx2.tokenA.name} for ${tx2.amountOut} ${tx2.tokenB.name} `,
-            })
-        );
-
-        LiquidityCache.shared.invalidate(
+        await liquidityCache.invalidate(
             opportunity.exchange1,
             opportunity.quote1.tokenA.name
         );
-        LiquidityCache.shared.invalidate(
+        await liquidityCache.invalidate(
             opportunity.exchange1,
             opportunity.quote1.tokenB.name
         );
-        LiquidityCache.shared.invalidate(
+        await liquidityCache.invalidate(
             opportunity.exchange2,
             opportunity.quote2.tokenA.name
         );
-        LiquidityCache.shared.invalidate(
+        await liquidityCache.invalidate(
             opportunity.exchange2,
             opportunity.quote2.tokenB.name
         );
@@ -226,11 +223,11 @@ export default class Decision implements Actor<DecisionOptions> {
             topic: "decision",
             opportunity,
             tx1: {
-                ...tx1,
+                ...receipt1,
                 exchange: opportunity.exchange1,
             },
             tx2: {
-                ...tx2,
+                ...receipt2,
                 exchange: opportunity.exchange2,
             },
         };

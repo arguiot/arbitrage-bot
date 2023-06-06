@@ -28,6 +28,7 @@ module.exports = {
     settings: {
         node: {
             tryExtensions: [".js", ".json", ".node", ".ts"],
+            engines: { node: ">=12" },
         },
     },
     ignorePatterns: ["*.css"],

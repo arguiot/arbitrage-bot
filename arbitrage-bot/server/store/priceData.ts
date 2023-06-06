@@ -1,31 +1,60 @@
 import { Quote } from "../../scripts/exchanges/types/Quote";
 import { Opportunity } from "../types/opportunity";
+import { SharedMemory } from "./SharedMemory";
 
 export class PriceDataStore {
-    static shared = new PriceDataStore();
+    private sharedMemory: SharedMemory;
 
-    quotes: Map<string, Quote> = new Map();
-    betSizes: Map<string, number> = new Map();
+    constructor(sharedMemory: SharedMemory) {
+        this.sharedMemory = sharedMemory;
+    }
 
-    addQuote(exchange: string, quote: Quote) {
-        this.quotes.set(exchange, quote);
+    // quotes: Map<string, Quote> = new Map();
+    // betSizes: Map<string, number> = new Map();
+
+    async addQuote(exchange: string, quote: Quote) {
+        const quotes = this.sharedMemory.getStore("quotes");
+        // Set the value in the cache
+        quotes[`${exchange}`] = quote;
+        // Save the cache to shared memory
+        await this.sharedMemory.setStore("quotes", quotes);
     }
 
     getQuote(exchange: string): Quote | undefined {
-        return this.quotes.get(exchange);
+        const quotes = this.sharedMemory.getStore("quotes");
+        // Return the value from the store
+        return quotes[`${exchange}`];
     }
 
-    addBetSize(exchange: string, betSize: number) {
-        this.betSizes.set(exchange, betSize);
+    getQuotes(): [string, Quote][] {
+        const quotes = this.sharedMemory.getStore("quotes");
+        // Return the value from the cache
+        return Object.entries(quotes);
+    }
+
+    async addBetSize(exchange: string, betSize: number) {
+        const betSizes = this.sharedMemory.getStore("bet-sizes");
+        // Set the value in the cache
+        betSizes[`${exchange}`] = betSize;
+        // Save the cache to shared memory
+        await this.sharedMemory.setStore("bet-sizes", betSizes);
     }
 
     getBetSize(exchange: string): number | undefined {
-        return this.betSizes.get(exchange);
+        const betSizes = this.sharedMemory.getStore("bet-sizes");
+        // Return the value from the cache
+        return betSizes[`${exchange}`];
+    }
+
+    getBetSizes(): number[] {
+        const betSizes = this.sharedMemory.getStore("bet-sizes");
+        // Return the value from the cache
+        return Object.values(betSizes);
     }
 
     getLowestBetSize(): number {
         let lowestBetSize = Infinity;
-        for (const betSize of this.betSizes.values()) {
+        for (const betSize of this.getBetSizes()) {
             if (betSize < lowestBetSize) {
                 lowestBetSize = betSize;
             }
@@ -38,12 +67,15 @@ export class PriceDataStore {
         let bestOpportunity: Opportunity | null = null;
         let bestProfit = 0;
 
-        for (const [exchange1, quote1] of this.quotes.entries()) {
-            for (const [exchange2, quote2] of this.quotes.entries()) {
+        const quotes = this.getQuotes();
+
+        for (const [exchange1, quote1] of quotes) {
+            for (const [exchange2, quote2] of quotes) {
                 if (exchange1 === exchange2) continue;
 
-                const price1 = quote1.ask ?? quote1.price;
-                const price2 = quote2.bid ?? quote2.price;
+                const price1 = quote1.transactionPrice;
+                const price2 = quote2.transactionPrice;
+
                 const priceDifference = price2 - price1;
                 const profit = priceDifference * quote2.amount;
 

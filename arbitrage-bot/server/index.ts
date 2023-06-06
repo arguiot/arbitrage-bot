@@ -88,11 +88,11 @@ export default {
                         Date.now() + 1000 * 60 // 60 seconds allowance
                     );
 
-                    LiquidityCache.shared.invalidate(
+                    await LiquidityCache.shared.invalidate(
                         exchange,
                         validatedData.query.tokenA.name
                     );
-                    LiquidityCache.shared.invalidate(
+                    await LiquidityCache.shared.invalidate(
                         exchange,
                         validatedData.query.tokenB.name
                     );

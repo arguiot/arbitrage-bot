@@ -1,4 +1,3 @@
-import { Token } from "../../scripts/exchanges/adapters/exchange";
 import { Quote } from "../../scripts/exchanges/types/Quote";
 
 export type Opportunity = {

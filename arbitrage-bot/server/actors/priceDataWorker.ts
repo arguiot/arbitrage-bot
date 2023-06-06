@@ -6,10 +6,11 @@ import priceData from "../data/priceData";
 import Credentials from "../credentials/Credentials";
 import OnChain from "./onChain";
 import OffChain from "./offChain";
-import { MessagePort } from "worker_threads";
+import { MessagePort, Worker } from "worker_threads";
 import { spawnActor } from "./main";
-import { Worker } from "worker_threads";
 import crypto from "crypto";
+import { SharedMemory } from "../store/SharedMemory";
+import { Receipt, Token } from "../../scripts/exchanges/adapters/exchange";
 
 const actors = {
     "on-chain": OnChain,
@@ -23,6 +24,7 @@ type PriceDataWorkerOptions = {
 
 type InOutMessage = {
     id: string;
+    action: string;
     payload: PartialResult;
 };
 
@@ -30,26 +32,22 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
     worker: Worker;
     ws?: ServerWebSocket;
 
-    timers: Map<string, number> = new Map();
+    memory: SharedMemory;
 
-    constructor({ worker, ws }: PriceDataWorkerOptions) {
+    callbacks: Map<string, (message: InOutMessage) => void> = new Map();
+
+    constructor(memory: SharedMemory, { worker, ws }: PriceDataWorkerOptions) {
         this.ws = ws;
+        this.memory = memory;
         this.worker = worker;
         this.worker.on("message", (message: InOutMessage) => {
             const id = message.id;
-            const result = message.payload;
+            const action = message.action;
 
-            const timeStart = this.timers.get(id);
-            if (timeStart) {
-                const timeEnd = performance.now();
-                const queryTime = timeEnd - timeStart;
-                result.queryTime = queryTime;
-            }
-            result.taskID = id;
-            if (this.ws) {
-                this.ws.publish(result.topic, JSON.stringify(result));
-            } else {
-                console.log("No WebSocket connection");
+            const callback = this.callbacks.get(`${action}-${id}`);
+            if (callback) {
+                callback(message);
+                this.callbacks.delete(`${action}-${id}`);
             }
         });
     }
@@ -60,12 +58,88 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
         const id = crypto.randomBytes(16).toString("hex");
 
         const timeStart = performance.now();
-        this.timers.set(id, timeStart);
+
+        this.callbacks.set(`receive-${id}`, (message: InOutMessage) => {
+            const result = message.payload;
+
+            const timeEnd = performance.now();
+            const queryTime = timeEnd - timeStart;
+            result.queryTime = queryTime;
+
+            result.taskID = id;
+            if (this.ws) {
+                this.ws.publish(result.topic, JSON.stringify(result));
+            } else {
+                console.log("No WebSocket connection");
+            }
+        });
+
         this.worker.postMessage({
             id,
+            action: "receive",
         });
 
         return { topic: "priceData" };
+    }
+
+    async buyAtMaximumOutput(
+        amountIn: number,
+        path: Token[],
+        to: string,
+        deadline: number,
+        nonce?: number
+    ): Promise<Receipt> {
+        // ID is a unique identifier for this query
+        const id = crypto.randomBytes(16).toString("hex");
+
+        this.worker.postMessage({
+            id,
+            action: "buyAtMaximumOutput",
+            payload: {
+                amountIn,
+                path,
+                to,
+                deadline,
+                nonce,
+            },
+        });
+
+        return new Promise((resolve, reject) => {
+            this.callbacks.set(`buyAtMaximumOutput-${id}`, (message: InOutMessage) => {
+                const result = message.payload;
+                resolve(result.receipt);
+            });
+        });
+    }
+
+    async buyAtMinimumInput(
+        amountOut: number,
+        path: Token[],
+        to: string,
+        deadline: number,
+        nonce?: number
+    ): Promise<Receipt> {
+        // ID is a unique identifier for this query
+        const id = crypto.randomBytes(16).toString("hex");
+
+        this.worker.postMessage({
+            id,
+            action: "buyAtMinimumInput",
+            payload: { 
+                amountOut,
+                path,
+                to,
+                deadline,
+                nonce,
+            },
+        });
+
+        return new Promise((resolve, reject) => {
+            this.callbacks.set(`buyAtMinimumInput-${id}`, (message: InOutMessage) => {
+                const result = message.payload;
+                resolve(result.receipt);
+            });
+        });
     }
 
     addPeer(topic: string, type: any, query: any): void {

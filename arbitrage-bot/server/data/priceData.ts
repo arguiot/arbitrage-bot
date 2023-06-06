@@ -4,57 +4,38 @@ import { getAdapter } from "./adapters";
 import { Token } from "../types/request";
 import { betSize } from "../../scripts/arbiter/betSize";
 import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
+import { LiquidityCache } from "../store/LiquidityCache";
+import { SharedMemory } from "../store/SharedMemory";
+import { PriceDataQuery, PriceData } from "../types/priceDataQuery";
 
-export class LiquidityCache {
-    static shared = new LiquidityCache();
-    cache = new Map<string, number>();
 
-    get(exchange: string, token: string) {
-        return this.cache.get(`${exchange}-${token}`);
-    }
-
-    set(exchange: string, token: string, value: number) {
-        this.cache.set(`${exchange}-${token}`, value);
-    }
-
-    invalidate(exchange: string, token: string) {
-        this.cache.delete(`${exchange}-${token}`);
-    }
-}
-
-export default async function priceData({
-    exchange,
-    tokenA,
-    tokenB,
-    wallet,
-    routerAddress,
-    factoryAddress,
-}: {
-    exchange: string;
-    tokenA: Token;
-    tokenB: Token;
-    wallet: ethers.Wallet;
-    routerAddress?: string;
-    factoryAddress?: string;
-}) {
+export default async function priceData(
+    memory: SharedMemory,
+    {
+        exchange,
+        tokenA,
+        tokenB,
+        wallet,
+        routerAddress,
+        factoryAddress,
+    }: PriceDataQuery): Promise<PriceData> {
     const adapter = getAdapter(exchange, wallet, routerAddress, factoryAddress);
 
-    let balanceA = LiquidityCache.shared.get(exchange, tokenA.name);
+    const liquidityCache = new LiquidityCache(memory);
+    let balanceA = await liquidityCache.get(exchange, tokenA.name);
     if (typeof balanceA === "undefined") {
         balanceA = await adapter.liquidityFor(tokenA);
-        LiquidityCache.shared.set(exchange, tokenA.name, balanceA);
+        await liquidityCache.set(exchange, tokenA.name, balanceA);
     }
-    let balanceB = LiquidityCache.shared.get(exchange, tokenB.name);
+    let balanceB = await liquidityCache.get(exchange, tokenB.name);
     if (typeof balanceB === "undefined") {
         balanceB = await adapter.liquidityFor(tokenB);
-        LiquidityCache.shared.set(exchange, tokenB.name, balanceB);
+        await liquidityCache.set(exchange, tokenB.name, balanceB);
     }
 
-    const amounts = Array.from(PriceDataStore.shared.quotes.values()).map(
-        (quote) => quote.amount
-    );
+    const priceDataStore = new PriceDataStore(memory);
 
-    const arbitrage = PriceDataStore.shared.getArbitrageOpportunity();
+    const arbitrage = priceDataStore.getArbitrageOpportunity();
     let bet = 0.5;
     if (arbitrage) {
         const profitDelta = arbitrage.percentProfit;
@@ -81,13 +62,13 @@ export default async function priceData({
 
     const size = balanceA * (bet <= 0 ? 0.5 : bet);
 
-    PriceDataStore.shared.addBetSize(exchange, size);
+    await priceDataStore.addBetSize(exchange, size);
 
-    const maxAvailable = PriceDataStore.shared.getLowestBetSize();
+    const maxAvailable = priceDataStore.getLowestBetSize();
 
     const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB);
 
-    PriceDataStore.shared.addQuote(exchange, quote);
+    priceDataStore.addQuote(exchange, quote);
 
     const ttf = await adapter.estimateTransactionTime(tokenA, tokenB);
 

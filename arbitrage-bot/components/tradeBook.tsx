@@ -1,8 +1,14 @@
 import useTradeBookStore from "../lib/tradesStore";
 import {
     ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -13,6 +19,17 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ChevronDown } from "lucide-react"
+import React from "react";
 
 export type Trade = {
     timestamp: number;
@@ -33,71 +50,171 @@ export function DataTable<TData extends Record<string, any>>({
     columns,
     data,
 }: DataTableProps<TData>) {
+    const [sorting, setSorting] = React.useState<SortingState>([{ id: "timestamp", desc: true }])
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+        []
+    )
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
+
     const table = useReactTable({
         data,
         columns,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            rowSelection,
+        },
     });
 
     return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
+        <div className="w-full">
+            <div className="flex items-center py-4">
+                <Input
+                    placeholder="Filter transactions..."
+                    value={(table.getColumn("exchange1")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table.getColumn("exchange1")?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="ml-auto">
+                            Columns <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {table
+                            .getAllColumns()
+                            .filter((column) => column.getCanHide())
+                            .map((column) => {
                                 return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
-                                    </TableHead>
-                                );
+                                    <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                    >
+                                        {column.id}
+                                    </DropdownMenuCheckboxItem>
+                                )
                             })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </TableCell>
-                                ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    )
+                                })}
                             </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-24 text-center"
-                            >
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                >
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
         </div>
     );
+}
+
+function formatDate(timestamp: number) {
+    return new Date(timestamp).toLocaleString();
 }
 
 export const columns: ColumnDef<Trade>[] = [
     {
         accessorKey: "timestamp",
-        header: "Timestamp",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Time
+                    {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
+                    {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
+                </Button>
+            )
+        },
+        cell: ({ cell }) => {
+            return <div>{formatDate(cell.getValue())}</div>
+        }
     },
     {
         accessorKey: "pair",
@@ -121,16 +238,27 @@ export const columns: ColumnDef<Trade>[] = [
     },
     {
         accessorKey: "profit",
-        header: "Profit",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Profit
+                    {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
+                    {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
+                </Button>
+            )
+        },
     },
 ];
 
 export default function TradeBook() {
-    const { trades } = useTradeBookStore();
+    const { getTrade } = useTradeBookStore();
 
     return (
         <div className="w-full py-10 px-8">
-            <DataTable columns={columns} data={trades} />
+            <DataTable columns={columns} data={getTrade()} />
         </div>
     );
 }

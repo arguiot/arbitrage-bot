@@ -4,7 +4,7 @@ import WebSocket from "ws";
 import dotenv from "dotenv";
 import { ServerWebSocket } from "./types/socket";
 import { getAdapter } from "./data/adapters";
-import { LiquidityCache } from "./data/priceData";
+import { LiquidityCache } from "./store/LiquidityCache";
 
 dotenv.config();
 
@@ -106,11 +106,13 @@ server.on("connection", (ws: CustomWebSocket) => {
                     Date.now() + 1000 * 120 // 120 seconds allowance
                 );
 
-                LiquidityCache.shared.invalidate(
+                const liquidityCache = new LiquidityCache(mainActor.memory);
+
+                await liquidityCache.invalidate(
                     exchange,
                     validatedData.query.tokenA.name
                 );
-                LiquidityCache.shared.invalidate(
+                await liquidityCache.invalidate(
                     exchange,
                     validatedData.query.tokenB.name
                 );

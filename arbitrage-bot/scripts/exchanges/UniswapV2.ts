@@ -161,9 +161,9 @@ export class UniswapV2 implements Exchange<Contract> {
                 .mul(1000000)
                 .div(
                     1000000 +
-                    (this.name === "pancakeswap" || this.name === "apeswap"
-                        ? 2500
-                        : 3000)
+                        (this.name === "pancakeswap" || this.name === "apeswap"
+                            ? 2500
+                            : 3000)
                 )
         );
 
@@ -190,10 +190,15 @@ export class UniswapV2 implements Exchange<Contract> {
 
         const price = Number(ethers.utils.formatUnits(priceBig, "ether"));
 
+        // Transaction price would be amountOut / amountIn
+
+        const transactionPrice = quote / amountInEther;
+
         return {
             amount: amountInEther,
             amountOut: quote,
             price,
+            transactionPrice,
             tokenA,
             tokenB,
             routerAddress: this.delegate.address,
@@ -323,8 +328,11 @@ export class UniswapV2 implements Exchange<Contract> {
         amountIn: number,
         path: Token[],
         to: string,
-        deadline: number
+        deadline: number,
+        nonce?: number
     ): Promise<Receipt> {
+        console.log(`Transaction on ${this.name} has nonce ${nonce}`);
+        // Send the transaction to the delegate contract
         const amount = ethers.utils.parseEther(amountIn.toString());
         const tx = await this.delegate.swapExactTokensForTokens(
             amount,
@@ -332,7 +340,7 @@ export class UniswapV2 implements Exchange<Contract> {
             path.map((token) => token.address),
             to,
             deadline,
-            { gasLimit: 1000000 }
+            { gasLimit: 1000000, nonce }
         );
 
         const receipt = await tx.wait();
@@ -356,8 +364,11 @@ export class UniswapV2 implements Exchange<Contract> {
         amountOut: number,
         path: Token[],
         to: string,
-        deadline: number
+        deadline: number,
+        nonce?: number
     ): Promise<Receipt> {
+        console.log(`Transaction on ${this.name} has nonce ${nonce}`);
+        // Send the transaction to the delegate contract
         const amount = ethers.utils.parseEther(amountOut.toString());
         const tx = await this.delegate.swapTokensForExactTokens(
             amount,
@@ -365,7 +376,7 @@ export class UniswapV2 implements Exchange<Contract> {
             path.map((token) => token.address),
             to,
             deadline,
-            { gasLimit: 1000000 }
+            { gasLimit: 1000000, nonce }
         );
 
         const receipt = await tx.wait();
