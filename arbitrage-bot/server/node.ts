@@ -134,6 +134,8 @@ server.on("connection", (ws: CustomWebSocket) => {
             } else if (validatedData.topic === "decision") {
                 mainActor.broadcastDecisions =
                     validatedData.type === "subscribe";
+                mainActor.decisionPeer.locked =
+                    validatedData.type !== "subscribe";
                 ws.send(
                     JSON.stringify({
                         status: `${validatedData.type}d`,

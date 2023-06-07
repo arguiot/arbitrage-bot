@@ -4,6 +4,7 @@ type Exchange = {
     adapter?: string;
     routerAddress?: string;
     factoryAddress?: string;
+    testnet?: boolean;
 };
 
 type IExchangesList = {
@@ -37,6 +38,11 @@ export const ExchangesList: IExchangesList = {
             adapter: "uniswap",
             factoryAddress: "0x5722F3b02b9fe2003b3045D73E9230684707B257",
             routerAddress: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B",
+        },
+        binance: {
+            name: "Binance",
+            type: "cex",
+            testnet: true,
         },
     },
     production: {

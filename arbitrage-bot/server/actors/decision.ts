@@ -5,10 +5,11 @@ import { calculateProfitProbability } from "../../scripts/arbiter/profitChances"
 import Credentials from "../credentials/Credentials";
 import { Opportunity } from "../types/opportunity";
 import { LiquidityCache } from "../store/LiquidityCache";
-import { betSize } from "../../scripts/arbiter/betSize";
+import { CexData, UniData, betSize } from "../../scripts/arbiter/betSize";
 import { ServerWebSocket } from "../types/socket";
 import { SharedMemory } from "../store/SharedMemory";
 import PriceDataWorker from "./priceDataWorker";
+import { BigNumber } from "ethers";
 
 type DecisionOptions = {
     ws: ServerWebSocket;
@@ -101,19 +102,52 @@ export default class Decision implements Actor<DecisionOptions> {
                 opportunity.quote2.tokenA.name
             )) ?? 0;
 
-        const bidAmount = betSize({
-            profitProbability: Math.min(probability1, probability2),
-            profitDelta: opportunity.percentProfit,
-            maximumSlippage: 0.001,
-            balance: Math.min(
-                balance1,
-                balance2,
-                opportunity.quote1.amount,
-                opportunity.quote2.amount
-            ),
+        const exchange1Data = {
+            inputBalance: balance1,
+            fee: exchange1.fee,
+        };
+        if (exchange1.type === "dex") {
+            (exchange1Data as UniData).reserve0 = BigNumber.from(
+                opportunity.quote1.reserveA
+            );
+            (exchange1Data as UniData).reserve1 = BigNumber.from(
+                opportunity.quote1.reserveB
+            );
+        } else {
+            (exchange1Data as CexData).price = opportunity.quote1.price;
+            (exchange1Data as CexData).ask = opportunity.quote1.ask;
+            (exchange1Data as CexData).bid = opportunity.quote1.bid;
+        }
+
+        const exchange2Data = {
+            inputBalance: balance2,
+            fee: exchange2.fee,
+        };
+        if (exchange2.type === "dex") {
+            (exchange2Data as UniData).reserve0 = BigNumber.from(
+                opportunity.quote2.reserveA
+            );
+            (exchange2Data as UniData).reserve1 = BigNumber.from(
+                opportunity.quote2.reserveB
+            );
+        } else {
+            (exchange2Data as CexData).price = opportunity.quote2.price;
+            (exchange2Data as CexData).ask = opportunity.quote2.ask;
+            (exchange2Data as CexData).bid = opportunity.quote2.bid;
+        }
+
+        const { amountInA, amountInB, amountOutA, amountOutB } = betSize({
+            exchange1: exchange1Data as CexData | UniData,
+            exchange2: exchange2Data as CexData | UniData,
         });
 
-        if (bidAmount <= 0) {
+        if (
+            amountInA <= 0 ||
+            amountInB <= 0 ||
+            amountOutA <= 0 ||
+            amountOutB <= 0 ||
+            amountOutB < amountInA
+        ) {
             return {
                 topic: "decision",
                 opportunity: undefined,
@@ -123,7 +157,7 @@ export default class Decision implements Actor<DecisionOptions> {
 
         // Then, let's calculate the cost of the transaction
         const cost1 = await exchange1.estimateTransactionCost(
-            bidAmount,
+            amountInA,
             opportunity.quote1.price,
             opportunity.quote1.tokenB,
             opportunity.quote1.tokenA,
@@ -131,15 +165,17 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         const cost2 = await exchange2.estimateTransactionCost(
-            bidAmount,
+            amountInB,
             opportunity.quote2.price,
             opportunity.quote2.tokenA,
             opportunity.quote2.tokenB,
             "sell"
         );
 
+        const profit = amountOutB - amountInA; // This is the profit in the quote token, but we don't care, the costInDollars is in the quote token
+
         // Verify that both costs is significantly less than the profit. If not, return undefined
-        if (cost1.costInDollars + cost2.costInDollars > opportunity.profit) {
+        if (cost1.costInDollars + cost2.costInDollars > profit) {
             return {
                 topic: "decision",
                 opportunity: undefined,
@@ -169,10 +205,10 @@ export default class Decision implements Actor<DecisionOptions> {
         }
 
         console.log(
-            `Was about to buy ${bidAmount} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${opportunity.quote1.amountOut} ${opportunity.quote1.tokenB.name}`
+            `Was about to buy ${amountOutA} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${amountInA} ${opportunity.quote1.tokenB.name}`
         );
         console.log(
-            `And sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`
+            `And sell ${amountInB} ${opportunity.quote2.tokenA.name} on ${exchange2.name} for ${amountOutB} ${opportunity.quote2.tokenB.name}`
         );
 
         ws.send(
@@ -180,7 +216,7 @@ export default class Decision implements Actor<DecisionOptions> {
                 topic: "notify",
                 action: "started_arbitrage",
                 title: "Arbitrage Opportunity",
-                message: `Buy ${bidAmount} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${opportunity.quote1.amountOut} ${opportunity.quote1.tokenB.name} and sell ${bidAmount} ${opportunity.quote2.tokenB.name} on ${exchange2.name} for ${opportunity.quote2.amountOut} ${opportunity.quote2.tokenA.name}`,
+                message: `Buy ${amountOutA} ${opportunity.quote1.tokenA.name} on ${exchange1.name} for ${amountInA} ${opportunity.quote1.tokenB.name} and sell ${amountInB} ${opportunity.quote2.tokenA.name} on ${exchange2.name} for ${amountOutB} ${opportunity.quote2.tokenB.name}`,
             })
         );
 
@@ -198,7 +234,7 @@ export default class Decision implements Actor<DecisionOptions> {
 
         // Let's perform the transaction
         const tx1 = await peer1.buyAtMinimumInput(
-            bidAmount,
+            amountOutA,
             [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
             Credentials.shared.wallet.address,
             Date.now() + ttf1 * 1000
@@ -206,7 +242,7 @@ export default class Decision implements Actor<DecisionOptions> {
         );
 
         const tx2 = await peer2.buyAtMaximumOutput(
-            bidAmount,
+            amountInB,
             [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
             Credentials.shared.wallet.address,
             Date.now() + ttf2 * 1000
@@ -237,6 +273,13 @@ export default class Decision implements Actor<DecisionOptions> {
 
         this.softLocked = false;
         this.locked = false;
+
+        console.log(
+            `Bought ${receipt1.amountOut} ${receipt1.tokenB.name} on ${exchange1.name} for ${receipt1.amountIn} ${receipt1.tokenA.name}`
+        );
+        console.log(
+            `Sold ${receipt2.amountIn} ${receipt2.tokenA.name} on ${exchange2.name} for ${receipt2.amountOut} ${receipt2.tokenB.name}`
+        );
 
         return {
             topic: "decision",

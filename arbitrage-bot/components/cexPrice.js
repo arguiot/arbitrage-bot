@@ -28,14 +28,14 @@ export default function CexPrice({ priceData }) {
                     </h3>
                 </>
             )}
-            {priceData.amount && (
+            {/* {priceData.amount && (
                 <>
                     <h3>
                         <span className="text-green-500">·</span> Amount:{" "}
                         {priceData.amount.toFixed(2)} {priceData.tokenA.name}
                     </h3>
                 </>
-            )}
+            )} */}
             <p>
                 Balance: {priceData.balanceA} {priceData.tokenA.name} /{" "}
                 {priceData.balanceB} {priceData.tokenB.name}

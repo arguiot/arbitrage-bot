@@ -36,32 +36,7 @@ export default async function priceData(
 
     const priceDataStore = new PriceDataStore(memory);
 
-    const arbitrage = priceDataStore.getArbitrageOpportunity() || {
-        percentProfit: 0.9,
-        profit: 1.09,
-        exchange1: exchange,
-        quote1: { ttf: 20 },
-        quote2: { ttf: 20 },
-    };
-    const profitDelta = arbitrage.profit;
-    const profitProbability = calculateProfitProbability({
-        type: adapter.type,
-        delta: arbitrage.profit,
-        ttf:
-            (arbitrage.exchange1 === exchange
-                ? arbitrage.quote1.ttf
-                : arbitrage.quote2.ttf) ?? 20,
-    });
-    const bet = betSize({
-        profitProbability,
-        profitDelta,
-        maximumSlippage: 0.001, // 0.1% slippage (arbitrary)
-        balance: balanceA,
-    });
-
-    await priceDataStore.addBetSize(exchange, bet);
-
-    const maxAvailable = priceDataStore.getLowestBetSize();
+    const maxAvailable = balanceA; // We can only buy as much as we have
 
     const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB);
 

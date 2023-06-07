@@ -13,6 +13,10 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     type: "cex" | "dex" = "cex";
     delegate: CCXTExchange;
 
+    get fee(): number {
+        return (this.delegate.fees as any).trading?.taker ?? 0;
+    }
+
     constructor(exchange: string, credentials?: ExchangeCredentials) {
         this.name = exchange;
         const args =

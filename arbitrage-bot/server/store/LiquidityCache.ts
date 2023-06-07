@@ -7,7 +7,7 @@ export class LiquidityCache {
         this.sharedMemory = sharedMemory;
     }
 
-    get(exchange: string, token: string) {
+    get(exchange: string, token: string): number {
         const cache = this.sharedMemory.getStore("liquidity-cache");
         // Return the value from the cache
         return cache[`${exchange}-${token}`];

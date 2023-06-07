@@ -24,6 +24,7 @@ export type Receipt = {
 export interface Exchange<T> {
     name: string;
     type: "dex" | "cex";
+    fee: number;
 
     // Properties
     delegate: T;

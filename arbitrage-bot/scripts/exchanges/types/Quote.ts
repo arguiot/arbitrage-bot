@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { Token } from "../adapters/exchange";
 
 export type Quote = {
@@ -12,4 +13,6 @@ export type Quote = {
     ttf?: number;
     routerAddress?: string;
     factoryAddress?: string;
+    reserveA?: BigNumber;
+    reserveB?: BigNumber;
 };

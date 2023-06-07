@@ -20,6 +20,16 @@ export class UniswapV2 implements Exchange<Contract> {
     name: UniType = "uniswap";
     type: "dex" | "cex" = "dex";
 
+    get fee(): number {
+        if (this.name === "apeswap") {
+            return 0.0025;
+        } else if (this.name === "pancakeswap") {
+            return 0.0025;
+        } else {
+            return 0.003;
+        }
+    }
+
     delegate: Contract;
     source: Contract;
 
@@ -161,9 +171,9 @@ export class UniswapV2 implements Exchange<Contract> {
                 .mul(1000000)
                 .div(
                     1000000 +
-                        (this.name === "pancakeswap" || this.name === "apeswap"
-                            ? 2500
-                            : 3000)
+                    (this.name === "pancakeswap" || this.name === "apeswap"
+                        ? 2500
+                        : 3000)
                 )
         );
 
@@ -203,6 +213,8 @@ export class UniswapV2 implements Exchange<Contract> {
             tokenB,
             routerAddress: this.delegate.address,
             factoryAddress: this.source.address,
+            reserveA: reserveA,
+            reserveB: reserveB,
         };
     }
 
@@ -243,43 +255,57 @@ export class UniswapV2 implements Exchange<Contract> {
         tokenA: Token,
         tokenB: Token
     ): Promise<Cost> {
-        // Ask the delegate for the gas price using contract.estimateGas method in ethers.js
-        // Use swapExactTokensForTokens or correct ETH method in the delegate contract to estimate the gas cost
         try {
-            let cost = BigNumber.from(0);
-            const deadline = BigNumber.from(
-                Math.floor(Date.now() / 1000) + 60 * 20
-            ); // 20 minutes from the current Unix time
+            const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
             const address = this.wallet.address;
             const oneETH = ethers.utils.parseEther(amountIn.toString());
 
-            // First convert ETH to WETH if necessary
-            const wethAddress =
-                process.env.WETH_CONTRACT_ADDRESS ??
-                "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-            if (tokenA.address === ethers.constants.AddressZero) {
-                tokenA = {
-                    name: "WETH",
-                    address: wethAddress,
-                };
-            }
-            if (tokenB.address === ethers.constants.AddressZero) {
-                tokenB = {
-                    name: "WETH",
-                    address: wethAddress,
-                };
-            }
+            const tokens = [
+                this.normalizeToken(tokenA),
+                this.normalizeToken(tokenB),
+            ];
+            const gasEstimate = await this.getGasEstimate(
+                tokens as [Token, Token],
+                oneETH,
+                address,
+                deadline,
+                amountIn
+            );
 
-            if (tokenA.address === wethAddress) {
-                cost = await this.delegate.estimateGas.swapExactETHForTokens(
+            const costInDollars = await this.calculateCostInDollars(
+                price,
+                gasEstimate
+            );
+
+            return { costInDollars, gas: gasEstimate };
+        } catch (e) {
+            const defaultGas = BigNumber.from(21000 * 100);
+            const defaultCost = 210 * 100 * 4000 * 10e-9;
+            return { costInDollars: defaultCost, gas: defaultGas };
+        }
+    }
+
+    private async getGasEstimate(
+        tokens: [Token, Token],
+        oneETH: BigNumber,
+        address: string,
+        deadline: number,
+        amountIn: number
+    ): Promise<BigNumber> {
+        const [tokenA, tokenB] = tokens;
+        let gasEstimate: BigNumber;
+
+        try {
+            if (tokenA.address === this.wethAddress) {
+                gasEstimate = await this.delegate.estimateGas.swapExactETHForTokens(
                     oneETH,
                     [tokenA.address, tokenB.address],
                     address,
                     deadline,
                     { value: amountIn }
                 );
-            } else if (tokenB.address === wethAddress) {
-                cost = await this.delegate.estimateGas.swapExactTokensForETH(
+            } else if (tokenB.address === this.wethAddress) {
+                gasEstimate = await this.delegate.estimateGas.swapExactTokensForETH(
                     oneETH,
                     amountIn,
                     [tokenA.address, tokenB.address],
@@ -287,30 +313,30 @@ export class UniswapV2 implements Exchange<Contract> {
                     deadline
                 );
             } else {
-                cost = await this.delegate.estimateGas.swapExactTokensForTokens(
-                    oneETH,
-                    amountIn,
-                    [tokenA.address, tokenB.address],
-                    address,
-                    deadline
-                );
+                gasEstimate =
+                    await this.delegate.estimateGas.swapExactTokensForTokens(
+                        oneETH,
+                        amountIn,
+                        [tokenA.address, tokenB.address],
+                        address,
+                        deadline
+                    );
             }
-
-            // MARK: - convert to dollars
-            // Get the current price of ETH
-            const provider = this.wallet.provider;
-            const { maxPriorityFeePerGas } = await provider.getFeeData();
-            // Multiply the gas cost by the price of ETH
-            const gas = cost.mul(maxPriorityFeePerGas ?? 100); // 100 is the gas price
-            const costInDollars = gas.toNumber() * price * 10e-9;
-
-            return { costInDollars, gas };
         } catch (e) {
-            return {
-                gas: BigNumber.from(21000 * 100),
-                costInDollars: 210 * 100 * 4000 * 10e-9,
-            }; // default gas
+            gasEstimate = BigNumber.from(21000 * 100);
         }
+
+        return gasEstimate;
+    }
+
+    private async calculateCostInDollars(
+        price: number,
+        gasEstimate: BigNumber
+    ): Promise<number> {
+        const provider = this.wallet.provider;
+        const { maxPriorityFeePerGas } = await provider.getFeeData();
+        const gas = gasEstimate.mul(maxPriorityFeePerGas ?? 100);
+        return gas.toNumber() * price * 1e-12;
     }
 
     priceForTokenPair(path: Token[], amountIn: number, amountOut: number) {
