@@ -1,15 +1,17 @@
 import { Actor, PartialResult } from "./actor";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "../data/adapters";
-import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
+import { calculateProfitProbability } from "../../src/arbiter/profitChances";
 import Credentials from "../credentials/Credentials";
 import { Opportunity } from "../types/opportunity";
 import { LiquidityCache } from "../store/LiquidityCache";
-import { CexData, UniData, betSize } from "../../scripts/arbiter/betSize";
+import { CexData, UniData, betSize } from "../../src/arbiter/betSize";
 import { ServerWebSocket } from "../types/socket";
 import { SharedMemory } from "../store/SharedMemory";
 import PriceDataWorker from "./priceDataWorker";
 import { BigNumber } from "ethers";
+import { UniswapV2 } from "../../src/exchanges/UniswapV2";
+import { Receipt } from "../../src/exchanges/adapters/exchange";
 
 type DecisionOptions = {
     ws: ServerWebSocket;
@@ -233,26 +235,59 @@ export default class Decision implements Actor<DecisionOptions> {
                 : onChainPeers.get(exchange2.name)!;
 
         // Let's perform the transaction
-        const tx1 = await peer1.buyAtMinimumInput(
-            amountOutA,
-            [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
-            Credentials.shared.wallet.address,
-            Date.now() + ttf1 * 1000
-            // nonce + 1
-        );
+        let receipt1: Receipt;
+        let receipt2: Receipt;
+        if (exchange1 instanceof UniswapV2 && exchange2 instanceof UniswapV2) { // Uniswap -> Uniswap we can use flash swaps
+            const exchange2Data = {
+                name: exchange2.name,
+                factoryRouter: exchange2.factoryRouter,
+                routerRouter: exchange2.routerRouter,
+            };
+            const flashSwap = await peer1.coordinateFlashSwap(
+                exchange2Data,
+                amountOutA,
+                [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
+            );
 
-        const tx2 = await peer2.buyAtMaximumOutput(
-            amountInB,
-            [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
-            Credentials.shared.wallet.address,
-            Date.now() + ttf2 * 1000
-            // nonce + 2
-        );
+            receipt1 = {
+                amountIn: flashSwap.amountIn, // Amount In A
+                amountOut: amountOutA, // Amount Out A
+                price: amountOutA / flashSwap.amountIn,
+                tokenA: opportunity.quote1.tokenB,
+                tokenB: opportunity.quote1.tokenA,
+                transactionHash: flashSwap.transactionHash,
+            };
 
-        // Let's wait for the transactions to complete
-        // const [receipt1, receipt2] = await Promise.all([tx1, tx2]);
-        const receipt1 = tx1;
-        const receipt2 = tx2;
+            receipt2 = {
+                amountIn: amountOutA, // Amount In B
+                amountOut: flashSwap.amountOut, // Amount Out B
+                price: flashSwap.price,
+                tokenA: opportunity.quote2.tokenA,
+                tokenB: opportunity.quote2.tokenB,
+                transactionHash: flashSwap.transactionHash,
+            };
+        } else {
+            const tx1 = await peer1.buyAtMinimumInput(
+                amountOutA,
+                [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
+                Credentials.shared.wallet.address,
+                Date.now() + ttf1 * 1000
+                // nonce + 1
+            );
+
+            const tx2 = await peer2.buyAtMaximumOutput(
+                amountInB,
+                [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
+                Credentials.shared.wallet.address,
+                Date.now() + ttf2 * 1000
+                // nonce + 2
+            );
+
+            // Let's wait for the transactions to complete
+            // const [receipt1, receipt2] = await Promise.all([tx1, tx2]);
+            receipt1 = tx1;
+            receipt2 = tx2;
+        }
 
         await liquidityCache.invalidate(
             exchange1.type === "dex" ? "dex" : opportunity.exchange1,

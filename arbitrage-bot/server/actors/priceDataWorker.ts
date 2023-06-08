@@ -3,7 +3,7 @@ import { Actor, PartialResult } from "./actor";
 import { Worker } from "worker_threads";
 import crypto from "crypto";
 import { SharedMemory } from "../store/SharedMemory";
-import { Receipt, Token } from "../../scripts/exchanges/adapters/exchange";
+import { Receipt, Token } from "../../src/exchanges/adapters/exchange";
 
 type PriceDataWorkerOptions = {
     worker: Worker;
@@ -128,6 +128,35 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
         return new Promise((resolve, reject) => {
             this.callbacks.set(
                 `buyAtMinimumInput-${id}`,
+                (message: InOutMessage) => {
+                    const result = message.payload;
+                    resolve(result.receipt);
+                }
+            );
+        });
+    }
+
+    async coordinateFlashSwap(
+        exchange2: UniswapV2Exchange,
+        amountBetween: number,
+        path: Token[]
+    ): Promise<Receipt> {
+        // ID is a unique identifier for this query
+        const id = crypto.randomBytes(16).toString("hex");
+
+        this.worker.postMessage({
+            id,
+            action: "coordinateFlashSwap",
+            payload: {
+                exchange2,
+                amountBetween,
+                path,
+            },
+        });
+
+        return new Promise((resolve, reject) => {
+            this.callbacks.set(
+                `coordinateFlashSwap-${id}`,
                 (message: InOutMessage) => {
                     const result = message.payload;
                     resolve(result.receipt);

@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
-import { deployUniswapV2 } from "../../scripts/exchanges/deploy/deployUniswapV2";
-import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
+import { deployUniswapV2 } from "../../src/exchanges/deploy/deployUniswapV2";
+import { UniswapV2 } from "../../src/exchanges/UniswapV2";
 import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 export async function deployV2({
     totalLiquidityA = 1000000,

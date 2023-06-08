@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { deployV2 } from "./deployV2";
-import { UniswapV2 } from "../../scripts/exchanges/UniswapV2";
+import { UniswapV2 } from "../../src/exchanges/UniswapV2";
 
 describe("Uniswap V2 Local", function () {
     this.beforeAll(async () => {

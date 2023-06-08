@@ -1,4 +1,4 @@
-import { Quote } from "../../scripts/exchanges/types/Quote";
+import { Quote } from "../../src/exchanges/types/Quote";
 import { Opportunity } from "../types/opportunity";
 import { SharedMemory } from "./SharedMemory";
 

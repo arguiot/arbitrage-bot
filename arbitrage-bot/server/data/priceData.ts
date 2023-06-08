@@ -1,9 +1,5 @@
-import { ethers } from "ethers";
 import { PriceDataStore } from "../store/priceData";
 import { getAdapter } from "./adapters";
-import { Token } from "../types/request";
-import { betSize } from "../../scripts/arbiter/betSize";
-import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
 import { LiquidityCache } from "../store/LiquidityCache";
 import { SharedMemory } from "../store/SharedMemory";
 import { PriceDataQuery, PriceData } from "../types/priceDataQuery";

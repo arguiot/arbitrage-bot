@@ -1,7 +1,7 @@
 import usePriceStore from "../lib/priceDataStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { calculateProfitProbability } from "@/scripts/arbiter/profitChances";
+import { calculateProfitProbability } from "@/src/arbiter/profitChances";
 import {
     Radar,
     RadarChart,

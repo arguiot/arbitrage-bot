@@ -4,7 +4,7 @@ import { Quote } from "./types/Quote";
 const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json");
 const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
 const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
-
+const _CoordinateUniswapV2 = require("../../artifacts/contracts/CoordinateUniswapV2.sol/CoordinateUniswapV2.json");
 const hashes = {
     apeswap:
         "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
@@ -15,6 +15,12 @@ const hashes = {
 };
 
 export type UniType = keyof typeof hashes;
+
+export type UniswapV2Exchange = {
+    name: UniType;
+    routerAddress: string;
+    factoryAddress: string;
+}
 
 export class UniswapV2 implements Exchange<Contract> {
     name: UniType = "uniswap";
@@ -30,8 +36,12 @@ export class UniswapV2 implements Exchange<Contract> {
         }
     }
 
+    /// Router
     delegate: Contract;
+    /// Factory
     source: Contract;
+
+    coordinator?: string;
 
     wallet: Wallet;
 
@@ -171,9 +181,9 @@ export class UniswapV2 implements Exchange<Contract> {
                 .mul(1000000)
                 .div(
                     1000000 +
-                        (this.name === "pancakeswap" || this.name === "apeswap"
-                            ? 2500
-                            : 3000)
+                    (this.name === "pancakeswap" || this.name === "apeswap"
+                        ? 2500
+                        : 3000)
                 )
         );
 
@@ -446,6 +456,113 @@ export class UniswapV2 implements Exchange<Contract> {
             )
         );
     }
+
+
+    async coordinateFlashSwap(
+        exchange2: UniswapV2,
+        amountBetween: number,
+        path: Token[]
+    ): Promise<Receipt> {
+        // Notify the Coordinator contract that we want to do a flash swap
+        if (!this.coordinator) {
+            throw new Error("Coordinator contract not set");
+        }
+
+        const coordinator = new ethers.Contract(
+            this.coordinator,
+            _CoordinateUniswapV2.abi,
+            this.wallet
+        );
+
+        const router1 = await coordinator.router1();
+        const router2 = await coordinator.router2();
+        const factory1 = await coordinator.factory1();
+        const factory2 = await coordinator.factory2();
+
+        // Check if the routers and factories are set
+        if (
+            router1 !== this.source.address ||
+            router2 !== exchange2.source.address ||
+            factory1 !== this.delegate.address ||
+            factory2 !== exchange2.delegate.address
+        ) {
+            const tx = await coordinator.setFactoriesAndRouters(
+                this.source.address,
+                exchange2.source.address,
+                this.delegate.address,
+                exchange2.delegate.address
+            );
+            await tx.wait();
+        }
+
+        // Ok, now we can do the flash swap on our router
+        const amount = ethers.utils.parseEther(amountBetween.toString());
+        const pairAddress = this.pairFor(
+            this.source.address,
+            path[0].address,
+            path[1].address
+        );
+        const pair = new ethers.Contract(
+            pairAddress,
+            IUniswapV2Pair.abi,
+            this.wallet
+        );
+
+        const slippageTolerance = 0.001; // 0.1% slippage tolerance
+
+        // Get reserves for exchange2
+        const [reserveIn2, reserveOut2] = await exchange2.getReserves(
+            exchange2.delegate.address,
+            path[0].address,
+            path[1].address
+        );
+
+        // Calculate the amount out for exchange2
+        const amountOut2 = exchange2.getAmountOut(
+            amount,
+            reserveIn2,
+            reserveOut2
+        );
+
+        // Calculate the amountOutMin for exchange2
+        const amountOutMin2 = amountOut2.mul(1 - slippageTolerance);
+
+        // Encode the data parameter with factory2 address and amountOutMin
+        const data = ethers.utils.defaultAbiCoder.encode(
+            ["address", "uint256"],
+            [exchange2.delegate.address, amountOutMin2]
+        );
+        const sortedTokens = this.sortTokens(path[0].address, path[1].address);
+
+        // Determine if we are swapping token0 or token1
+        const token0 = sortedTokens[0];
+        const token0IsInput = token0 === path[0].address;
+
+        const amount0 = token0IsInput ? amount : 0;
+        const amount1 = token0IsInput ? 0 : amount;
+
+        const tx = await pair.swap(
+            amount0, // Amount of token0 to swap
+            amount1, // Amount of token1 to swap
+            this.coordinator, // Callback address
+            data // Data parameter
+        );
+
+        const receipt = await tx.wait();
+        const transactionHash = receipt.transactionHash;
+        const amountOutHex = receipt.logs[token0IsInput ? 2 : 1].data as string;
+        const amountOutReceipt = Number(ethers.utils.formatEther(amountOutHex));
+
+        return {
+            transactionHash,
+            amountIn: amountBetween,
+            amountOut: amountOutReceipt,
+            price: amountOutReceipt / amountBetween,
+            tokenA: path[0],
+            tokenB: path[1],
+        };
+    }
+
 }
 
 function sqrt(number: BigNumber): BigNumber {

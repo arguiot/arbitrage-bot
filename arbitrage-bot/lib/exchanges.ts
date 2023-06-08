@@ -4,6 +4,7 @@ type Exchange = {
     adapter?: string;
     routerAddress?: string;
     factoryAddress?: string;
+    coordinatorAddress?: string; // Address of the coordinator contract for flash swaps
     testnet?: boolean;
 };
 
@@ -24,6 +25,7 @@ export const ExchangesList: IExchangesList = {
             adapter: "uniswap",
             factoryAddress: "0xADf1687e201d1DCb466D902F350499D008811e84",
             routerAddress: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20",
+            coordinatorAddress: "0x82806DD93DF24CdA6a95bBe5A427984C38AfdCE2",
         },
         pancakeswap: {
             name: "PancakeSwap",
@@ -31,6 +33,7 @@ export const ExchangesList: IExchangesList = {
             adapter: "uniswap",
             factoryAddress: "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
             routerAddress: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
+            coordinatorAddress: "0x82806DD93DF24CdA6a95bBe5A427984C38AfdCE2",
         },
         apeswap: {
             name: "ApeSwap",
@@ -38,6 +41,7 @@ export const ExchangesList: IExchangesList = {
             adapter: "uniswap",
             factoryAddress: "0x5722F3b02b9fe2003b3045D73E9230684707B257",
             routerAddress: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B",
+            coordinatorAddress: "0x82806DD93DF24CdA6a95bBe5A427984C38AfdCE2",
         },
         binance: {
             name: "Binance",

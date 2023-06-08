@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { calculateProfitProbability } from "../../scripts/arbiter/profitChances";
+import { calculateProfitProbability } from "../../src/arbiter/profitChances";
 
 describe("Profit Chances", function () {
     it("Should be low for long transactions", async () => {

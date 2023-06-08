@@ -73,6 +73,15 @@ export default function Worker({
                     },
                 });
                 break;
+            case "coordinateFlashSwap":
+                console.log(payload);
+                parentPort?.postMessage({
+                    id,
+                    action,
+                    payload: {
+                        receipt: await actor.coordinateFlashSwap(
+                    },
+                });
             default:
                 console.error(`Unknown action: ${action}`);
         }
