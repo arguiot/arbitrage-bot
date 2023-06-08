@@ -171,9 +171,9 @@ export class UniswapV2 implements Exchange<Contract> {
                 .mul(1000000)
                 .div(
                     1000000 +
-                    (this.name === "pancakeswap" || this.name === "apeswap"
-                        ? 2500
-                        : 3000)
+                        (this.name === "pancakeswap" || this.name === "apeswap"
+                            ? 2500
+                            : 3000)
                 )
         );
 
@@ -297,21 +297,23 @@ export class UniswapV2 implements Exchange<Contract> {
 
         try {
             if (tokenA.address === this.wethAddress) {
-                gasEstimate = await this.delegate.estimateGas.swapExactETHForTokens(
-                    oneETH,
-                    [tokenA.address, tokenB.address],
-                    address,
-                    deadline,
-                    { value: amountIn }
-                );
+                gasEstimate =
+                    await this.delegate.estimateGas.swapExactETHForTokens(
+                        oneETH,
+                        [tokenA.address, tokenB.address],
+                        address,
+                        deadline,
+                        { value: amountIn }
+                    );
             } else if (tokenB.address === this.wethAddress) {
-                gasEstimate = await this.delegate.estimateGas.swapExactTokensForETH(
-                    oneETH,
-                    amountIn,
-                    [tokenA.address, tokenB.address],
-                    address,
-                    deadline
-                );
+                gasEstimate =
+                    await this.delegate.estimateGas.swapExactTokensForETH(
+                        oneETH,
+                        amountIn,
+                        [tokenA.address, tokenB.address],
+                        address,
+                        deadline
+                    );
             } else {
                 gasEstimate =
                     await this.delegate.estimateGas.swapExactTokensForTokens(
