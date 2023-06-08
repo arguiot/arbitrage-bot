@@ -108,9 +108,11 @@ export class LiveCEX implements Exchange<CCXTExchange> {
             amountIn
         );
         console.log(order);
+
+        // Get amount out.
         return {
             amountIn,
-            amountOut: order.amount,
+            amountOut: order.cost,
             price: order.price,
             tokenA: path[0],
             tokenB: path[1],

@@ -13,6 +13,12 @@ const useTradeBookStore = create(
                 price1,
                 price2,
                 profit,
+                token1,
+                token2,
+                amountIn1,
+                amountOut1,
+                amountIn2,
+                amountOut2,
             }) =>
                 set((state) => ({
                     trades: [
@@ -25,6 +31,12 @@ const useTradeBookStore = create(
                             price1,
                             price2,
                             profit,
+                            token1,
+                            token2,
+                            amountIn1,
+                            amountOut1,
+                            amountIn2,
+                            amountOut2,
                         },
                     ],
                 })),

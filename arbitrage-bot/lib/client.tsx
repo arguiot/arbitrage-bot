@@ -148,6 +148,12 @@ export class Client {
                     price1: tx1.price,
                     price2: tx2.price,
                     profit: tx2.amountOut - tx1.amountIn,
+                    token1: tx1.tokenA,
+                    token2: tx1.tokenB,
+                    amountIn1: tx1.amountIn,
+                    amountOut1: tx1.amountOut,
+                    amountIn2: tx2.amountIn,
+                    amountOut2: tx2.amountOut,
                 });
 
                 useClientState.getState().setArbitrage(false);

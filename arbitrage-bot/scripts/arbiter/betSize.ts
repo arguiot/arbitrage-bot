@@ -2,7 +2,7 @@
  * Calculates the recommended bet size for a given arbitrage opportunity.
  */
 
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 export type UniData = {
     inputBalance: number;
@@ -59,23 +59,29 @@ export function betSize({
 
     // Helper function to calculate true price for CexData
     const calculateTruePriceCexData = (data: CexData) => ({
-        truePriceTokenA: data.price,
-        truePriceTokenB: 1 / data.price,
+        truePriceTokenA: 1, // 1 because we're using the price of token B, the ratio is important
+        truePriceTokenB: data.price,
     });
 
     // Determine the Dex exchange object
     const dex = "reserve0" in exchange1 ? exchange1 : (exchange2 as UniData);
 
     // Calculate the true price of tokens on the other exchange
-    const otherExchange = "reserve0" in exchange2 ? exchange2 : exchange1;
+    const otherExchange = "reserve0" in exchange1 ? exchange2 : exchange1;
     const otherTruePrices =
         "reserve0" in otherExchange
             ? calculateTruePriceUniData(otherExchange as UniData)
             : calculateTruePriceCexData(otherExchange as CexData);
 
     // Convert the true price values to BigNumber objects
-    const toBigNumber = (value: BigNumber | number) =>
-        value instanceof BigNumber ? value : BigNumber.from(value).mul(1e18);
+    const toBigNumber = (value: BigNumber | number) => {
+        if (value instanceof BigNumber) {
+            return value;
+        }
+
+        // Use parseUnits to handle decimal numbers
+        return ethers.utils.parseUnits(value.toString(), 18);
+    };
 
     const truePriceTokenAInBigNumber = toBigNumber(
         otherTruePrices.truePriceTokenA

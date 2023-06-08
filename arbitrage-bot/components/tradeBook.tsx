@@ -10,6 +10,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    FilterFn,
 } from "@tanstack/react-table";
 import {
     Table,
@@ -65,11 +66,26 @@ export function DataTable<TData extends Record<string, any>>({
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
 
+    const [globalFilter, setGlobalFilter] = React.useState("");
+
+    // Global filter
+    const filteredData: FilterFn<any> = (row, columnId, value, addMeta) => {
+        if (value === "") return true;
+        const val: string | number = row.getValue(columnId);
+        if (typeof val === "string") {
+            return val.toLowerCase().includes(value.toLowerCase());
+        } else if (typeof val === "number") {
+            return val.toString().includes(value);
+        }
+        return false;
+    };
+
     const table = useReactTable({
         data,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
+        globalFilterFn: filteredData,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -81,6 +97,7 @@ export function DataTable<TData extends Record<string, any>>({
             columnFilters,
             columnVisibility,
             rowSelection,
+            globalFilter,
         },
     });
 
@@ -89,15 +106,9 @@ export function DataTable<TData extends Record<string, any>>({
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter transactions..."
-                    value={
-                        (table
-                            .getColumn("exchange1")
-                            ?.getFilterValue() as string) ?? ""
-                    }
+                    value={globalFilter}
                     onChange={(event) =>
-                        table
-                            .getColumn("exchange1")
-                            ?.setFilterValue(event.target.value)
+                        setGlobalFilter(event.currentTarget.value)
                     }
                     className="max-w-sm"
                 />
@@ -139,10 +150,10 @@ export function DataTable<TData extends Record<string, any>>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
+                                                    header.column.columnDef
+                                                        .header,
+                                                    header.getContext()
+                                                )}
                                         </TableHead>
                                     );
                                 })}
@@ -277,6 +288,42 @@ export const columns: ColumnDef<Trade>[] = [
                 </Button>
             );
         },
+    },
+    {
+        accessorKey: "token1",
+        header: "Token 1",
+        cell: ({ cell }) => {
+            const token = cell.getValue();
+            if (!token || typeof token !== "object") return "Unknown";
+            if ("name" in token) return token.name;
+            return "Unknown";
+        },
+    },
+    {
+        accessorKey: "token2",
+        header: "Token 2",
+        cell: ({ cell }) => {
+            const token = cell.getValue();
+            if (!token || typeof token !== "object") return "Unknown";
+            if ("name" in token) return token.name;
+            return "Unknown";
+        },
+    },
+    {
+        accessorKey: "amountIn1",
+        header: "Amount In 1",
+    },
+    {
+        accessorKey: "amountOut1",
+        header: "Amount Out 1",
+    },
+    {
+        accessorKey: "amountIn2",
+        header: "Amount In 2",
+    },
+    {
+        accessorKey: "amountOut2",
+        header: "Amount Out 2",
     },
 ];
 

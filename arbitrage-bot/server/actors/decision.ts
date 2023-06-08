@@ -92,15 +92,15 @@ export default class Decision implements Actor<DecisionOptions> {
 
         // Let's calculate the size of the bid
         const balance1 =
-            (await liquidityCache.get(
+            ((await liquidityCache.get(
                 exchange1.type === "dex" ? "dex" : opportunity.exchange1,
                 opportunity.quote1.tokenB.name
-            )) ?? 0;
+            )) ?? 0) * 0.97; // 3% for fee & slippage
         const balance2 =
-            (await liquidityCache.get(
+            ((await liquidityCache.get(
                 exchange2.type === "dex" ? "dex" : opportunity.exchange2,
                 opportunity.quote2.tokenA.name
-            )) ?? 0;
+            )) ?? 0) * 0.97;
 
         const exchange1Data = {
             inputBalance: balance1,
