@@ -163,6 +163,24 @@ export class UniswapV2 implements Exchange<Contract> {
         return amountOut;
     }
 
+    getAmountIn(
+        amountOut: BigNumber,
+        reserveIn: BigNumber,
+        reserveOut: BigNumber
+    ): BigNumber {
+        if (amountOut.lte(0)) {
+            throw new Error("INSUFFICIENT_OUTPUT_AMOUNT");
+        }
+        if (reserveIn.lte(0) || reserveOut.lte(0)) {
+            throw new Error("INSUFFICIENT_LIQUIDITY");
+        }
+        const numerator = reserveIn.mul(amountOut).mul(1000);
+        const denominator = reserveOut.sub(amountOut).mul(997);
+        const amountIn = numerator.div(denominator).add(1);
+        return amountIn;
+    }
+
+
     async getQuote(
         maxAvailableAmount: number,
         tokenA: Token,
@@ -482,6 +500,12 @@ export class UniswapV2 implements Exchange<Contract> {
 
         const slippageTolerance = 0.001; // 0.1% slippage tolerance
 
+        // Get reserves for exchange1
+        const [reserveOut1, reserveIn1] = await this.getReserves(
+            this.source.address,
+            path[0].address,
+            path[1].address
+        );
         // Get reserves for exchange2
         const [reserveIn2, reserveOut2] = await exchange2.getReserves(
             exchange2.source.address,
@@ -496,10 +520,17 @@ export class UniswapV2 implements Exchange<Contract> {
             reserveOut2
         );
 
-        // Calculate the amountOutMin for exchange2
-        // const amountOutMin2 = amountOut2
-        //     .mul(Math.floor(1000 * (1 - slippageTolerance)))
-        //     .div(1000);
+        const amountIn1 = this.getAmountIn(
+            amount,
+            reserveIn1,
+            reserveOut1,
+        );
+
+        console.log("Amount in 1", amountIn1.toString());
+
+        console.log("Amount out 2", amountOut2.toString());
+
+        debugger;
 
         const tx = await coordinator.performFlashSwap(
             this.source.address, // Factory 1
