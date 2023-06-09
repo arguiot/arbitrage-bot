@@ -28,7 +28,7 @@ export class UniswapV2 implements Exchange<Contract> {
 
     get fee(): number {
         if (this.name === "apeswap") {
-            return 0.0025;
+            return 0.003;
         } else if (this.name === "pancakeswap") {
             return 0.0025;
         } else {
@@ -127,14 +127,17 @@ export class UniswapV2 implements Exchange<Contract> {
     async getReserves(
         factory: string,
         tokenA: string,
-        tokenB: string
+        tokenB: string,
+        pair?: ethers.Contract
     ): Promise<[BigNumber, BigNumber]> {
         const computedPair = this.pairFor(factory, tokenA, tokenB);
-        const pair = new ethers.Contract(
-            computedPair,
-            IUniswapV2Pair.abi,
-            this.wallet.provider
-        );
+        if (!pair) {
+            pair = new ethers.Contract(
+                computedPair,
+                IUniswapV2Pair.abi,
+                this.wallet.provider
+            );
+        }
         const [reserve0, reserve1] = await pair.getReserves();
         const [token0] = this.sortTokens(tokenA, tokenB);
         return tokenA === token0 ? [reserve0, reserve1] : [reserve1, reserve0];
@@ -474,45 +477,14 @@ export class UniswapV2 implements Exchange<Contract> {
             this.wallet
         );
 
-        const router1 = await coordinator.router1();
-        const router2 = await coordinator.router2();
-        const factory1 = await coordinator.factory1();
-        const factory2 = await coordinator.factory2();
-
-        // Check if the routers and factories are set
-        if (
-            router1 !== this.source.address ||
-            router2 !== exchange2.source.address ||
-            factory1 !== this.delegate.address ||
-            factory2 !== exchange2.delegate.address
-        ) {
-            const tx = await coordinator.setFactoriesAndRouters(
-                this.source.address,
-                exchange2.source.address,
-                this.delegate.address,
-                exchange2.delegate.address
-            );
-            await tx.wait();
-        }
-
         // Ok, now we can do the flash swap on our router
         const amount = ethers.utils.parseEther(amountBetween.toString());
-        const pairAddress = this.pairFor(
-            this.source.address,
-            path[0].address,
-            path[1].address
-        );
-        const pair = new ethers.Contract(
-            pairAddress,
-            IUniswapV2Pair.abi,
-            this.wallet
-        );
 
         const slippageTolerance = 0.001; // 0.1% slippage tolerance
 
         // Get reserves for exchange2
         const [reserveIn2, reserveOut2] = await exchange2.getReserves(
-            exchange2.delegate.address,
+            exchange2.source.address,
             path[0].address,
             path[1].address
         );
@@ -525,32 +497,24 @@ export class UniswapV2 implements Exchange<Contract> {
         );
 
         // Calculate the amountOutMin for exchange2
-        const amountOutMin2 = amountOut2.mul(1 - slippageTolerance);
+        // const amountOutMin2 = amountOut2
+        //     .mul(Math.floor(1000 * (1 - slippageTolerance)))
+        //     .div(1000);
 
-        // Encode the data parameter with factory2 address and amountOutMin
-        const data = ethers.utils.defaultAbiCoder.encode(
-            ["address", "uint256"],
-            [exchange2.delegate.address, amountOutMin2]
-        );
-        const sortedTokens = this.sortTokens(path[0].address, path[1].address);
-
-        // Determine if we are swapping token0 or token1
-        const token0 = sortedTokens[0];
-        const token0IsInput = token0 === path[0].address;
-
-        const amount0 = token0IsInput ? amount : 0;
-        const amount1 = token0IsInput ? 0 : amount;
-
-        const tx = await pair.swap(
-            amount0, // Amount of token0 to swap
-            amount1, // Amount of token1 to swap
-            this.coordinator, // Callback address
-            data // Data parameter
+        const tx = await coordinator.performFlashSwap(
+            this.source.address, // Factory 1
+            exchange2.source.address, // Factory 2
+            this.delegate.address, // Router 1
+            exchange2.delegate.address, // Router 2
+            path[0].address, // Token 0
+            path[1].address, // Token 1
+            amount, // amountBetween
+            { gasLimit: 1000000 }
         );
 
         const receipt = await tx.wait();
         const transactionHash = receipt.transactionHash;
-        const amountOutHex = receipt.logs[token0IsInput ? 2 : 1].data as string;
+        const amountOutHex = receipt.logs[2].data as string; // To fix
         const amountOutReceipt = Number(ethers.utils.formatEther(amountOutHex));
 
         return {

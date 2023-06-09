@@ -4,6 +4,7 @@ import { Worker } from "worker_threads";
 import crypto from "crypto";
 import { SharedMemory } from "../store/SharedMemory";
 import { Receipt, Token } from "../../src/exchanges/adapters/exchange";
+import { UniswapV2Exchange } from "../../src/exchanges/UniswapV2";
 
 type PriceDataWorkerOptions = {
     worker: Worker;

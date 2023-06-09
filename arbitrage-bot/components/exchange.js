@@ -37,7 +37,7 @@ export default function ExchangeCard({ environment }) {
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { getQuote } = usePriceStore();
-    const { buy, setBuy, buying, setBuying } = useClientState();
+    const { buy, setBuy, buying, setBuying, followings, addFollowing } = useClientState();
 
     const { deploy } = useUniswapStore();
 
@@ -47,6 +47,7 @@ export default function ExchangeCard({ environment }) {
 
     async function deployExchange(value) {
         setIsDeploying(true);
+        addFollowing(value);
         if (value === "local-uniswap") {
             await deploy();
         } else {
@@ -91,16 +92,19 @@ export default function ExchangeCard({ environment }) {
                 <SelectValue placeholder="Connect exchange" />
             </SelectTrigger>
             <SelectContent>
-                {Object.entries(ExchangesList[environment]).map(
-                    ([key, value]) => (
+                {Object.entries(ExchangesList[environment])
+                    .filter(
+                        ([key]) => !followings.includes(key) || key === exchange
+                    ) // filter out exchanges in followings
+                    .map(([key, value]) => (
                         <SelectItem key={key} value={key}>
                             {value.name}
                         </SelectItem>
-                    )
-                )}
+                    ))}
             </SelectContent>
         </Select>
     );
+
 
     return (
         <Card className="w-1/2">
@@ -200,23 +204,21 @@ export default function ExchangeCard({ environment }) {
                                                             </Label>
                                                             <Input
                                                                 id="name"
-                                                                value={`${
-                                                                    buy.token ==
+                                                                value={`${buy.token ==
                                                                     tokenB
-                                                                        ? buy.amount /
-                                                                          priceData.price
-                                                                        : buy.amount *
-                                                                          priceData.price
-                                                                } ${
-                                                                    buy.token ==
-                                                                    tokenB
+                                                                    ? buy.amount /
+                                                                    priceData.price
+                                                                    : buy.amount *
+                                                                    priceData.price
+                                                                    } ${buy.token ==
+                                                                        tokenB
                                                                         ? priceData
-                                                                              .tokenA
-                                                                              .name
+                                                                            .tokenA
+                                                                            .name
                                                                         : priceData
-                                                                              .tokenB
-                                                                              .name
-                                                                }`}
+                                                                            .tokenB
+                                                                            .name
+                                                                    }`}
                                                                 className="col-span-3"
                                                                 disabled
                                                             />

@@ -21,6 +21,7 @@ export const useClientState = create((set) => ({
     buy: null,
     buying: false,
     arbitrage: false,
+    followings: [] as string[],
     setConnnected: (connected: boolean) => set({ connected }),
     setDecisions: (decisions: boolean) => set({ decisions }),
     setBuy: (buy: any | null) => set({ buy }),
@@ -30,6 +31,13 @@ export const useClientState = create((set) => ({
             set({ buying, buy: null });
         } else {
             set({ buying });
+        }
+    },
+    addFollowing: (exchange: string) => {
+        const followings = useClientState.getState().followings;
+        if (!followings.includes(exchange)) {
+            followings.push(exchange);
+            set({ followings });
         }
     },
 }));

@@ -240,13 +240,13 @@ export default class Decision implements Actor<DecisionOptions> {
         if (exchange1 instanceof UniswapV2 && exchange2 instanceof UniswapV2) { // Uniswap -> Uniswap we can use flash swaps
             const exchange2Data = {
                 name: exchange2.name,
-                factoryRouter: exchange2.factoryRouter,
-                routerRouter: exchange2.routerRouter,
+                factoryAddress: exchange2.source.address,
+                routerAddress: exchange2.delegate.address,
             };
             const flashSwap = await peer1.coordinateFlashSwap(
                 exchange2Data,
                 amountOutA,
-                [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
+                [opportunity.quote1.tokenA, opportunity.quote1.tokenB],
             );
 
             receipt1 = {
