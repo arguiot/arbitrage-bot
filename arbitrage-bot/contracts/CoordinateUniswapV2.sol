@@ -11,53 +11,68 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract CoordinateUniswapV2 is IUniswapV2Callee {
     using Strings for uint256;
 
-    address public factory1;
-    address public factory2;
-    IUniswapV2Router02 public router1;
-    IUniswapV2Router02 public router2;
-
     constructor() public {}
 
     function performFlashSwap(
-        address _factory1,
-        address _factory2,
-        address _router1,
-        address _router2,
+        address factory1,
+        uint initCodeHash1,
+        address factory2,
+        uint initCodeHash2,
+        address router2,
         address token0,
         address token1,
         uint amountBetween // The amount of tokens to be swapped between the two pairs
     ) external {
-        factory1 = _factory1;
-        factory2 = _factory2;
-        router1 = IUniswapV2Router02(_router1);
-        router2 = IUniswapV2Router02(_router2);
+        uint amountToRepay;
+        uint amount0;
+        uint amount1;
 
-        address pair1 = UniswapV2Library.pairFor(factory1, token0, token1);
-        address pair2 = UniswapV2Library.pairFor(factory2, token0, token1);
+        address pair1 = pairFor(factory1, token0, token1, initCodeHash1);
+        {
+            address pair2 = pairFor(factory2, token0, token1, initCodeHash2);
 
-        (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair1).getReserves();
-        (uint reserve2, uint reserve3,) = IUniswapV2Pair(pair2).getReserves();
+            require(pair1 != address(0), "Pair 1 does not exist");
+            require(pair2 != address(0), "Pair 2 does not exist");
+            
+            (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair1).getReserves();
+            (uint reserve2, uint reserve3,) = IUniswapV2Pair(pair2).getReserves();
 
-        // Sort tokens
-        (address tokenA, address tokenB) = token0 < token1 ? (token0, token1) : (token1, token0);
-        uint amount0 = token0 == tokenA ? amountBetween : 0;
-        uint amount1 = token0 == tokenA ? 0 : amountBetween;
+            require(reserve0 > 0 && reserve1 > 0, "No liquidity in pair 1");
+            require(reserve2 > 0 && reserve3 > 0, "No liquidity in pair 2");
 
-        uint amountToRepay = UniswapV2Library.getAmountIn(amountBetween, reserve0, reserve1);
-        uint amountWeReceive = UniswapV2Library.getAmountOut(amountBetween, reserve3, reserve2);
+            // Sort tokens
+            amount0 = token0 > token1 ? 0 : amountBetween;
+            amount1 = token0 > token1 ? amountBetween : 0;
 
-        require(amountWeReceive > amountToRepay, string(abi.encodePacked("Not profitable. Amount to repay: ", amountToRepay.toString(), " tokens. Amount we receive: ", amountWeReceive.toString(), " tokens.")));
+            amountToRepay = UniswapV2Library.getAmountIn(amountBetween, reserve0, reserve1);
+            uint amountWeReceive = UniswapV2Library.getAmountOut(amountBetween, reserve3, reserve2);
+
+            require(amountWeReceive > amountToRepay, "Not profitable");
+        }
+
+        address[] memory meta = new address[](3);
+        meta[0] = msg.sender;
+        meta[1] = factory1;
+        meta[2] = router2;
 
         IUniswapV2Pair(pair1).swap(
             amount0,
             amount1,
             address(this),
-            abi.encode(amountToRepay)
+            abi.encode(amountToRepay, meta)
         );
     }
 
-
+    // MARK: - IUniswapV2Callee
     function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
+        (uint amountRequired, address[] memory meta) = abi.decode(data, (uint, address[]));
+
+        address caller = meta[0];
+        address factory1 = meta[1];
+        address _router2 = meta[2];
+
+        IUniswapV2Router02 router2 = IUniswapV2Router02(_router2);
+
         address[] memory path = new address[](2);
         {
             address token0 = IUniswapV2Pair(msg.sender).token0();
@@ -67,8 +82,6 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
             path[0] = amount0 > 0 ? token0 : token1;
             path[1] = amount0 > 0 ? token1 : token0;
         }
-
-        (uint amountRequired) = abi.decode(data, (uint));
 
         IERC20(path[0]).approve(address(router2), amount1 == 0 ? amount0 : amount1);
 
@@ -86,6 +99,18 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
         IERC20(path[1]).transfer(msg.sender, amountRequired);
 
         uint profit = IERC20(path[1]).balanceOf(address(this));
-        IERC20(path[1]).transfer(tx.origin, profit);
+        IERC20(path[1]).transfer(caller, profit);
+    }
+
+    // MARK: - Helpers
+    // calculates the CREATE2 address for a pair without making any external calls
+    function pairFor(address factory, address tokenA, address tokenB, uint codeHash) internal pure returns (address pair) {
+        (address token0, address token1) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        pair = address(uint(keccak256(abi.encodePacked(
+                hex'ff',
+                factory,
+                keccak256(abi.encodePacked(token0, token1)),
+                codeHash // init code hash
+            ))));
     }
 }

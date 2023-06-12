@@ -77,7 +77,6 @@ export class PriceDataStore {
                 if (quote1.amount === 0 || quote2.amount === 0) continue;
                 if (quote1.price > quote2.price) continue;
 
-
                 const _exchange1 = getAdapter(
                     exchange1,
                     Credentials.shared.wallet,
@@ -109,7 +108,9 @@ export class PriceDataStore {
 
                 const profit = price2.amountOut - price1.amountOut;
 
-                console.log(`Considering profit of ${profit} from ${exchange1} to ${exchange2}...`);
+                console.log(
+                    `Considering profit of ${profit} from ${exchange1} to ${exchange2}...`
+                );
 
                 if (profit > bestProfit) {
                     bestProfit = profit;
@@ -117,7 +118,8 @@ export class PriceDataStore {
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: profit / (quote2.amount * price2.transactionPrice),
+                        percentProfit:
+                            profit / (quote2.amount * price2.transactionPrice),
                         quote1,
                         quote2,
                     };

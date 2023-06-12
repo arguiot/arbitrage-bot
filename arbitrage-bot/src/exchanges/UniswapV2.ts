@@ -548,8 +548,9 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
 
         const tx = await coordinator.performFlashSwap(
             this.source.address, // Factory 1
+            hashes[this.name], // Init code hash 1
             exchange2.source.address, // Factory 2
-            this.delegate.address, // Router 1
+            hashes[exchange2.name], // Init code hash 2
             exchange2.delegate.address, // Router 2
             path[0].address, // Token 0
             path[1].address, // Token 1
@@ -559,14 +560,37 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
 
         const receipt = await tx.wait();
         const transactionHash = receipt.transactionHash;
-        const amountOutHex = receipt.logs[2].data as string; // To fix
-        const amountOutReceipt = Number(ethers.utils.formatEther(amountOutHex));
+        type Log = {
+            topics: string[];
+            data: string;
+        };
+        const profitHex = receipt.logs.find(
+            (log: Log) =>
+                log.topics.length === 3 &&
+                ethers.utils.hexStripZeros(log.topics[2]) ===
+                this.wallet.address.toLowerCase()
+        )?.data;
+        const profitOut = Number(ethers.utils.formatEther(profitHex));
+        const pairAddress = this.pairFor(
+            this.source.address,
+            path[0].address,
+            path[1].address
+        );
+
+        const amountIn1Hex = receipt.logs.find(
+            (log: Log) =>
+                log.topics.length === 3 &&
+                ethers.utils.hexStripZeros(log.topics[2]) ===
+                pairAddress.toLowerCase()
+        )?.data;
+
+        const amountIn1Receipt = Number(ethers.utils.formatEther(amountIn1Hex));
 
         return {
             transactionHash,
-            amountIn: amountBetween,
-            amountOut: amountOutReceipt,
-            price: amountOutReceipt / amountBetween,
+            amountIn: amountIn1Receipt,
+            amountOut: profitOut + amountIn1Receipt,
+            price: (profitOut + amountIn1Receipt) / amountBetween,
             tokenA: path[0],
             tokenB: path[1],
         };

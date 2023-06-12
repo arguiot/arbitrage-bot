@@ -253,7 +253,7 @@ export default class Decision implements Actor<DecisionOptions> {
             receipt1 = {
                 amountIn: flashSwap.amountIn, // Amount In A
                 amountOut: amountOutA, // Amount Out A
-                price: amountOutA / flashSwap.amountIn,
+                price: flashSwap.amountIn / amountOutA,
                 tokenA: opportunity.quote1.tokenB,
                 tokenB: opportunity.quote1.tokenA,
                 transactionHash: flashSwap.transactionHash,
@@ -262,11 +262,12 @@ export default class Decision implements Actor<DecisionOptions> {
             receipt2 = {
                 amountIn: amountOutA, // Amount In B
                 amountOut: flashSwap.amountOut, // Amount Out B
-                price: flashSwap.price,
+                price: flashSwap.amountOut / amountOutA,
                 tokenA: opportunity.quote2.tokenA,
                 tokenB: opportunity.quote2.tokenB,
                 transactionHash: flashSwap.transactionHash,
             };
+
         } else {
             const tx1 = await peer1.buyAtMinimumInput(
                 amountOutA,
