@@ -34,9 +34,18 @@ import {
     ArrowUpDown,
     MoreHorizontal,
     ChevronDown,
+    Trash,
+    Trash2,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { set } from "zod";
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+    ContextMenuShortcut,
+} from "@/components/ui/context-menu";
 
 export type Trade = {
     timestamp: number;
@@ -57,6 +66,7 @@ export function DataTable<TData extends Record<string, any>>({
     columns,
     data,
 }: DataTableProps<TData>) {
+    const { removeTrade } = useTradeBookStore();
     const [sorting, setSorting] = React.useState<SortingState>([
         { id: "timestamp", desc: true },
     ]);
@@ -163,21 +173,41 @@ export function DataTable<TData extends Record<string, any>>({
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={
-                                        row.getIsSelected() && "selected"
-                                    }
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
+                                <ContextMenu>
+                                    <ContextMenuTrigger asChild>
+                                        <TableRow
+                                            key={row.id}
+                                            data-state={
+                                                row.getIsSelected() &&
+                                                "selected"
+                                            }
+                                        >
+                                            {row
+                                                .getVisibleCells()
+                                                .map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column
+                                                                .columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                        </TableRow>
+                                    </ContextMenuTrigger>
+                                    <ContextMenuContent>
+                                        <ContextMenuItem
+                                            onSelect={() => {
+                                                removeTrade(
+                                                    row.original.timestamp
+                                                );
+                                            }}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete
+                                        </ContextMenuItem>
+                                    </ContextMenuContent>
+                                </ContextMenu>
                             ))
                         ) : (
                             <TableRow>

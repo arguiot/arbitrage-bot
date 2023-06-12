@@ -219,9 +219,9 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
                 .mul(1000000)
                 .div(
                     1000000 +
-                    (this.name === "pancakeswap" || this.name === "apeswap"
-                        ? 2500
-                        : 3000)
+                        (this.name === "pancakeswap" || this.name === "apeswap"
+                            ? 2500
+                            : 3000)
                 )
         );
 
@@ -568,7 +568,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                this.wallet.address.toLowerCase()
+                    this.wallet.address.toLowerCase()
         )?.data;
         const profitOut = Number(ethers.utils.formatEther(profitHex));
         const pairAddress = this.pairFor(
@@ -581,7 +581,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                pairAddress.toLowerCase()
+                    pairAddress.toLowerCase()
         )?.data;
 
         const amountIn1Receipt = Number(ethers.utils.formatEther(amountIn1Hex));

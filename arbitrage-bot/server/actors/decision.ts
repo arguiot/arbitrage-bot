@@ -267,7 +267,6 @@ export default class Decision implements Actor<DecisionOptions> {
                 tokenB: opportunity.quote2.tokenB,
                 transactionHash: flashSwap.transactionHash,
             };
-
         } else {
             const tx1 = await peer1.buyAtMinimumInput(
                 amountOutA,

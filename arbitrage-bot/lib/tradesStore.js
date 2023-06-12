@@ -40,6 +40,13 @@ const useTradeBookStore = create(
                         },
                     ],
                 })),
+            removeTrade: (date) => {
+                set((state) => ({
+                    trades: state.trades.filter(
+                        (trade) => trade.timestamp !== date
+                    ),
+                }));
+            },
         }),
         {
             name: "trade-store",
