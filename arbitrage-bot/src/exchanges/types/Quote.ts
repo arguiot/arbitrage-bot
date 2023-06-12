@@ -11,8 +11,5 @@ export type Quote = {
     ask?: number;
     bid?: number;
     ttf?: number;
-    routerAddress?: string;
-    factoryAddress?: string;
-    reserveA?: BigNumber;
-    reserveB?: BigNumber;
+    meta?: any;
 };

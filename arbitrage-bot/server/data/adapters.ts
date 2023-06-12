@@ -9,7 +9,7 @@ export function getAdapter(
     wallet: Wallet,
     routerAddress?: string,
     factoryAddress?: string
-): Exchange<any> {
+): Exchange<any, any> {
     const environment = process.env.USE_TESTNET ? "development" : "production";
     const metadata = ExchangesList[environment][exchange];
     const adapter = metadata.adapter ?? exchange;

@@ -37,7 +37,8 @@ export default function ExchangeCard({ environment }) {
     const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
     const { tokenA, tokenB } = usePairStore();
     const { getQuote } = usePriceStore();
-    const { buy, setBuy, buying, setBuying, followings, addFollowing } = useClientState();
+    const { buy, setBuy, buying, setBuying, followings, addFollowing } =
+        useClientState();
 
     const { deploy } = useUniswapStore();
 
@@ -104,7 +105,6 @@ export default function ExchangeCard({ environment }) {
             </SelectContent>
         </Select>
     );
-
 
     return (
         <Card className="w-1/2">
@@ -204,21 +204,23 @@ export default function ExchangeCard({ environment }) {
                                                             </Label>
                                                             <Input
                                                                 id="name"
-                                                                value={`${buy.token ==
+                                                                value={`${
+                                                                    buy.token ==
                                                                     tokenB
-                                                                    ? buy.amount /
-                                                                    priceData.price
-                                                                    : buy.amount *
-                                                                    priceData.price
-                                                                    } ${buy.token ==
-                                                                        tokenB
+                                                                        ? buy.amount /
+                                                                          priceData.price
+                                                                        : buy.amount *
+                                                                          priceData.price
+                                                                } ${
+                                                                    buy.token ==
+                                                                    tokenB
                                                                         ? priceData
-                                                                            .tokenA
-                                                                            .name
+                                                                              .tokenA
+                                                                              .name
                                                                         : priceData
-                                                                            .tokenB
-                                                                            .name
-                                                                    }`}
+                                                                              .tokenB
+                                                                              .name
+                                                                }`}
                                                                 className="col-span-3"
                                                                 disabled
                                                             />

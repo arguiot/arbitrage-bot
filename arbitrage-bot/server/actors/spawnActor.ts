@@ -86,6 +86,7 @@ export default function Worker({
                         ),
                     },
                 });
+                break;
             default:
                 console.error(`Unknown action: ${action}`);
         }

@@ -34,7 +34,7 @@ export default async function priceData(
 
     const maxAvailable = balanceA; // We can only buy as much as we have
 
-    const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB);
+    const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB, true);
 
     priceDataStore.addQuote(exchange, quote);
 

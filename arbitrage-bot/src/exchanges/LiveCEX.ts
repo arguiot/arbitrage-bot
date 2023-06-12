@@ -8,7 +8,7 @@ import Credentials, {
 type ExchangeKey = keyof typeof exchanges;
 type ProKey = keyof typeof pro;
 
-export class LiveCEX implements Exchange<CCXTExchange> {
+export class LiveCEX implements Exchange<CCXTExchange, void> {
     name: string;
     type: "cex" | "dex" = "cex";
     delegate: CCXTExchange;
@@ -43,7 +43,8 @@ export class LiveCEX implements Exchange<CCXTExchange> {
     async getQuote(
         maxAvailableAmount: number,
         tokenA: Token,
-        tokenB: Token
+        tokenB: Token,
+        maximizeB: boolean = true
     ): Promise<Quote> {
         // First we need to sort the tokens by their symbol
         const [token1, token2] = [tokenA, tokenB].sort((a, b) =>
@@ -66,6 +67,7 @@ export class LiveCEX implements Exchange<CCXTExchange> {
             ask: price.ask ?? 0,
             tokenA,
             tokenB,
+            meta: {},
         };
     }
 

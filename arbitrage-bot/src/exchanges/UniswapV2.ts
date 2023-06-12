@@ -20,9 +20,16 @@ export type UniswapV2Exchange = {
     name: UniType;
     routerAddress: string;
     factoryAddress: string;
-}
+};
 
-export class UniswapV2 implements Exchange<Contract> {
+export type RequiredPriceInfo = {
+    routerAddress: string;
+    factoryAddress: string;
+    reserveA: BigNumber;
+    reserveB: BigNumber;
+};
+
+export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
     name: UniType = "uniswap";
     type: "dex" | "cex" = "dex";
 
@@ -180,21 +187,31 @@ export class UniswapV2 implements Exchange<Contract> {
         return amountIn;
     }
 
-
     async getQuote(
         maxAvailableAmount: number,
         tokenA: Token,
-        tokenB: Token
+        tokenB: Token,
+        maximizeB: boolean = true,
+        meta?: RequiredPriceInfo
     ): Promise<Quote> {
         // Normalize the tokens
         tokenA = this.normalizeToken(tokenA);
         tokenB = this.normalizeToken(tokenB);
         // Get reserves
-        const [reserveA, reserveB] = await this.getReserves(
-            this.source.address,
-            tokenA.address,
-            tokenB.address
-        );
+        let reserveA: BigNumber;
+        let reserveB: BigNumber;
+        if (meta) {
+            [reserveA, reserveB] = [
+                BigNumber.from(meta.reserveA),
+                BigNumber.from(meta.reserveB),
+            ];
+        } else {
+            [reserveA, reserveB] = await this.getReserves(
+                this.source.address,
+                tokenA.address,
+                tokenB.address
+            );
+        }
         // Get the optimal amount In (amountIn = sqrt(k / (1 + fee)))
         const bestAmountIn = sqrt(
             reserveA
@@ -215,11 +232,13 @@ export class UniswapV2 implements Exchange<Contract> {
             ? bestAmountIn
             : ethers.utils.parseEther(maxAvailableAmount.toString());
 
-        const _quote = this.getAmountOut(amountIn, reserveA, reserveB);
+        const _quoteOut = maximizeB
+            ? this.getAmountOut(amountIn, reserveA, reserveB)
+            : this.getAmountIn(amountIn, reserveB, reserveA);
         // Convert back from wei to ether
-        const quote = Number(
+        const quoteOut = Number(
             ethers.utils.formatUnits(
-                _quote,
+                _quoteOut,
                 tokenA.address === this.wethAddress ? "mwei" : "ether"
             )
         );
@@ -233,19 +252,21 @@ export class UniswapV2 implements Exchange<Contract> {
 
         // Transaction price would be amountOut / amountIn
 
-        const transactionPrice = quote / amountInEther;
+        const transactionPrice = quoteOut / amountInEther;
 
         return {
             amount: amountInEther,
-            amountOut: quote,
+            amountOut: quoteOut,
             price,
             transactionPrice,
             tokenA,
             tokenB,
-            routerAddress: this.delegate.address,
-            factoryAddress: this.source.address,
-            reserveA: reserveA,
-            reserveB: reserveB,
+            meta: {
+                routerAddress: this.delegate.address,
+                factoryAddress: this.source.address,
+                reserveA: reserveA,
+                reserveB: reserveB,
+            },
         };
     }
 
@@ -478,7 +499,6 @@ export class UniswapV2 implements Exchange<Contract> {
         );
     }
 
-
     async coordinateFlashSwap(
         exchange2: UniswapV2,
         amountBetween: number,
@@ -520,17 +540,11 @@ export class UniswapV2 implements Exchange<Contract> {
             reserveOut2
         );
 
-        const amountIn1 = this.getAmountIn(
-            amount,
-            reserveIn1,
-            reserveOut1,
-        );
+        const amountIn1 = this.getAmountIn(amount, reserveIn1, reserveOut1);
 
         console.log("Amount in 1", amountIn1.toString());
 
         console.log("Amount out 2", amountOut2.toString());
-
-        debugger;
 
         const tx = await coordinator.performFlashSwap(
             this.source.address, // Factory 1
@@ -557,7 +571,6 @@ export class UniswapV2 implements Exchange<Contract> {
             tokenB: path[1],
         };
     }
-
 }
 
 function sqrt(number: BigNumber): BigNumber {

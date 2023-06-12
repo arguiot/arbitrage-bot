@@ -46,7 +46,7 @@ export default class Decision implements Actor<DecisionOptions> {
         const liquidityCache = new LiquidityCache(this.memory);
         // First, let's get the opportunities
         const opportunity =
-            priceDataStore.getArbitrageOpportunity() as Opportunity;
+            (await priceDataStore.getArbitrageOpportunity()) as Opportunity;
 
         if (!opportunity) {
             console.log("No opportunity");
@@ -59,14 +59,14 @@ export default class Decision implements Actor<DecisionOptions> {
         const exchange1 = getAdapter(
             opportunity.exchange1,
             Credentials.shared.wallet,
-            opportunity.quote1.routerAddress,
-            opportunity.quote1.factoryAddress
+            opportunity.quote1.meta.routerAddress,
+            opportunity.quote1.meta.factoryAddress
         );
         const exchange2 = getAdapter(
             opportunity.exchange2,
             Credentials.shared.wallet,
-            opportunity.quote2.routerAddress,
-            opportunity.quote2.factoryAddress
+            opportunity.quote2.meta.routerAddress,
+            opportunity.quote2.meta.factoryAddress
         );
 
         // Let's calculate the probability of the transaction succeeding
@@ -110,10 +110,10 @@ export default class Decision implements Actor<DecisionOptions> {
         };
         if (exchange1.type === "dex") {
             (exchange1Data as UniData).reserve0 = BigNumber.from(
-                opportunity.quote1.reserveA
+                opportunity.quote1.meta.reserveA
             );
             (exchange1Data as UniData).reserve1 = BigNumber.from(
-                opportunity.quote1.reserveB
+                opportunity.quote1.meta.reserveB
             );
         } else {
             (exchange1Data as CexData).price = opportunity.quote1.price;
@@ -127,10 +127,10 @@ export default class Decision implements Actor<DecisionOptions> {
         };
         if (exchange2.type === "dex") {
             (exchange2Data as UniData).reserve0 = BigNumber.from(
-                opportunity.quote2.reserveA
+                opportunity.quote2.meta.reserveA
             );
             (exchange2Data as UniData).reserve1 = BigNumber.from(
-                opportunity.quote2.reserveB
+                opportunity.quote2.meta.reserveB
             );
         } else {
             (exchange2Data as CexData).price = opportunity.quote2.price;
@@ -237,7 +237,8 @@ export default class Decision implements Actor<DecisionOptions> {
         // Let's perform the transaction
         let receipt1: Receipt;
         let receipt2: Receipt;
-        if (exchange1 instanceof UniswapV2 && exchange2 instanceof UniswapV2) { // Uniswap -> Uniswap we can use flash swaps
+        if (exchange1 instanceof UniswapV2 && exchange2 instanceof UniswapV2) {
+            // Uniswap -> Uniswap we can use flash swaps
             const exchange2Data = {
                 name: exchange2.name,
                 factoryAddress: exchange2.source.address,
@@ -246,7 +247,7 @@ export default class Decision implements Actor<DecisionOptions> {
             const flashSwap = await peer1.coordinateFlashSwap(
                 exchange2Data,
                 amountOutA,
-                [opportunity.quote1.tokenA, opportunity.quote1.tokenB],
+                [opportunity.quote1.tokenA, opportunity.quote1.tokenB]
             );
 
             receipt1 = {

@@ -21,7 +21,7 @@ export type Receipt = {
     tokenB: Token;
 };
 
-export interface Exchange<T> {
+export interface Exchange<T, U> {
     name: string;
     type: "dex" | "cex";
     fee: number;
@@ -32,7 +32,9 @@ export interface Exchange<T> {
     getQuote(
         maxAvailableAmount: number,
         tokenA: Token,
-        tokenB: Token
+        tokenB: Token,
+        maximizeB: boolean,
+        meta?: U
     ): Promise<Quote>; // Returns the best quote for the maximum given amount of tokenA
     estimateTransactionTime(tokenA: Token, tokenB: Token): Promise<number>; // Returns the estimated time to execute a transaction
     estimateTransactionCost(

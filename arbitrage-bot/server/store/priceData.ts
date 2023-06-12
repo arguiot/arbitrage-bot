@@ -1,4 +1,6 @@
 import { Quote } from "../../src/exchanges/types/Quote";
+import Credentials from "../credentials/Credentials";
+import { getAdapter } from "../data/adapters";
 import { Opportunity } from "../types/opportunity";
 import { SharedMemory } from "./SharedMemory";
 
@@ -62,7 +64,7 @@ export class PriceDataStore {
         return lowestBetSize;
     }
 
-    getArbitrageOpportunity(): Opportunity | null {
+    async getArbitrageOpportunity(): Promise<Opportunity | null> {
         // Look at all the quotes and find the two with the highest price difference
         let bestOpportunity: Opportunity | null = null;
         let bestProfit = 0;
@@ -73,12 +75,41 @@ export class PriceDataStore {
             for (const [exchange2, quote2] of quotes) {
                 if (exchange1 === exchange2) continue;
                 if (quote1.amount === 0 || quote2.amount === 0) continue;
+                if (quote1.price > quote2.price) continue;
 
-                const price1 = quote1.transactionPrice;
-                const price2 = quote2.transactionPrice;
 
-                const priceDifference = price2 - price1;
-                const profit = priceDifference * quote2.amount;
+                const _exchange1 = getAdapter(
+                    exchange1,
+                    Credentials.shared.wallet,
+                    quote1.meta.routerAddress,
+                    quote1.meta.factoryAddress
+                );
+
+                const _exchange2 = getAdapter(
+                    exchange2,
+                    Credentials.shared.wallet,
+                    quote2.meta.routerAddress,
+                    quote2.meta.factoryAddress
+                );
+
+                const price1 = await _exchange1.getQuote(
+                    quote1.amount,
+                    quote1.tokenA,
+                    quote1.tokenB,
+                    false,
+                    quote1.meta // Important, so that the quote is calculated offline
+                );
+                const price2 = await _exchange2.getQuote(
+                    quote2.amount,
+                    quote2.tokenA,
+                    quote2.tokenB,
+                    true,
+                    quote2.meta // Important, so that the quote is calculated offline
+                );
+
+                const profit = price2.amountOut - price1.amountOut;
+
+                console.log(`Considering profit of ${profit} from ${exchange1} to ${exchange2}...`);
 
                 if (profit > bestProfit) {
                     bestProfit = profit;
@@ -86,7 +117,7 @@ export class PriceDataStore {
                         exchange1,
                         exchange2,
                         profit,
-                        percentProfit: profit / (quote2.amount * price2),
+                        percentProfit: profit / (quote2.amount * price2.transactionPrice),
                         quote1,
                         quote2,
                     };
