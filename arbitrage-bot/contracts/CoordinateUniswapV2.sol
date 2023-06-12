@@ -37,8 +37,11 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
 
         (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair1).getReserves();
         (uint reserve2, uint reserve3,) = IUniswapV2Pair(pair2).getReserves();
-        uint amount0 = token0 == token1 ? amountBetween : 0;
-        uint amount1 = token0 == token1 ? 0 : amountBetween;
+
+        // Sort tokens
+        (address tokenA, address tokenB) = token0 < token1 ? (token0, token1) : (token1, token0);
+        uint amount0 = token0 == tokenA ? amountBetween : 0;
+        uint amount1 = token0 == tokenA ? 0 : amountBetween;
 
         uint amountToRepay = UniswapV2Library.getAmountIn(amountBetween, reserve0, reserve1);
         uint amountWeReceive = UniswapV2Library.getAmountOut(amountBetween, reserve3, reserve2);
@@ -83,6 +86,6 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
         IERC20(path[1]).transfer(msg.sender, amountRequired);
 
         uint profit = IERC20(path[1]).balanceOf(address(this));
-        IERC20(path[1]).transfer(sender, profit);
+        IERC20(path[1]).transfer(tx.origin, profit);
     }
 }
