@@ -112,12 +112,22 @@ export default class MainActor implements Actor<MainActorOptions> {
         });
 
         const peer = new PriceDataWorker(this.memory, { worker });
-
+        const pair = `${query.tokenA.name}/${query.tokenB.name}`;
         if (type === "on-chain") {
-            this.onChainPeers.set(query.exchange, peer);
+            if (this.onChainPeers.has(`${query.exchange}-${pair}`)) {
+                this.onChainPeers
+                    .get(`${query.exchange}-${pair}`)
+                    ?.worker.terminate();
+            }
+            this.onChainPeers.set(`${query.exchange}-${pair}`, peer);
         }
         if (type === "off-chain") {
-            this.offChainPeers.set(query.exchange, peer);
+            if (this.offChainPeers.has(`${query.exchange}-${pair}`)) {
+                this.offChainPeers
+                    .get(`${query.exchange}-${pair}`)
+                    ?.worker.terminate();
+            }
+            this.offChainPeers.set(`${query.exchange}-${pair}`, peer);
         }
     }
 
@@ -154,6 +164,18 @@ export default class MainActor implements Actor<MainActorOptions> {
             this.addOnChainTask("priceData", query);
         } else {
             this.addOffChainTask("priceData", query);
+        }
+    }
+
+    unsubscribeFromPriceData(query: Query) {
+        if (typeof query === "undefined") return;
+        const name = `${query.exchange}-${query.tokenA.name}/${query.tokenB.name}`;
+        if (query.type === "dex") {
+            this.onChainPeers.get(name)?.worker.terminate();
+            this.onChainPeers.delete(name);
+        } else {
+            this.offChainPeers.get(name)?.worker.terminate();
+            this.offChainPeers.delete(name);
         }
     }
 }

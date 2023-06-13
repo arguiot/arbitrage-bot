@@ -122,13 +122,22 @@ server.on("connection", (ws: CustomWebSocket) => {
 
             if (validatedData.topic === "priceData") {
                 const query = validatedData.query;
-                mainActor.subscribeToPriceData(query);
+                if (validatedData.type === "subscribe") {
+                    mainActor.subscribeToPriceData(query);
+                } else {
+                    mainActor.unsubscribeFromPriceData(query);
+                }
+
                 ws.send(
                     JSON.stringify({
                         status: "success",
                         topic: "notify",
-                        title: "Subscribed",
-                        message: `Watching price on ${query?.exchange}.`,
+                        title: `${validatedData.type}d`,
+                        message: `${
+                            validatedData.type === "subscribe"
+                                ? "Watching"
+                                : "Stopped watching"
+                        } price on ${query?.exchange}.`,
                     })
                 );
             } else if (validatedData.topic === "decision") {

@@ -15,6 +15,14 @@ export const TokenList = {
         address: "0x0a1B8D7450F69d33803e8b084aBA9d2F858f6574",
         name: "USDT",
     },
+    TKA_BSCTESTNET: {
+        address: "0x9c36c0a6FFD4322c647572CACfc1d5C475c854CD",
+        name: "TKA",
+    },
+    TKB_BSCTESTNET: {
+        address: "0xBf8C59a713927773f9Bf1BCcE21269f7bd95BC6c",
+        name: "TKB",
+    },
     USDC: {
         address: "0x3c3aA68bc795e72833218229b0e53eFB4143A152",
         name: "USD Coin",
@@ -34,6 +42,10 @@ export const PairList = {
         "ETH/USDT": {
             tokenA: TokenList.WETH_BSCTESTNET,
             tokenB: TokenList.USDT_BSCTESTNET,
+        },
+        "TKA/TKB": {
+            tokenA: TokenList.TKA_BSCTESTNET,
+            tokenB: TokenList.TKB_BSCTESTNET,
         },
     },
     production: {

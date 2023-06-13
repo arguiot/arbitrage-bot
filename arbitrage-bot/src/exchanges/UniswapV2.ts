@@ -226,11 +226,14 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
         );
 
         // Amount in is the minimum between the max available amount (in ethers) and the best amount in (in wei)
-        const amountIn = bestAmountIn.lt(
-            ethers.utils.parseEther(maxAvailableAmount.toString())
-        )
+        const maxAvailableAmountInEther = ethers.utils.parseEther(
+            maxAvailableAmount.toString()
+        );
+        const amountIn = bestAmountIn.lt(maxAvailableAmountInEther)
             ? bestAmountIn
-            : ethers.utils.parseEther(maxAvailableAmount.toString());
+            : maxAvailableAmountInEther.eq(0)
+            ? bestAmountIn
+            : maxAvailableAmountInEther;
 
         const _quoteOut = maximizeB
             ? this.getAmountOut(amountIn, reserveA, reserveB)

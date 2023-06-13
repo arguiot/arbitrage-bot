@@ -16,28 +16,20 @@ interface WebSocket {
 }
 
 export const useClientState = create((set) => ({
+    pairs: [],
     connected: false,
     decisions: false,
-    buy: null,
     buying: false,
     arbitrage: false,
-    followings: [] as string[],
+    setPairs: (pairs: string[]) => set({ pairs }),
     setConnnected: (connected: boolean) => set({ connected }),
     setDecisions: (decisions: boolean) => set({ decisions }),
-    setBuy: (buy: any | null) => set({ buy }),
     setArbitrage: (arbitrage: boolean) => set({ arbitrage }),
     setBuying: (buying: boolean) => {
         if (buying === false) {
             set({ buying, buy: null });
         } else {
             set({ buying });
-        }
-    },
-    addFollowing: (exchange: string) => {
-        const followings = useClientState.getState().followings;
-        if (!followings.includes(exchange)) {
-            followings.push(exchange);
-            set({ followings });
         }
     },
 }));
@@ -86,7 +78,8 @@ export class Client {
                 break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
-                    usePriceStore.getState().addQuote(message.exchange, {
+                    const pair = `${message.tokenA.name}/${message.tokenB.name}`;
+                    usePriceStore.getState().addQuote(message.exchange, pair, {
                         ...message.quote,
                         balanceA: message.balanceA,
                         balanceB: message.balanceB,
@@ -191,6 +184,29 @@ export class Client {
         this.send(
             JSON.stringify({
                 type: "subscribe",
+                topic: "priceData",
+                query: {
+                    exchange,
+                    type: exchangeMetadata.type,
+                    tokenA,
+                    tokenB,
+                    routerAddress: exchangeMetadata.routerAddress,
+                    factoryAddress: exchangeMetadata.factoryAddress,
+                },
+            })
+        );
+    }
+
+    unsubscribeFromPriceData(
+        exchange: string,
+        environment: "development" | "production",
+        tokenA: Token,
+        tokenB: Token
+    ) {
+        const exchangeMetadata = ExchangesList[environment][exchange];
+        this.send(
+            JSON.stringify({
+                type: "unsubscribe",
                 topic: "priceData",
                 query: {
                     exchange,

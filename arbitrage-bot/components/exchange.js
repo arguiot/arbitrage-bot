@@ -14,10 +14,9 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import useUniswapStore from "../lib/uniswapStore";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useContext, useState } from "react";
+import { X, Loader2 } from "lucide-react";
 import usePriceStore from "../lib/priceDataStore";
-import usePairStore from "../lib/tokenStore";
 import CexPrice from "./cexPrice";
 import { Client, useClientState } from "../lib/client";
 import { Button } from "@/components/ui/button";
@@ -32,23 +31,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ExchangesList } from "../lib/exchanges";
 import { useToast } from "./ui/use-toast";
+import { PairContext, PairContextDispatch } from "./pair";
+import {
+    ContextMenu,
+    ContextMenuCheckboxItem,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuLabel,
+    ContextMenuRadioGroup,
+    ContextMenuRadioItem,
+    ContextMenuSeparator,
+    ContextMenuShortcut,
+    ContextMenuSub,
+    ContextMenuSubContent,
+    ContextMenuSubTrigger,
+    ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 export default function ExchangeCard({ environment }) {
-    const [exchange, setExchange] = useState(null); // ["local-cex", "local-uniswap", "binance", "kraken"]
-    const { tokenA, tokenB } = usePairStore();
+    const [exchange, setExchange] = useState(null);
+    const { tokenA, tokenB, followings } = useContext(PairContext);
+    const dispatch = useContext(PairContextDispatch);
     const { getQuote } = usePriceStore();
-    const { buy, setBuy, buying, setBuying, followings, addFollowing } =
-        useClientState();
+    const [buy, setBuy] = useState(null);
+    const { buying, setBuying } = useClientState();
 
     const { deploy } = useUniswapStore();
 
     const [isDeploying, setIsDeploying] = useState(false);
 
-    const priceData = getQuote(exchange);
+    const pair = `${tokenA.name}/${tokenB.name}`;
+    const priceData = getQuote(exchange, pair);
 
     async function deployExchange(value) {
         setIsDeploying(true);
-        addFollowing(value);
+        if (exchange) {
+            exitExchange();
+        }
+        dispatch({ type: "addFollowing", payload: value });
         if (value === "local-uniswap") {
             await deploy();
         } else {
@@ -61,6 +81,17 @@ export default function ExchangeCard({ environment }) {
         }
         setExchange(value);
         setIsDeploying(false);
+    }
+
+    function exitExchange() {
+        dispatch({ type: "removeFollowing", payload: exchange });
+        Client.shared.unsubscribeFromPriceData(
+            exchange,
+            environment,
+            tokenA,
+            tokenB
+        );
+        setExchange(null);
     }
 
     function buyTokens() {
@@ -109,142 +140,172 @@ export default function ExchangeCard({ environment }) {
     return (
         <Card className="w-1/2">
             {exchange !== null ? (
-                <>
-                    <CardHeader>
-                        <CardTitle>Exchange</CardTitle>
-                        <CardDescription>{select}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex justify-between flex-col">
-                            <CexPrice priceData={priceData} />
+                <ContextMenu>
+                    <ContextMenuTrigger>
+                        <CardHeader>
                             <div className="flex justify-between">
-                                {priceData && (
-                                    <>
-                                        <Button
-                                            onClick={() =>
-                                                setBuy({
-                                                    exchange,
-                                                    token: tokenA,
-                                                    amount: 0,
-                                                    buying: false,
-                                                })
-                                            }
-                                        >
-                                            Buy {tokenA.name}
-                                        </Button>
-                                        <Button
-                                            onClick={() =>
-                                                setBuy({
-                                                    exchange,
-                                                    token: tokenB,
-                                                    amount: 0,
-                                                    buying: false,
-                                                })
-                                            }
-                                        >
-                                            Buy {tokenB.name}
-                                        </Button>
-                                    </>
-                                )}
-                                <Dialog
-                                    open={buy !== null}
-                                    onOpenChange={(open) => {
-                                        if (open === false) setBuy(null);
-                                    }}
-                                >
-                                    {buy && (
+                                <CardTitle>Exchange</CardTitle>
+                                <X onClick={exitExchange} />
+                            </div>
+                            <CardDescription>{select}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex justify-between flex-col">
+                                <CexPrice priceData={priceData} />
+                                <div className="flex justify-between">
+                                    {priceData && (
                                         <>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>
-                                                        Buy {buy.token.name} on{" "}
-                                                        {
-                                                            ExchangesList[
-                                                                environment
-                                                            ][buy.exchange].name
-                                                        }
-                                                    </DialogTitle>
-                                                    <DialogDescription>
-                                                        Current balance:{" "}
-                                                        {priceData.balanceA}{" "}
-                                                        {priceData.tokenA.name}{" "}
-                                                        / {priceData.balanceB}{" "}
-                                                        {priceData.tokenB.name}
-                                                    </DialogDescription>
-                                                    <div className="grid gap-4 py-4">
-                                                        <div className="grid grid-cols-4 items-center gap-4">
-                                                            <Label
-                                                                htmlFor="name"
-                                                                className="text-right"
-                                                            >
-                                                                Amount
-                                                            </Label>
-                                                            <Input
-                                                                id="name"
-                                                                value={
-                                                                    buy.amount
-                                                                }
-                                                                onChange={(e) =>
-                                                                    setBuy({
-                                                                        ...buy,
-                                                                        amount: e
-                                                                            .target
-                                                                            .value,
-                                                                    })
-                                                                }
-                                                                className="col-span-3"
-                                                            />
-                                                        </div>
-                                                        <div className="grid grid-cols-4 items-center gap-4">
-                                                            <Label
-                                                                htmlFor="name"
-                                                                className="text-right"
-                                                            >
-                                                                You pay
-                                                            </Label>
-                                                            <Input
-                                                                id="name"
-                                                                value={`${
-                                                                    buy.token ==
-                                                                    tokenB
-                                                                        ? buy.amount /
-                                                                          priceData.price
-                                                                        : buy.amount *
-                                                                          priceData.price
-                                                                } ${
-                                                                    buy.token ==
-                                                                    tokenB
-                                                                        ? priceData
-                                                                              .tokenA
-                                                                              .name
-                                                                        : priceData
-                                                                              .tokenB
-                                                                              .name
-                                                                }`}
-                                                                className="col-span-3"
-                                                                disabled
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        onClick={buyTokens}
-                                                        disabled={buying}
-                                                    >
-                                                        {buying && (
-                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        )}
-                                                        🤑 Buy {buy.amount}{" "}
-                                                        {buy.token.name}
-                                                    </Button>
-                                                </DialogHeader>
-                                            </DialogContent>
+                                            <Button
+                                                onClick={() =>
+                                                    setBuy({
+                                                        exchange,
+                                                        token: tokenA,
+                                                        amount: 0,
+                                                        buying: false,
+                                                    })
+                                                }
+                                            >
+                                                Buy {tokenA.name}
+                                            </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    setBuy({
+                                                        exchange,
+                                                        token: tokenB,
+                                                        amount: 0,
+                                                        buying: false,
+                                                    })
+                                                }
+                                            >
+                                                Buy {tokenB.name}
+                                            </Button>
                                         </>
                                     )}
-                                </Dialog>
+                                    <Dialog
+                                        open={buy !== null}
+                                        onOpenChange={(open) => {
+                                            if (open === false) setBuy(null);
+                                        }}
+                                    >
+                                        {buy && (
+                                            <>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>
+                                                            Buy {buy.token.name}{" "}
+                                                            on{" "}
+                                                            {
+                                                                ExchangesList[
+                                                                    environment
+                                                                ][buy.exchange]
+                                                                    .name
+                                                            }
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            Current balance:{" "}
+                                                            {priceData.balanceA}{" "}
+                                                            {
+                                                                priceData.tokenA
+                                                                    .name
+                                                            }{" "}
+                                                            /{" "}
+                                                            {priceData.balanceB}{" "}
+                                                            {
+                                                                priceData.tokenB
+                                                                    .name
+                                                            }
+                                                        </DialogDescription>
+                                                        <div className="grid gap-4 py-4">
+                                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                                <Label
+                                                                    htmlFor="name"
+                                                                    className="text-right"
+                                                                >
+                                                                    Amount
+                                                                </Label>
+                                                                <Input
+                                                                    id="name"
+                                                                    value={
+                                                                        buy.amount
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setBuy({
+                                                                            ...buy,
+                                                                            amount: e
+                                                                                .target
+                                                                                .value,
+                                                                        })
+                                                                    }
+                                                                    className="col-span-3"
+                                                                />
+                                                            </div>
+                                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                                <Label
+                                                                    htmlFor="name"
+                                                                    className="text-right"
+                                                                >
+                                                                    You pay
+                                                                </Label>
+                                                                <Input
+                                                                    id="name"
+                                                                    value={`${
+                                                                        buy.token ==
+                                                                        tokenB
+                                                                            ? buy.amount /
+                                                                              priceData.price
+                                                                            : buy.amount *
+                                                                              priceData.price
+                                                                    } ${
+                                                                        buy.token ==
+                                                                        tokenB
+                                                                            ? priceData
+                                                                                  .tokenA
+                                                                                  .name
+                                                                            : priceData
+                                                                                  .tokenB
+                                                                                  .name
+                                                                    }`}
+                                                                    className="col-span-3"
+                                                                    disabled
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <Button
+                                                            onClick={buyTokens}
+                                                            disabled={buying}
+                                                        >
+                                                            {buying && (
+                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                            )}
+                                                            🤑 Buy {buy.amount}{" "}
+                                                            {buy.token.name}
+                                                        </Button>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </>
+                                        )}
+                                    </Dialog>
+                                </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </>
+                        </CardContent>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        {ExchangesList[environment][exchange].routerAddress && (
+                            <ContextMenuItem
+                                onSelect={() => {
+                                    navigator.clipboard.writeText(
+                                        ExchangesList[environment][exchange]
+                                            .routerAddress
+                                    );
+                                }}
+                            >
+                                Copy router address
+                            </ContextMenuItem>
+                        )}
+                    </ContextMenuContent>
+                </ContextMenu>
             ) : (
                 <div className="relative">
                     <Skeleton className="relative h-96 w-full z-0" />

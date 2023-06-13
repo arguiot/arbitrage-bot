@@ -4,16 +4,16 @@ import { BigNumber } from "ethers";
 const usePriceStore = create((set, get) => ({
     quotes: new Map(),
 
-    addQuote: (exchange, quote) => {
+    addQuote: (exchange, pair, quote) => {
         set((state) => {
             const quotes = new Map(state.quotes);
-            quotes.set(exchange, quote);
+            quotes.set(`${exchange}-${pair}`, quote);
             return { quotes };
         });
     },
 
-    getQuote: (exchange) => {
-        return get().quotes.get(exchange);
+    getQuote: (exchange, pair) => {
+        return get().quotes.get(`${exchange}-${pair}`);
     },
 
     getArbitrage: () => {

@@ -19,12 +19,12 @@ export default async function priceData(
 
     const liquidityCache = new LiquidityCache(memory);
     const cacheName = adapter.type === "dex" ? "dex" : exchange;
-    let balanceA = await liquidityCache.get(cacheName, tokenA.name);
+    let balanceA = liquidityCache.get(cacheName, tokenA.name);
     if (typeof balanceA === "undefined") {
         balanceA = await adapter.liquidityFor(tokenA);
         await liquidityCache.set(cacheName, tokenA.name, balanceA);
     }
-    let balanceB = await liquidityCache.get(cacheName, tokenB.name);
+    let balanceB = liquidityCache.get(cacheName, tokenB.name);
     if (typeof balanceB === "undefined") {
         balanceB = await adapter.liquidityFor(tokenB);
         await liquidityCache.set(cacheName, tokenB.name, balanceB);
@@ -36,7 +36,7 @@ export default async function priceData(
 
     const quote = await adapter.getQuote(maxAvailable, tokenA, tokenB, true);
 
-    priceDataStore.addQuote(exchange, quote);
+    priceDataStore.addQuote(exchange, tokenA, tokenB, quote);
 
     const ttf = await adapter.estimateTransactionTime(tokenA, tokenB);
 

@@ -48,6 +48,8 @@ export default class Decision implements Actor<DecisionOptions> {
         const opportunity =
             (await priceDataStore.getArbitrageOpportunity()) as Opportunity;
 
+        debugger;
+
         if (!opportunity) {
             console.log("No opportunity");
             return {

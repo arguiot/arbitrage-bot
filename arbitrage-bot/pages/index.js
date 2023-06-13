@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import ExchangeCard from "../components/exchange";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import usePairStore from "../lib/tokenStore";
 import useUniswapStore from "../lib/uniswapStore";
 import Difference from "../components/difference";
 import TradeBook from "../components/tradeBook";
@@ -22,30 +21,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
 import { PairList } from "../lib/pairs";
 import { EstimatedTime } from "../components/ui/estimated-time";
+import Pair from "../components/pair";
 export default function Index({ environment }) {
     const { connected, decisions, setDecisions, arbitrage } = useClientState();
+    const [pair, setPair] = useState(1);
     useEffect(() => {
         Client.shared = new Client();
     }, []);
 
     const { toast } = useToast();
-    const { isConnected } = useAccount();
-    const {
-        isDeployed,
-        setTokenA,
-        setTokenB,
-        tokenA,
-        tokenB,
-        deploy,
-        reset: pairReset,
-    } = usePairStore();
     const { reset: uniswapReset } = useUniswapStore();
-
-    const selectedPair = async (pair) => {
-        const { tokenA, tokenB } = PairList[environment][pair];
-        setTokenA(tokenA);
-        setTokenB(tokenB);
-    };
 
     return (
         <>
@@ -64,46 +49,25 @@ export default function Index({ environment }) {
                     {/* <ConnectKitButton /> */}
                 </div>
                 <Separator className="mb-8" />
-                <div className="flex justify-between items-center">
-                    <h4>Used Pair</h4>
-                    {connected ? (
-                        <Select
-                            onValueChange={selectedPair}
-                            defaultValue={`${tokenA?.name}/${tokenB?.name}`}
-                        >
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Pair" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {Object.keys(PairList[environment]).map(
-                                    (pair) => (
-                                        <SelectItem key={pair} value={pair}>
-                                            {pair}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </Select>
-                    ) : (
-                        <Skeleton className="w-1/4 h-12" />
-                    )}
-                </div>
-                <div className="flex justify-between gap-4">
-                    {connected ? (
-                        <>
-                            <ExchangeCard environment={environment} />
-                            <ExchangeCard environment={environment} />
-                            <ExchangeCard environment={environment} />
-                        </>
-                    ) : (
-                        <>
-                            <Skeleton className="w-1/2 h-96" />
-                            <Skeleton className="w-1/2 h-96" />
-                            <Skeleton className="w-1/2 h-96" />
-                        </>
-                    )}
-                </div>
-                {connected && <Difference />}
+
+                {/* Repeat Pair component `pair` times */}
+                {[...Array(pair)].map((_, i) => (
+                    <Pair
+                        key={i}
+                        connected={connected}
+                        environment={environment}
+                    />
+                ))}
+                {Object.keys(PairList[environment]).length > pair && (
+                    <button
+                        className="flex mt-4 h-[100px] w-full items-center justify-center rounded-md border border-dashed text-sm"
+                        onClick={() => {
+                            setPair(pair + 1);
+                        }}
+                    >
+                        Add pair
+                    </button>
+                )}
                 {arbitrage && <EstimatedTime expectedTime={15000} />}
                 <Separator className="mt-8" />
                 <div className="flex justify-between mt-12">

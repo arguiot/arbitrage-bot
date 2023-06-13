@@ -7,16 +7,28 @@ export class LiquidityCache {
         this.sharedMemory = sharedMemory;
     }
 
-    get(exchange: string, token: string): number {
+    get(exchange: string, token: string): number | undefined {
         const cache = this.sharedMemory.getStore("liquidity-cache");
         // Return the value from the cache
-        return cache[`${exchange}-${token}`];
+        const entry = cache[`${exchange}-${token}`];
+        if (typeof entry === "undefined") {
+            return undefined;
+        }
+        // If the cache is older than 1 minute, invalidate it
+        if (Date.now() - entry.timestamp > 60 * 1000) {
+            this.invalidate(exchange, token);
+            return undefined;
+        }
+        return entry.value;
     }
 
     async set(exchange: string, token: string, value: number) {
         const cache = this.sharedMemory.getStore("liquidity-cache");
         // Set the value in the cache
-        cache[`${exchange}-${token}`] = value;
+        cache[`${exchange}-${token}`] = {
+            value,
+            timestamp: Date.now(),
+        };
         // Save the cache to shared memory
         await this.sharedMemory.setStore("liquidity-cache", cache);
     }

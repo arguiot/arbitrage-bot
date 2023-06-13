@@ -24,8 +24,8 @@ export function EstimatedTime({ expectedTime }: EstimatedTimeProps) {
                 requestAnimationFrame(updateProgress);
             }
         };
-        requestAnimationFrame(updateProgress);
-        return () => cancelAnimationFrame(updateProgress);
+        const req = requestAnimationFrame(updateProgress);
+        return () => cancelAnimationFrame(req);
     }, [expectedTime]);
 
     return <Progress value={progress} className="w-full" />;
