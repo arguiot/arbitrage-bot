@@ -1,4 +1,4 @@
-import { Quote } from "../../scripts/exchanges/types/Quote";
+import { Quote } from "../../src/exchanges/types/Quote";
 
 export type Opportunity = {
     exchange1: string;

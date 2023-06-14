@@ -1,10 +1,9 @@
 import { Token } from "../../src/exchanges/adapters/exchange";
 import { Quote } from "../../src/exchanges/types/Quote";
-import Credentials from "../credentials/Credentials";
-import { getAdapter } from "../data/adapters";
 import { Opportunity } from "../types/opportunity";
 import { SharedMemory } from "./SharedMemory";
-import { findBestArbitrageRoute } from "../model/findBestArbitrageRoute";
+import { interPairOpportunity } from "../model/interPairOpportunity";
+import { interExchangeRoute } from "../model/interExchangeRoute";
 
 export class PriceDataStore {
     private sharedMemory: SharedMemory;
@@ -96,9 +95,11 @@ export class PriceDataStore {
 
         const quotes = this.getQuotes();
 
+        const interRoute = await interExchangeRoute(quotes);
+
         for (const pair of Object.keys(quotes)) {
             const options = Object.entries(quotes[pair]);
-            const opportunity = await findBestArbitrageRoute(options);
+            const opportunity = await interPairOpportunity(options);
             if (opportunity && opportunity.profit > bestProfit) {
                 bestOpportunity = opportunity;
                 bestProfit = opportunity.profit;

@@ -205,7 +205,7 @@ export function spawnActor({
             },
         },
         // @ts-expect-error
-        name: options.exchange,
+        name: `${options.exchange} - ${options.tokenA.name}/${options.tokenB.name}`,
     });
 
     worker.on("message", (result: PartialResult) => {

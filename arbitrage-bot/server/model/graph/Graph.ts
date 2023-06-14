@@ -33,7 +33,7 @@ export default class Graph<T> {
         return Object.values(this.edges);
     }
 
-    public addEdge(edge: GraphEdge<T>): Graph<T> {
+    public addEdge(edge: GraphEdge<T>, overwrite: boolean = false): Graph<T> {
         let startVertex = this.getVertexByKey(edge.startVertex.getKey());
         let endVertex = this.getVertexByKey(edge.endVertex.getKey());
 
@@ -47,7 +47,7 @@ export default class Graph<T> {
             endVertex = this.getVertexByKey(edge.endVertex.getKey());
         }
 
-        if (this.edges[edge.getKey()]) {
+        if (this.edges[edge.getKey()] && !overwrite) {
             throw new Error("Edge has already been added before");
         } else {
             this.edges[edge.getKey()] = edge;
