@@ -3,10 +3,11 @@ import { Exchange } from "../../src/exchanges/adapters/exchange";
 import { LiveCEX } from "../../src/exchanges/LiveCEX";
 import { UniswapV2, UniType } from "../../src/exchanges/UniswapV2";
 import { Wallet } from "ethers";
+import Credentials from "../credentials/Credentials";
 
 export function getAdapter(
     exchange: string,
-    wallet: Wallet,
+    wallet: Wallet = Credentials.shared.wallet,
     routerAddress?: string,
     factoryAddress?: string
 ): Exchange<any, any> {
@@ -17,8 +18,8 @@ export function getAdapter(
     switch (adapter) {
         case "uniswap": {
             const uniswap = new UniswapV2(
-                routerAddress,
-                factoryAddress,
+                routerAddress || metadata.routerAddress,
+                factoryAddress || metadata.factoryAddress,
                 wallet
             );
             uniswap.name = exchange as UniType; // Let the adapter know which exchange it is. Because PancakeSwap uses a different pair definition, we need to know which exchange we're using.

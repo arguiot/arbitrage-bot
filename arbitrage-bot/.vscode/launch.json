@@ -8,7 +8,7 @@
             "args": [
                 "-r",
                 "ts-node/register",
-                "test/memory/sharedMemory.ts"
+                "test/*/**"
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "name": "Mocha Tests - Shared Memory",

@@ -212,28 +212,29 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
                 tokenB.address
             );
         }
-        // Get the optimal amount In (amountIn = sqrt(k / (1 + fee)))
-        const bestAmountIn = sqrt(
-            reserveA
-                .mul(reserveB)
-                .mul(1000000)
-                .div(
-                    1000000 +
-                        (this.name === "pancakeswap" || this.name === "apeswap"
-                            ? 2500
-                            : 3000)
-                )
-        );
+        // // Get the optimal amount In (amountIn = sqrt(k / (1 + fee)))
+        // const bestAmountIn = sqrt(
+        //     reserveA
+        //         .mul(reserveB)
+        //         .mul(1000000)
+        //         .div(
+        //             1000000 +
+        //                 (this.name === "pancakeswap" || this.name === "apeswap"
+        //                     ? 2500
+        //                     : 3000)
+        //         )
+        // );
 
         // Amount in is the minimum between the max available amount (in ethers) and the best amount in (in wei)
         const maxAvailableAmountInEther = ethers.utils.parseEther(
             maxAvailableAmount.toString()
         );
-        const amountIn = bestAmountIn.lt(maxAvailableAmountInEther)
-            ? bestAmountIn
-            : maxAvailableAmountInEther.eq(0)
-            ? bestAmountIn
-            : maxAvailableAmountInEther;
+        const amountIn = maxAvailableAmountInEther
+        // bestAmountIn.lt(maxAvailableAmountInEther)
+        //     ? bestAmountIn
+        //     : maxAvailableAmountInEther.eq(0)
+        //     ? bestAmountIn
+        //     : maxAvailableAmountInEther;
 
         const _quoteOut = maximizeB
             ? this.getAmountOut(amountIn, reserveA, reserveB)
@@ -255,7 +256,9 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
 
         // Transaction price would be amountOut / amountIn
 
-        const transactionPrice = quoteOut / amountInEther;
+        const transactionPrice = maximizeB
+            ? quoteOut / amountInEther
+            : amountInEther / quoteOut;
 
         return {
             amount: amountInEther,
@@ -571,7 +574,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                    this.wallet.address.toLowerCase()
+                this.wallet.address.toLowerCase()
         )?.data;
         const profitOut = Number(ethers.utils.formatEther(profitHex));
         const pairAddress = this.pairFor(
@@ -584,7 +587,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                    pairAddress.toLowerCase()
+                pairAddress.toLowerCase()
         )?.data;
 
         const amountIn1Receipt = Number(ethers.utils.formatEther(amountIn1Hex));

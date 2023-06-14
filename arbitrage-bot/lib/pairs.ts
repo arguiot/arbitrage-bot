@@ -47,6 +47,14 @@ export const PairList = {
             tokenA: TokenList.TKA_BSCTESTNET,
             tokenB: TokenList.TKB_BSCTESTNET,
         },
+        "ETH/TKA": {
+            tokenA: TokenList.WETH_BSCTESTNET,
+            tokenB: TokenList.TKA_BSCTESTNET,
+        },
+        "TKB/USDT": {
+            tokenA: TokenList.TKB_BSCTESTNET,
+            tokenB: TokenList.USDT_BSCTESTNET,
+        },
     },
     production: {
         "ETH/USDT": {

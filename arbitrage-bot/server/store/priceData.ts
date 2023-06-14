@@ -4,6 +4,7 @@ import Credentials from "../credentials/Credentials";
 import { getAdapter } from "../data/adapters";
 import { Opportunity } from "../types/opportunity";
 import { SharedMemory } from "./SharedMemory";
+import { findBestArbitrageRoute } from "../model/findBestArbitrageRoute";
 
 export class PriceDataStore {
     private sharedMemory: SharedMemory;
@@ -97,75 +98,13 @@ export class PriceDataStore {
 
         for (const pair of Object.keys(quotes)) {
             const options = Object.entries(quotes[pair]);
-            const opportunity = findBestArbitrageRoute(options);
+            const opportunity = await findBestArbitrageRoute(options);
             if (opportunity && opportunity.profit > bestProfit) {
                 bestOpportunity = opportunity;
                 bestProfit = opportunity.profit;
             }
-            debugger;
         }
 
         return bestOpportunity;
     }
 }
-
-const findBestArbitrageRoute = (options: [string, Quote][]): Opportunity | null => {
-    const numExchanges = options.length;
-    const distances: number[] = Array(numExchanges).fill(Infinity);
-    const predecessors: number[] = Array(numExchanges).fill(-1);
-    distances[0] = 0;
-
-    const edges: [number, number, number][] = [];
-    for (let i = 0; i < numExchanges; i++) {
-        for (let j = 0; j < numExchanges; j++) {
-            if (i !== j) {
-                const optionA = options[i][1];
-                const optionB = options[j][1];
-
-                if (optionA.tokenA.address === optionB.tokenA.address && optionA.tokenB.address === optionB.tokenB.address) {
-                    const profitMargin = (optionB.amountOut / optionA.amount) * (1 - optionA.transactionPrice);
-                    edges.push([i, j, -Math.log(profitMargin)]);
-                }
-            }
-        }
-    }
-
-    for (let i = 0; i < numExchanges - 1; i++) {
-        for (const [source, target, weight] of edges) {
-            if (distances[source] + weight < distances[target]) {
-                distances[target] = distances[source] + weight;
-                predecessors[target] = source;
-            }
-        }
-    }
-
-    for (const [source, target, weight] of edges) {
-        if (distances[source] + weight < distances[target]) {
-            const path: number[] = [target];
-            let prev = predecessors[target];
-
-            while (prev !== -1 && prev !== target) {
-                path.unshift(prev);
-                prev = predecessors[prev];
-            }
-
-            const exchange1 = options[path[0]][0];
-            const exchange2 = options[path[1]][0];
-            const quote1 = options[path[0]][1];
-            const quote2 = options[path[1]][1];
-            const profit = quote1.amount * (quote2.amountOut / quote1.amount) * (1 - quote1.transactionPrice) - quote1.amount;
-            const percentProfit = (profit / quote1.amount) * 100;
-
-            return {
-                exchange1,
-                exchange2,
-                profit,
-                percentProfit,
-                quote1,
-                quote2,
-            };
-        }
-    }
-
-    return null;
-};

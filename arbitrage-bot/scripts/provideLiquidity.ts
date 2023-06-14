@@ -68,7 +68,8 @@ async function main() {
 
         let pairAddress = await factory.getPair(tokenAAddress, tokenBAddress);
         if (pairAddress === ethers.constants.AddressZero) {
-            await factory.createPair(tokenAAddress, tokenBAddress);
+            const tx = await factory.createPair(tokenAAddress, tokenBAddress);
+            await tx.wait();
             pairAddress = await factory.getPair(tokenAAddress, tokenBAddress);
         }
         pairs.push(pairAddress);
@@ -161,8 +162,7 @@ async function main() {
         const pair = new ethers.Contract(pairAddress, IERC20, signer);
         const reserves = await pair.getReserves();
         console.log(
-            `New reserves for DEX ${
-                index + 1
+            `New reserves for DEX ${index + 1
             }: ${reserves.reserve0.toString()}, ${reserves.reserve1.toString()}`
         );
     }
