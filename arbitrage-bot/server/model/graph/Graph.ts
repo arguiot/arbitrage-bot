@@ -1,9 +1,9 @@
 import GraphVertex from "./GraphVertex";
 import GraphEdge from "./GraphEdge";
 
-export default class Graph<T> {
-    private vertices: { [key: string]: GraphVertex<T> };
-    private edges: { [key: string]: GraphEdge<T> };
+export default class Graph<T, U> {
+    private vertices: { [key: string]: GraphVertex<T, U> };
+    private edges: { [key: string]: GraphEdge<T, U> };
     private isDirected: boolean;
 
     constructor(isDirected = false) {
@@ -12,28 +12,31 @@ export default class Graph<T> {
         this.isDirected = isDirected;
     }
 
-    public addVertex(newVertex: GraphVertex<T>): Graph<T> {
+    public addVertex(newVertex: GraphVertex<T, U>): Graph<T, U> {
         this.vertices[newVertex.getKey()] = newVertex;
         return this;
     }
 
-    public getVertexByKey(vertexKey: string): GraphVertex<T> {
+    public getVertexByKey(vertexKey: string): GraphVertex<T, U> {
         return this.vertices[vertexKey];
     }
 
-    public getNeighbors(vertex: GraphVertex<T>): GraphVertex<T>[] {
+    public getNeighbors(vertex: GraphVertex<T, U>): GraphVertex<T, U>[] {
         return vertex.getNeighbors();
     }
 
-    public getAllVertices(): GraphVertex<T>[] {
+    public getAllVertices(): GraphVertex<T, U>[] {
         return Object.values(this.vertices);
     }
 
-    public getAllEdges(): GraphEdge<T>[] {
+    public getAllEdges(): GraphEdge<T, U>[] {
         return Object.values(this.edges);
     }
 
-    public addEdge(edge: GraphEdge<T>, overwrite: boolean = false): Graph<T> {
+    public addEdge(
+        edge: GraphEdge<T, U>,
+        overwrite: boolean = false
+    ): Graph<T, U> {
         let startVertex = this.getVertexByKey(edge.startVertex.getKey());
         let endVertex = this.getVertexByKey(edge.endVertex.getKey());
 
@@ -63,7 +66,7 @@ export default class Graph<T> {
         return this;
     }
 
-    public deleteEdge(edge: GraphEdge<T>): void {
+    public deleteEdge(edge: GraphEdge<T, U>): void {
         if (this.edges[edge.getKey()]) {
             delete this.edges[edge.getKey()];
         } else {
@@ -78,25 +81,20 @@ export default class Graph<T> {
     }
 
     public findEdge(
-        startVertex: GraphVertex<T>,
-        endVertex: GraphVertex<T>
-    ): GraphEdge<T> | null {
-        const vertex = this.getVertexByKey(startVertex.getKey());
+        startVertex: GraphVertex<T, U>,
+        endVertex: GraphVertex<T, U>
+    ): GraphEdge<T, U> | null {
+        const startingVertex = startVertex.getKey();
+        const endingVertex = endVertex.getKey();
 
-        if (!vertex) {
-            return null;
+        const edge = this.edges[`${startingVertex}_${endingVertex}`];
+        if (!edge && !this.isDirected) {
+            return this.edges[`${endingVertex}_${startingVertex}`] || null;
         }
-
-        return vertex.findEdge(endVertex);
+        return edge || null;
     }
 
-    public getWeight(): number {
-        return this.getAllEdges().reduce((weight, graphEdge) => {
-            return weight + graphEdge.weight;
-        }, 0);
-    }
-
-    public reverse(): Graph<T> {
+    public reverse(): Graph<T, U> {
         this.getAllEdges().forEach((edge) => {
             this.deleteEdge(edge);
             edge.reverse();
@@ -116,29 +114,54 @@ export default class Graph<T> {
     }
 
     public getAdjacencyMatrix(): number[][] {
-        const vertices = this.getAllVertices();
         const verticesIndices = this.getVerticesIndices();
+        const edges = this.getAllEdges();
 
-        const adjacencyMatrix = Array(vertices.length)
+        const length = this.getAllVertices().length;
+
+        const adjacencyMatrix = Array(length)
             .fill(null)
             .map(() => {
-                return Array(vertices.length).fill(Infinity);
+                return Array(length).fill(Infinity);
             });
 
-        vertices.forEach((vertex, vertexIndex) => {
-            vertex.getNeighbors().forEach((neighbor) => {
-                const neighborIndex = verticesIndices[neighbor.getKey()];
-                adjacencyMatrix[vertexIndex][neighborIndex] = this.findEdge(
-                    vertex,
-                    neighbor
-                )?.weight;
+        edges.forEach((graphEdge) => {
+            const startVertex = graphEdge.startVertex;
+            const startVertexIndex = verticesIndices[startVertex.getKey()];
+            const endVertex = graphEdge.endVertex;
+            const endVertexIndex = verticesIndices[endVertex.getKey()];
+            adjacencyMatrix[startVertexIndex][endVertexIndex] =
+                graphEdge.weight;
+        });
+
+        adjacencyMatrix.forEach((row, rowIndex) => {
+            row.forEach((value, columnIndex) => {
+                if (rowIndex === columnIndex) {
+                    adjacencyMatrix[rowIndex][columnIndex] = 1;
+                }
             });
         });
 
         return adjacencyMatrix;
     }
 
+    /**
+     * Prints the list of edges, with their weights, of the graph
+     * @returns {string} The list of edges, with their weights, of the graph
+     * @memberof Graph
+     * @example
+     * const graph = new Graph();
+     * graph.addEdge(new GraphEdge(vertexA, vertexB, 10));
+     * graph.addEdge(new GraphEdge(vertexA, vertexC, 20));
+     * graph.addEdge(new GraphEdge(vertexB, vertexC, 30));
+     * graph.print();
+     * // A -> B: 10
+     * // A -> C: 20
+     * // B -> C: 30
+     */
     public toString(): string {
-        return Object.keys(this.vertices).toString();
+        return Object.values(this.edges)
+            .map((edge) => edge.toString())
+            .join("\n");
     }
 }

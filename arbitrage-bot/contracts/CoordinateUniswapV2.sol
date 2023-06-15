@@ -13,54 +13,43 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
 
     constructor() public {}
 
-    function performFlashSwap(
-        address factory1,
-        uint initCodeHash1,
-        address factory2,
-        uint initCodeHash2,
-        address router2,
-        address token0,
-        address token1,
-        uint amountBetween // The amount of tokens to be swapped between the two pairs
+    function performRouteSwap(
+        address[] calldata factories,
+        uint[] calldata initCodeHashes,
+        address[] calldata routers,
+        address[] calldata tokenRoutes,
+        uint amountIn
     ) external {
-        uint amountToRepay;
-        uint amount0;
-        uint amount1;
+        require(factories.length > 1, "You must provide at least 2 pairs");
+        require(factories.length == tokenRoutes.length && factories.length == initCodeHashes.length, "Factories, initCodeHashes and token routes must have the same length");
+        require(routers.length == factories.length - 1, "You must provide one router less than the number of pairs, starting from second router");
 
-        address pair1 = pairFor(factory1, token0, token1, initCodeHash1);
-        {
-            address pair2 = pairFor(factory2, token0, token1, initCodeHash2);
+        (uint amountToRepay, uint amount0, uint amount1) = _handleFirstPair(factories, initCodeHashes, tokenRoutes, amountIn);
 
-            require(pair1 != address(0), "Pair 1 does not exist");
-            require(pair2 != address(0), "Pair 2 does not exist");
-            
-            (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair1).getReserves();
-            (uint reserve2, uint reserve3,) = IUniswapV2Pair(pair2).getReserves();
-
-            require(reserve0 > 0 && reserve1 > 0, "No liquidity in pair 1");
-            require(reserve2 > 0 && reserve3 > 0, "No liquidity in pair 2");
-
-            // Sort tokens
-            amount0 = token0 > token1 ? 0 : amountBetween;
-            amount1 = token0 > token1 ? amountBetween : 0;
-
-            amountToRepay = UniswapV2Library.getAmountIn(amountBetween, reserve0, reserve1);
-            uint amountWeReceive = UniswapV2Library.getAmountOut(amountBetween, reserve3, reserve2);
-
-            require(amountWeReceive > amountToRepay, "Not profitable");
-        }
-
-        address[] memory meta = new address[](3);
-        meta[0] = msg.sender;
-        meta[1] = factory1;
-        meta[2] = router2;
-
+        address pair1 = pairFor(factories[0], tokenRoutes[0], tokenRoutes[1], initCodeHashes[0]);
         IUniswapV2Pair(pair1).swap(
             amount0,
             amount1,
             address(this),
-            abi.encode(amountToRepay, meta)
+            abi.encode(amountToRepay, factories, initCodeHashes, routers, tokenRoutes)
         );
+    }
+
+    function _handleFirstPair(
+        address[] calldata factories,
+        uint[] calldata initCodeHashes,
+        address[] calldata tokenRoutes,
+        uint amountIn
+    ) internal view returns (uint amountToRepay, uint amount0, uint amount1) {
+        address pair1 = pairFor(factories[0], tokenRoutes[0], tokenRoutes[1], initCodeHashes[0]);
+        require(pair1 != address(0), "Pair 1 does not exist");
+
+        (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair1).getReserves();
+        require(reserve0 > 0 && reserve1 > 0, "No liquidity in pair 1");
+
+        amount0 = tokenRoutes[0] > tokenRoutes[1] ? 0 : amountIn;
+        amount1 = tokenRoutes[0] > tokenRoutes[1] ? amountIn : 0;
+        amountToRepay = UniswapV2Library.getAmountIn(amountIn, reserve0, reserve1);
     }
 
     // MARK: - IUniswapV2Callee

@@ -2,16 +2,16 @@
  * Calculates the recommended bet size for a given arbitrage opportunity.
  */
 
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 
-export type UniData = {
+type UniData = {
     inputBalance: number;
     fee: number;
     reserve0: BigNumber;
     reserve1: BigNumber;
 };
 
-export type CexData = {
+type CexData = {
     inputBalance: number;
     fee: number;
     price: number;
@@ -20,120 +20,50 @@ export type CexData = {
 };
 
 type ExecutionQuote = {
-    // We should always have amountOutA = amountInB, the profit is the difference between amountInA and amountOutB
-    amountInA: number;
-    amountOutA: number;
-    amountInB: number;
-    amountOutB: number;
+    amountIn: number;
+    amountOut: number;
 };
 
-export function betSize({
-    exchange1,
-    exchange2,
-}: {
-    exchange1: UniData | CexData;
-    exchange2: UniData | CexData;
-}): ExecutionQuote {
-    // If we're dealing with two CEXs, we can just use the balance
-    if (!("reserve0" in exchange1 || "reserve0" in exchange2)) {
-        const amountInA = Math.min(
-            exchange1.inputBalance,
-            exchange2.inputBalance * exchange2.price
-        );
-        const amountOutA = amountInA * exchange1.price * (1 - exchange1.fee);
-        const amountInB = amountOutA;
-        const amountOutB = amountInB * exchange2.price * (1 - exchange2.fee);
-        return {
-            amountInA,
-            amountOutA,
-            amountInB,
-            amountOutB,
-        };
-    }
-    // One of the exchanges is a DEX, so we need to calculate the optimal input
-    // Helper function to calculate true price for UniData
-    const calculateTruePriceUniData = (data: UniData) => ({
-        truePriceTokenA: BigNumber.from(data.reserve0),
-        truePriceTokenB: BigNumber.from(data.reserve1),
-    });
-
-    // Helper function to calculate true price for CexData
-    const calculateTruePriceCexData = (data: CexData) => ({
-        truePriceTokenA: 1, // 1 because we're using the price of token B, the ratio is important
-        truePriceTokenB: data.price,
-    });
-
-    // Determine the Dex exchange object
-    const dex = "reserve0" in exchange1 ? exchange1 : (exchange2 as UniData);
-
-    // Calculate the true price of tokens on the other exchange
-    const otherExchange = "reserve0" in exchange1 ? exchange2 : exchange1;
-    const otherTruePrices =
-        "reserve0" in otherExchange
-            ? calculateTruePriceUniData(otherExchange as UniData)
-            : calculateTruePriceCexData(otherExchange as CexData);
-
-    // Convert the true price values to BigNumber objects
-    const toBigNumber = (value: BigNumber | number) => {
-        if (value instanceof BigNumber) {
-            return value;
-        }
-
-        // Use parseUnits to handle decimal numbers
-        return ethers.utils.parseUnits(value.toString(), 18);
-    };
-
-    const truePriceTokenAInBigNumber = toBigNumber(
-        otherTruePrices.truePriceTokenA
-    );
-    const truePriceTokenBInBigNumber = toBigNumber(
-        otherTruePrices.truePriceTokenB
-    );
-
-    const [aToB, _amountIn, _amountOutA, _amountOutB] =
-        computeProfitMaximizingTrade(
-            truePriceTokenAInBigNumber,
-            truePriceTokenBInBigNumber,
+function calculateOutputAmount(
+    exchange: UniData | CexData,
+    amountIn: number,
+    isDex: boolean
+): number {
+    if (isDex) {
+        const dex = exchange as UniData;
+        const truePriceTokenA = dex.reserve0.div(dex.reserve1);
+        const truePriceTokenB = dex.reserve1.div(dex.reserve0);
+        const [, , outputAmount] = computeProfitMaximizingTrade(
+            truePriceTokenA,
+            truePriceTokenB,
             dex.reserve0,
             dex.reserve1,
             dex.fee
         );
-
-    const amountInA = _amountIn.div(1e12).toNumber() / 1e6;
-    const amountOutA = _amountOutA.div(1e12).toNumber() / 1e6;
-    const amountInB = _amountOutA.div(1e12).toNumber() / 1e6;
-    const amountOutB = _amountOutB.div(1e12).toNumber() / 1e6;
-
-    if (aToB) {
-        const executionQuote = {
-            amountInA,
-            amountOutA,
-            amountInB,
-            amountOutB,
-        };
-        return adjustAmounts(
-            executionQuote.amountInA,
-            executionQuote.amountOutA,
-            executionQuote.amountInB,
-            executionQuote.amountOutB,
-            exchange1.inputBalance,
-            exchange2.inputBalance
-        );
+        return outputAmount.toNumber();
+    } else {
+        const cex = exchange as CexData;
+        return amountIn * cex.price * (1 - cex.fee);
     }
-    const executionQuote = {
-        amountInA: amountOutB,
-        amountOutA: amountInB,
-        amountInB: amountOutA,
-        amountOutB: amountInA,
-    };
-    return adjustAmounts(
-        executionQuote.amountInA,
-        executionQuote.amountOutA,
-        executionQuote.amountInB,
-        executionQuote.amountOutB,
-        exchange1.inputBalance,
-        exchange2.inputBalance
-    );
+}
+
+export function betSize(exchanges: (UniData | CexData)[]): ExecutionQuote[] {
+    const quotes: ExecutionQuote[] = [];
+    let inputAmount = exchanges[0].inputBalance;
+
+    for (let i = 0; i < exchanges.length; i++) {
+        const isDex = "reserve0" in exchanges[i];
+        const outputAmount = calculateOutputAmount(
+            exchanges[i],
+            inputAmount,
+            isDex
+        );
+
+        quotes.push({ amountIn: inputAmount, amountOut: outputAmount });
+        inputAmount = outputAmount;
+    }
+
+    return quotes;
 }
 
 function computeProfitMaximizingTrade(
@@ -199,7 +129,12 @@ function adjustAmounts(
     amountOutB: number,
     inputBalanceA: number,
     inputBalanceB: number
-): ExecutionQuote {
+): {
+    amountInA: number;
+    amountOutA: number;
+    amountInB: number;
+    amountOutB: number;
+} {
     let scaleFactorA = 1;
     let scaleFactorB = 1;
 

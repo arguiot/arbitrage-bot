@@ -1,14 +1,14 @@
 import GraphVertex from "./GraphVertex";
 
-export default class GraphEdge<T> {
-    public startVertex: GraphVertex<T>;
-    public endVertex: GraphVertex<T>;
-    public weight: number;
+export default class GraphEdge<T, U> {
+    public startVertex: GraphVertex<T, U>;
+    public endVertex: GraphVertex<T, U>;
+    public weight: U;
 
     constructor(
-        startVertex: GraphVertex<T>,
-        endVertex: GraphVertex<T>,
-        weight = 0
+        startVertex: GraphVertex<T, U>,
+        endVertex: GraphVertex<T, U>,
+        weight: U
     ) {
         this.startVertex = startVertex;
         this.endVertex = endVertex;
@@ -22,7 +22,7 @@ export default class GraphEdge<T> {
         return `${startVertexKey}_${endVertexKey}`;
     }
 
-    public reverse(): GraphEdge<T> {
+    public reverse(): GraphEdge<T, U> {
         const tmp = this.startVertex;
         this.startVertex = this.endVertex;
         this.endVertex = tmp;
@@ -30,7 +30,12 @@ export default class GraphEdge<T> {
         return this;
     }
 
+    /**
+     * Prints edge in the format: (start_vertex) -> (end_vertex): (weight)
+     */
     public toString(): string {
-        return this.getKey();
+        return `${this.startVertex.toString()} -> ${this.endVertex.toString()}: ${
+            this.weight
+        }`;
     }
 }

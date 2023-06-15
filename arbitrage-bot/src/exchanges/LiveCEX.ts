@@ -59,6 +59,7 @@ export class LiveCEX implements Exchange<CCXTExchange, void> {
             token1.name === tokenA.name ? price.bid : price.ask;
 
         return {
+            exchange: this.name,
             amount: maxAvailableAmount,
             amountOut: maxAvailableAmount * (price.last ?? 0),
             price: price.last ?? 0,

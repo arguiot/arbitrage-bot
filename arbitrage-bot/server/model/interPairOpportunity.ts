@@ -4,7 +4,6 @@ import { Opportunity } from "../types/opportunity";
 export async function interPairOpportunity(
     options: [string, Quote][]
 ): Promise<Opportunity | null> {
-
     let bestOpportunity: Opportunity | null = null;
 
     for (const [exchange1, quote1] of options) {
@@ -20,19 +19,19 @@ export async function interPairOpportunity(
             }
 
             const opportunity: Opportunity = {
-                exchange1,
-                exchange2,
+                exchanges: [exchange1, exchange2],
                 profit: weight,
-                percentProfit: weight / quote1.amountOut,
-                quote1: quote1,
-                quote2: quote2,
+                quotes: [quote1, quote2],
             };
 
-            if (bestOpportunity === null || opportunity.profit > bestOpportunity.profit) {
+            if (
+                bestOpportunity === null ||
+                opportunity.profit > bestOpportunity.profit
+            ) {
                 bestOpportunity = opportunity;
             }
         }
     }
 
     return bestOpportunity;
-};
+}

@@ -162,7 +162,8 @@ async function main() {
         const pair = new ethers.Contract(pairAddress, IERC20, signer);
         const reserves = await pair.getReserves();
         console.log(
-            `New reserves for DEX ${index + 1
+            `New reserves for DEX ${
+                index + 1
             }: ${reserves.reserve0.toString()}, ${reserves.reserve1.toString()}`
         );
     }

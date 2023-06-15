@@ -229,7 +229,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
         const maxAvailableAmountInEther = ethers.utils.parseEther(
             maxAvailableAmount.toString()
         );
-        const amountIn = maxAvailableAmountInEther
+        const amountIn = maxAvailableAmountInEther;
         // bestAmountIn.lt(maxAvailableAmountInEther)
         //     ? bestAmountIn
         //     : maxAvailableAmountInEther.eq(0)
@@ -261,6 +261,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             : amountInEther / quoteOut;
 
         return {
+            exchange: this.name,
             amount: amountInEther,
             amountOut: quoteOut,
             price,
@@ -574,7 +575,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                this.wallet.address.toLowerCase()
+                    this.wallet.address.toLowerCase()
         )?.data;
         const profitOut = Number(ethers.utils.formatEther(profitHex));
         const pairAddress = this.pairFor(
@@ -587,7 +588,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             (log: Log) =>
                 log.topics.length === 3 &&
                 ethers.utils.hexStripZeros(log.topics[2]) ===
-                pairAddress.toLowerCase()
+                    pairAddress.toLowerCase()
         )?.data;
 
         const amountIn1Receipt = Number(ethers.utils.formatEther(amountIn1Hex));

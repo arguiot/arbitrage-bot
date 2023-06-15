@@ -26,7 +26,9 @@ async function main() {
     const tokenX = new ethers.Contract(tokenXAddress, ITokenX, signer);
     const balanceBefore = await tokenX.balanceOf(signer.address);
     const symbol = await tokenX.symbol();
-    console.log(`Balance before minting: ${balanceBefore.toString()} ${symbol}`);
+    console.log(
+        `Balance before minting: ${balanceBefore.toString()} ${symbol}`
+    );
 
     const amountToMint = createPrompt("Enter amount of token X to mint:").value;
 
@@ -36,11 +38,18 @@ async function main() {
     }
 
     const decimals = await tokenX.decimals();
-    const amountToMintWithDecimals = ethers.utils.parseUnits(amountToMint, decimals);
+    const amountToMintWithDecimals = ethers.utils.parseUnits(
+        amountToMint,
+        decimals
+    );
 
     try {
-        console.log(`Minting ${amountToMint} token X to address ${signer.address}`);
-        const mint = await tokenX.safeMint(amountToMintWithDecimals, { gasLimit: 1000000 });
+        console.log(
+            `Minting ${amountToMint} token X to address ${signer.address}`
+        );
+        const mint = await tokenX.safeMint(amountToMintWithDecimals, {
+            gasLimit: 1000000,
+        });
         await mint.wait();
     } catch (error) {
         console.error(`Failed to mint token X: ${error.message}`);
