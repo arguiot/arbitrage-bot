@@ -5,8 +5,7 @@ import _WETH9 from "@uniswap/v2-periphery/build/WETH9.json";
 import dotenv from "dotenv";
 
 export async function deployUniswapV2(
-    deployer: ethers.Wallet,
-    network: string
+    deployer: ethers.Wallet
 ): Promise<{
     factory: Contract;
     router: Contract;
@@ -67,18 +66,18 @@ async function main() {
         throw new Error("Network not supported");
     }
 
-    const { factory, router, weth } = await deployUniswapV2(deployer, network);
+    const { factory, router, weth } = await deployUniswapV2(deployer);
 
     console.log("Uniswap V2 Factory deployed at:", factory.address);
     console.log("Uniswap V2 Router deployed at:", router.address);
     console.log("WETH9 deployed at:", weth.address);
 }
 
-if (import.meta.main) {
-    main()
-        .then(() => process.exit(0))
-        .catch((error) => {
-            console.error(error);
-            process.exit(1);
-        });
-}
+// if (import.meta.main) {
+//     main()
+//         .then(() => process.exit(0))
+//         .catch((error) => {
+//             console.error(error);
+//             process.exit(1);
+//         });
+// }

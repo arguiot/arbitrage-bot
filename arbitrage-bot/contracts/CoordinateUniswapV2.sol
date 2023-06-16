@@ -14,12 +14,17 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
     constructor() public {}
 
     function performRouteSwap(
-        address[] calldata factories,
-        uint[] calldata initCodeHashes,
-        address[] calldata routers,
-        address[] calldata tokenRoutes,
+        bytes calldata factoriesBytes,
+        bytes calldata initCodeHashesBytes,
+        bytes calldata routersBytes,
+        bytes calldata tokenRoutesBytes,
         uint amountIn
     ) external {
+        address[] memory factories = abi.decode(factoriesBytes, (address[]));
+        uint[] memory initCodeHashes = abi.decode(initCodeHashesBytes, (uint[]));
+        address[] memory routers = abi.decode(routersBytes, (address[]));
+        address[] memory tokenRoutes = abi.decode(tokenRoutesBytes, (address[]));
+
         require(factories.length > 1, "You must provide at least 2 pairs");
         require(factories.length == tokenRoutes.length && factories.length == initCodeHashes.length, "Factories, initCodeHashes and token routes must have the same length");
         require(routers.length == factories.length - 1, "You must provide one router less than the number of pairs, starting from second router");
@@ -35,10 +40,72 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
         );
     }
 
+    // MARK: - IUniswapV2Callee
+    function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
+        (uint amountRequired, address[] memory factories, uint[] memory initCodeHashes, address[] memory routers, address[] memory tokenRoutes) = abi.decode(data, (uint, address[], uint[], address[], address[]));
+
+        address caller = sender;
+        uint tokenInAmount = amount0 > 0 ? amount0 : amount1;
+        address tokenIn = amount0 > 0 ? IUniswapV2Pair(msg.sender).token0() : IUniswapV2Pair(msg.sender).token1();
+        address tokenOut = amount0 > 0 ? IUniswapV2Pair(msg.sender).token1() : IUniswapV2Pair(msg.sender).token0();
+
+        uint profit = _performCycleArbitrage(factories, initCodeHashes, routers, tokenRoutes, tokenInAmount);
+
+        require(profit >= amountRequired, string(abi.encodePacked("Not enough profit to perform cycle arbitrage. Current profit: ", profit.toString(), " tokens. You need at least ", amountRequired.toString(), " tokens.")));
+
+        IERC20(tokenOut).transfer(msg.sender, amountRequired);
+        IERC20(tokenOut).transfer(caller, profit - amountRequired);
+    }
+
+    // MARK: - Helpers
+    function _performCycleArbitrage(
+        address[] memory factories,
+        uint[] memory initCodeHashes,
+        address[] memory routers,
+        address[] memory tokenRoutes,
+        uint tokenInAmount
+    ) internal returns (uint profit) {
+        uint balance = tokenInAmount;
+
+        for (uint i = 2; i < routers.length; i++) {
+            address routerAddress = routers[i];
+            IUniswapV2Router02 router = IUniswapV2Router02(routerAddress);
+
+            address[] memory path = new address[](2);
+            path[0] = tokenRoutes[i - 1];
+            path[1] = tokenRoutes[i];
+
+            IERC20(path[0]).approve(routerAddress, balance);
+
+            uint[] memory amounts = router.swapExactTokensForTokens(
+                balance,
+                0, // Accept any amount of output tokens
+                path,
+                address(this),
+                block.timestamp
+            );
+
+            balance = amounts[1];
+        }
+
+        profit = balance;
+    }
+
+    // calculates the CREATE2 address for a pair without making any external calls
+    function pairFor(address factory, address tokenA, address tokenB, uint codeHash) internal pure returns (address pair) {
+        (address token0, address token1) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        pair = address(uint(keccak256(abi.encodePacked(
+                hex'ff',
+                factory,
+                keccak256(abi.encodePacked(token0, token1)),
+                codeHash // init code hash
+            ))));
+    }
+
     function _handleFirstPair(
-        address[] calldata factories,
-        uint[] calldata initCodeHashes,
-        address[] calldata tokenRoutes,
+        address[] memory factories,
+        uint[] memory initCodeHashes,
+        address[] memory tokenRoutes,
         uint amountIn
     ) internal view returns (uint amountToRepay, uint amount0, uint amount1) {
         address pair1 = pairFor(factories[0], tokenRoutes[0], tokenRoutes[1], initCodeHashes[0]);
@@ -50,56 +117,5 @@ contract CoordinateUniswapV2 is IUniswapV2Callee {
         amount0 = tokenRoutes[0] > tokenRoutes[1] ? 0 : amountIn;
         amount1 = tokenRoutes[0] > tokenRoutes[1] ? amountIn : 0;
         amountToRepay = UniswapV2Library.getAmountIn(amountIn, reserve0, reserve1);
-    }
-
-    // MARK: - IUniswapV2Callee
-    function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
-        (uint amountRequired, address[] memory meta) = abi.decode(data, (uint, address[]));
-
-        address caller = meta[0];
-        address factory1 = meta[1];
-        address _router2 = meta[2];
-
-        IUniswapV2Router02 router2 = IUniswapV2Router02(_router2);
-
-        address[] memory path = new address[](2);
-        {
-            address token0 = IUniswapV2Pair(msg.sender).token0();
-            address token1 = IUniswapV2Pair(msg.sender).token1();
-            assert(msg.sender == UniswapV2Library.pairFor(factory1, token0, token1));
-            assert(amount0 == 0 || amount1 == 0);
-            path[0] = amount0 > 0 ? token0 : token1;
-            path[1] = amount0 > 0 ? token1 : token0;
-        }
-
-        IERC20(path[0]).approve(address(router2), amount1 == 0 ? amount0 : amount1);
-
-        router2.swapExactTokensForTokens(
-            amount1 == 0 ? amount0 : amount1,
-            amountRequired, // Let's make sure we get enough tokens
-            path,
-            address(this),
-            block.timestamp
-        );
-
-        uint balance = IERC20(path[1]).balanceOf(address(this));
-        require(balance >= amountRequired, string(abi.encodePacked("Not enough balance to perform swap. Current balance: ", balance.toString(), " tokens. You need at least ", amountRequired.toString(), " tokens.")));
-
-        IERC20(path[1]).transfer(msg.sender, amountRequired);
-
-        uint profit = IERC20(path[1]).balanceOf(address(this));
-        IERC20(path[1]).transfer(caller, profit);
-    }
-
-    // MARK: - Helpers
-    // calculates the CREATE2 address for a pair without making any external calls
-    function pairFor(address factory, address tokenA, address tokenB, uint codeHash) internal pure returns (address pair) {
-        (address token0, address token1) = UniswapV2Library.sortTokens(tokenA, tokenB);
-        pair = address(uint(keccak256(abi.encodePacked(
-                hex'ff',
-                factory,
-                keccak256(abi.encodePacked(token0, token1)),
-                codeHash // init code hash
-            ))));
     }
 }
