@@ -3,15 +3,21 @@ import { ethers } from "hardhat";
 import { deployUniswapV2 } from "../../src/exchanges/deploy/deployUniswapV2";
 import { UniswapV2 } from "../../src/exchanges/UniswapV2";
 import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
+import { Token } from "@/src/exchanges/adapters/exchange";
 
-async function deployV2(N: number, D: number) {
+export async function deployV2(N: number, dexes: string[]) {
     await ethers.provider.send("hardhat_reset", []);
     const [deployer] = await ethers.getSigners();
 
     const uniswapInstances = [];
-    for (let d = 0; d < D; d++) {
+    for (let d = 0; d < dexes.length; d++) {
         const { factory, router, weth } = await deployUniswapV2(deployer as ethers.Wallet);
-        const uniswapV2 = new UniswapV2(router, factory);
+        const uniswapV2 = new UniswapV2(
+            router,
+            factory,
+            deployer as ethers.Wallet
+        );
+        uniswapV2.name = dexes[d] as any;
         uniswapInstances.push(uniswapV2);
     }
 
@@ -73,17 +79,17 @@ async function deployV2(N: number, D: number) {
 describe("Uniswap V2 Deployment", function() {
     it("Should deploy N tokens and create pairs between all tokens for D Uniswap V2 instances", async function() {
         const N = 4; // Number of tokens to deploy
-        const D = 3; // Number of Uniswap V2 instances to deploy
+        const D = ["uniswap", "pancakeswap", "apeswap"]; // Number of Uniswap V2 instances to deploy
         const { uniswapInstances, tokens, pairs } = await deployV2(N, D);
 
         // Check if D Uniswap V2 instances are deployed
-        expect(uniswapInstances.length).to.equal(D);
+        expect(uniswapInstances.length).to.equal(D.length);
 
         // Check if N tokens are deployed
         expect(tokens.length).to.equal(N);
 
         // Check if D * N * (N - 1) / 2 pairs are created
-        expect(pairs.length).to.equal((D * (N * (N - 1))) / 2);
+        expect(pairs.length).to.equal((D.length * (N * (N - 1))) / 2);
 
         // Check if all pairs have unique token addresses for each Uniswap V2 instance
         const pairTokenAddresses = new Set();
@@ -99,6 +105,27 @@ describe("Uniswap V2 Deployment", function() {
             const reserves = await pair.getReserves();
             expect(reserves[0]).to.not.equal(0);
             expect(reserves[1]).to.not.equal(0);
+        }
+
+        // Check if Uniswap V2 can get the price of all pairs
+        for (const uniswapV2 of uniswapInstances) {
+            for (const pair of pairs) {
+                const token0 = await pair.token0();
+                const token1 = await pair.token1();
+
+                const tokenA: Token = {
+                    name: "tokenA",
+                    address: token0,
+                };
+
+                const tokenB: Token = {
+                    name: "tokenB",
+                    address: token1,
+                };
+
+                const price = await uniswapV2.getQuote(10, tokenA, tokenB);
+                expect(price).to.not.equal(0);
+            }
         }
     });
 });
