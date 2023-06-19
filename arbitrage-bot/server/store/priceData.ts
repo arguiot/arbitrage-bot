@@ -95,7 +95,7 @@ export class PriceDataStore {
 
         const quotes = this.getQuotes();
 
-        const interRoute = await interExchangeRoute(quotes);
+        // const interRoute = await interExchangeRoute(quotes);
 
         for (const pair of Object.keys(quotes)) {
             const options = Object.entries(quotes[pair]);

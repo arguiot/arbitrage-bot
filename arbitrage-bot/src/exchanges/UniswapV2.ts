@@ -5,7 +5,8 @@ const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json"
 const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
 const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
 const _CoordinateUniswapV2 = require("../../artifacts/contracts/CoordinateUniswapV2.sol/CoordinateUniswapV2.json");
-const hashes = {
+
+export const hashes = {
     apeswap:
         "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
     pancakeswap:
@@ -117,7 +118,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             tokenA.toLowerCase() < tokenB.toLowerCase()
                 ? [tokenA, tokenB]
                 : [tokenB, tokenA];
-        const initCodeHash = hashes[this.name];
+        const initCodeHash = hashes[this.name] ?? hashes.uniswap;
         const salt = ethers.utils.solidityKeccak256(
             ["address", "address"],
             [token0, token1]
@@ -261,7 +262,8 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             : amountInEther / quoteOut;
 
         return {
-            exchange: this.name,
+            exchangeType: "uniswap",
+            exchangeName: this.name,
             amount: amountInEther,
             amountOut: quoteOut,
             price,
@@ -442,8 +444,8 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             amountOut,
             transactionHash,
             price,
-            tokenA: path[0],
-            tokenB: path[1],
+            path,
+            exchanges: [this.name],
         };
     }
 
@@ -478,8 +480,8 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             amountOut,
             transactionHash,
             price,
-            tokenA: path[0],
-            tokenB: path[1],
+            path,
+            exchanges: [this.name],
         };
     }
 
@@ -507,9 +509,9 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
     }
 
     async coordinateFlashSwap(
-        exchange2: UniswapV2,
-        amountBetween: number,
-        path: Token[]
+        exchanges: UniswapV2Exchange[],
+        path: Token[],
+        amountIn: number
     ): Promise<Receipt> {
         // Notify the Coordinator contract that we want to do a flash swap
         if (!this.coordinator) {
@@ -523,50 +525,47 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
         );
 
         // Ok, now we can do the flash swap on our router
-        const amount = ethers.utils.parseEther(amountBetween.toString());
+        const amount = ethers.utils.parseEther(amountIn.toString());
 
         const slippageTolerance = 0.001; // 0.1% slippage tolerance
 
-        // Get reserves for exchange1
-        const [reserveOut1, reserveIn1] = await this.getReserves(
-            this.source.address,
-            path[0].address,
-            path[1].address
+        const factories = exchanges.map((exchange) => exchange.factoryAddress);
+        const initCodeHashes = exchanges.map(
+            (exchange) => hashes[exchange.name]
         );
-        // Get reserves for exchange2
-        const [reserveIn2, reserveOut2] = await exchange2.getReserves(
-            exchange2.source.address,
-            path[0].address,
-            path[1].address
+        const routers = exchanges.map((exchange) => exchange.routerAddress);
+
+        const factoriesBytes = ethers.utils.defaultAbiCoder.encode(
+            ["address[]"],
+            [factories]
+        );
+        const initCodeHashesBytes = ethers.utils.defaultAbiCoder.encode(
+            ["uint[]"],
+            [initCodeHashes]
+        );
+        const routersBytes = ethers.utils.defaultAbiCoder.encode(
+            ["address[]"],
+            [routers]
+        );
+        const tokenRoutesBytes = ethers.utils.defaultAbiCoder.encode(
+            ["address[]"],
+            [path.map((token) => token.address)]
         );
 
-        // Calculate the amount out for exchange2
-        const amountOut2 = exchange2.getAmountOut(
+        const tx = await coordinator.performRouteSwap(
+            factoriesBytes,
+            initCodeHashesBytes,
+            routersBytes,
+            tokenRoutesBytes,
             amount,
-            reserveIn2,
-            reserveOut2
-        );
-
-        const amountIn1 = this.getAmountIn(amount, reserveIn1, reserveOut1);
-
-        console.log("Amount in 1", amountIn1.toString());
-
-        console.log("Amount out 2", amountOut2.toString());
-
-        const tx = await coordinator.performFlashSwap(
-            this.source.address, // Factory 1
-            hashes[this.name], // Init code hash 1
-            exchange2.source.address, // Factory 2
-            hashes[exchange2.name], // Init code hash 2
-            exchange2.delegate.address, // Router 2
-            path[0].address, // Token 0
-            path[1].address, // Token 1
-            amount, // amountBetween
             { gasLimit: 1000000 }
         );
 
         const receipt = await tx.wait();
         const transactionHash = receipt.transactionHash;
+
+        debugger;
+
         type Log = {
             topics: string[];
             data: string;
@@ -597,9 +596,9 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
             transactionHash,
             amountIn: amountIn1Receipt,
             amountOut: profitOut + amountIn1Receipt,
-            price: (profitOut + amountIn1Receipt) / amountBetween,
-            tokenA: path[0],
-            tokenB: path[1],
+            price: (profitOut + amountIn1Receipt) / amountIn,
+            path,
+            exchanges: exchanges.map((exchange) => exchange.name),
         };
     }
 }

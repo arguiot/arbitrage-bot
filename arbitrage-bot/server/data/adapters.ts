@@ -12,7 +12,7 @@ export function getAdapter(
     factoryAddress?: string
 ): Exchange<any, any> {
     const environment = process.env.USE_TESTNET ? "development" : "production";
-    const metadata = ExchangesList[environment][exchange];
+    const metadata = ExchangesList[environment][exchange] ?? {};
     const adapter = metadata.adapter ?? exchange;
 
     switch (adapter) {

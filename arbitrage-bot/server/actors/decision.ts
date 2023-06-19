@@ -48,8 +48,6 @@ export default class Decision implements Actor<DecisionOptions> {
         const opportunity =
             (await priceDataStore.getArbitrageOpportunity()) as Opportunity;
 
-        debugger;
-
         if (!opportunity) {
             console.log("No opportunity");
             return {
@@ -77,13 +75,13 @@ export default class Decision implements Actor<DecisionOptions> {
             )
         );
 
-        const probabilities = exchanges.map((exchange, index) =>
-            calculateProfitProbability({
-                type: exchange.type,
-                delta: opportunity.percentProfit,
-                ttf: ttfs[index],
-            })
-        );
+        // const probabilities = exchanges.map((exchange, index) =>
+        //     calculateProfitProbability({
+        //         type: exchange.type,
+        //         delta: opportunity.percentProfit,
+        //         ttf: ttfs[index],
+        //     })
+        // );
 
         // Let's calculate the size of the bid
         const balances = await Promise.all(
@@ -161,14 +159,14 @@ export default class Decision implements Actor<DecisionOptions> {
             };
         }
 
-        if (probabilities.reduce((prev, curr) => Math.min(prev, curr)) < 0.5) {
-            return {
-                topic: "decision",
-                opportunity: undefined,
-                reason: "Probability of success is too low",
-                probabilities,
-            };
-        }
+        // if (probabilities.reduce((prev, curr) => Math.min(prev, curr)) < 0.5) {
+        //     return {
+        //         topic: "decision",
+        //         opportunity: undefined,
+        //         reason: "Probability of success is too low",
+        //         probabilities,
+        //     };
+        // }
 
         // Sometimes, concurrency issues can cause this to happen
         if (this.locked) {
@@ -180,13 +178,25 @@ export default class Decision implements Actor<DecisionOptions> {
         }
 
         // Print the routes
-        console.log(`${opportunity.quotes.map((quote) => `(${quote.exchange}) ${quote.amount} ${quote.tokenA.name} -> ${quote.amountOut} ${quote.tokenB.name}`).join(" -> ")}`);
+        console.log(
+            `${opportunity.quotes
+                .map(
+                    (quote) =>
+                        `(${quote.exchangeName}) ${quote.amount} ${quote.tokenA.name} -> ${quote.amountOut} ${quote.tokenB.name}`
+                )
+                .join(" -> ")}`
+        );
         ws.send(
             JSON.stringify({
                 topic: "notify",
                 action: "started_arbitrage",
                 title: "Arbitrage Opportunity",
-                message: `${opportunity.quotes.map((quote) => `(${quote.exchange}) ${quote.amount} ${quote.tokenA.name} -> ${quote.amountOut} ${quote.tokenB.name}`).join(" -> ")}`,
+                message: `${opportunity.quotes
+                    .map(
+                        (quote) =>
+                            `(${quote.exchangeName}) ${quote.amount} ${quote.tokenA.name} -> ${quote.amountOut} ${quote.tokenB.name}`
+                    )
+                    .join(" -> ")}`,
             })
         );
 
@@ -203,95 +213,61 @@ export default class Decision implements Actor<DecisionOptions> {
         const receipts: Receipt[] = [];
         if (exchanges.every((item) => item instanceof UniswapV2)) {
             // Uniswap -> Uniswap -> ... we can use flash swaps
-            const exchange2Data = {
-                name: exchange2.name,
-                factoryAddress: exchange2.source.address,
-                routerAddress: exchange2.delegate.address,
-            };
+            const exchangesData = (exchanges as UniswapV2[]).map(
+                (exchange) => ({
+                    name: exchange.name,
+                    factoryAddress: exchange.source.address,
+                    routerAddress: exchange.delegate.address,
+                })
+            );
+
             const flashSwap = await peers[0].coordinateFlashSwap(
-                exchange2Data,
-                amountOutA,
-                [opportunity.quote1.tokenA, opportunity.quote1.tokenB]
+                exchangesData,
+                opportunity.path,
+                opportunity.quotes[0].amount
             );
-
-            receipt1 = {
-                amountIn: flashSwap.amountIn, // Amount In A
-                amountOut: amountOutA, // Amount Out A
-                price: flashSwap.amountIn / amountOutA,
-                tokenA: opportunity.quote1.tokenB,
-                tokenB: opportunity.quote1.tokenA,
-                transactionHash: flashSwap.transactionHash,
-            };
-
-            receipt2 = {
-                amountIn: amountOutA, // Amount In B
-                amountOut: flashSwap.amountOut, // Amount Out B
-                price: flashSwap.amountOut / amountOutA,
-                tokenA: opportunity.quote2.tokenA,
-                tokenB: opportunity.quote2.tokenB,
-                transactionHash: flashSwap.transactionHash,
-            };
+            receipts.push(flashSwap);
         } else {
-            const tx1 = await peer1.buyAtMinimumInput(
-                amountOutA,
-                [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
-                Credentials.shared.wallet.address,
-                Date.now() + ttf1 * 1000
-                // nonce + 1
-            );
-
-            const tx2 = await peer2.buyAtMaximumOutput(
-                amountInB,
-                [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
-                Credentials.shared.wallet.address,
-                Date.now() + ttf2 * 1000
-                // nonce + 2
-            );
-
-            // Let's wait for the transactions to complete
-            // const [receipt1, receipt2] = await Promise.all([tx1, tx2]);
-            receipt1 = tx1;
-            receipt2 = tx2;
+            // const tx1 = await peer1.buyAtMinimumInput(
+            //     amountOutA,
+            //     [opportunity.quote1.tokenB, opportunity.quote1.tokenA],
+            //     Credentials.shared.wallet.address,
+            //     Date.now() + ttf1 * 1000
+            //     // nonce + 1
+            // );
+            // const tx2 = await peer2.buyAtMaximumOutput(
+            //     amountInB,
+            //     [opportunity.quote2.tokenA, opportunity.quote2.tokenB],
+            //     Credentials.shared.wallet.address,
+            //     Date.now() + ttf2 * 1000
+            //     // nonce + 2
+            // );
+            // // Let's wait for the transactions to complete
+            // // const [receipt1, receipt2] = await Promise.all([tx1, tx2]);
+            // receipt1 = tx1;
+            // receipt2 = tx2;
         }
 
-        await liquidityCache.invalidate(
-            exchange1.type === "dex" ? "dex" : opportunity.exchange1,
-            opportunity.quote1.tokenA.name
-        );
-        await liquidityCache.invalidate(
-            exchange1.type === "dex" ? "dex" : opportunity.exchange1,
-            opportunity.quote1.tokenB.name
-        );
-        await liquidityCache.invalidate(
-            exchange2.type === "dex" ? "dex" : opportunity.exchange2,
-            opportunity.quote2.tokenA.name
-        );
-        await liquidityCache.invalidate(
-            exchange2.type === "dex" ? "dex" : opportunity.exchange2,
-            opportunity.quote2.tokenB.name
-        );
+        opportunity.quotes.map(async (quote, index) => {
+            await liquidityCache.invalidate(
+                exchanges[index].type === "dex" ? "dex" : exchanges[index].name,
+                quote.tokenA.name
+            );
+            await liquidityCache.invalidate(
+                exchanges[index].type === "dex" ? "dex" : exchanges[index].name,
+                quote.tokenB.name
+            );
+        });
 
         this.softLocked = false;
         this.locked = false;
 
-        console.log(
-            `Bought ${receipt1.amountOut} ${receipt1.tokenB.name} on ${exchange1.name} for ${receipt1.amountIn} ${receipt1.tokenA.name}`
-        );
-        console.log(
-            `Sold ${receipt2.amountIn} ${receipt2.tokenA.name} on ${exchange2.name} for ${receipt2.amountOut} ${receipt2.tokenB.name}`
-        );
+        console.log(JSON.stringify(receipts, null, 4));
 
         return {
             topic: "decision",
             opportunity,
-            tx1: {
-                ...receipt1,
-                exchange: opportunity.exchange1,
-            },
-            tx2: {
-                ...receipt2,
-                exchange: opportunity.exchange2,
-            },
+            receipts,
         };
     }
 

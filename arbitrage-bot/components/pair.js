@@ -10,20 +10,39 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ExchangeCard from "./exchange";
 import { createContext, useEffect, useReducer, useState } from "react";
 import { useClientState } from "../lib/client";
+import { NotificationCenter } from "@arguiot/broadcast.js";
 
 export const PairContext = createContext();
 export const PairContextDispatch = createContext(); // Reducer dispatch
 
-export default function Pair({ connected, environment }) {
+export default function Pair({ connected, environment, index: key }) {
     const { pairs, setPairs } = useClientState();
 
-    const [currentPair, setCurrentPair] = useState(null);
+    const getInitialPair = () => {
+        const allPairs = Object.values(PairList[environment]);
+        const nthPair = allPairs[key];
 
-    const [pair, dispatch] = useReducer(pairReducer, {
-        tokenA: {},
-        tokenB: {},
-        followings: [],
-    });
+        const initialPair =
+            nthPair &&
+                !pairs.includes(`${nthPair.tokenA?.name}/${nthPair.tokenB?.name}`)
+                ? nthPair
+                : allPairs.find((pair) => {
+                    const name = `${pair.tokenA?.name}/${pair.tokenB?.name}`;
+                    return !pairs.includes(name);
+                });
+
+        return {
+            tokenA: initialPair.tokenA,
+            tokenB: initialPair.tokenB,
+            followings: []
+        };
+    };
+
+    const initial = getInitialPair();
+
+    const [pair, dispatch] = useReducer(pairReducer, initial);
+
+    const [currentPair, setCurrentPair] = useState(`${initial.tokenA?.name}/${initial.tokenB?.name}`);
 
     const selectedPair = async (pair) => {
         setPairs([...pairs.filter((name) => name !== currentPair), pair]);
@@ -32,18 +51,6 @@ export default function Pair({ connected, environment }) {
         dispatch({ type: "setTokenB", payload: tokenB });
         setCurrentPair(pair);
     };
-
-    useEffect(() => {
-        const initialPair = Object.values(PairList[environment]).find(
-            (pair) => {
-                const name = `${pair.tokenA?.name}/${pair.tokenB?.name}`;
-                return !pairs.includes(name);
-            }
-        );
-        const name = `${initialPair.tokenA?.name}/${initialPair.tokenB?.name}`;
-
-        selectedPair(name);
-    }, []);
 
     return (
         <PairContext.Provider value={pair}>
@@ -79,9 +86,9 @@ export default function Pair({ connected, environment }) {
                 <div className="flex justify-between gap-4">
                     {connected ? (
                         <>
-                            <ExchangeCard environment={environment} />
-                            <ExchangeCard environment={environment} />
-                            <ExchangeCard environment={environment} />
+                            <ExchangeCard environment={environment} index={0} />
+                            <ExchangeCard environment={environment} index={1} />
+                            <ExchangeCard environment={environment} index={2} />
                         </>
                     ) : (
                         <>

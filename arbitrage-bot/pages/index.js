@@ -10,27 +10,38 @@ import useUniswapStore from "../lib/uniswapStore";
 import Difference from "../components/difference";
 import TradeBook from "../components/tradeBook";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+    ContextMenuShortcut,
+} from "@/components/ui/context-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
 import { PairList } from "../lib/pairs";
 import { EstimatedTime } from "../components/ui/estimated-time";
 import Pair from "../components/pair";
+import { Notification, NotificationCenter } from "@arguiot/broadcast.js";
+import { ExchangesList } from "../lib/exchanges";
+
 export default function Index({ environment }) {
     const { connected, decisions, setDecisions, arbitrage } = useClientState();
     const [pair, setPair] = useState(1);
+
     useEffect(() => {
         Client.shared = new Client();
     }, []);
 
     const { toast } = useToast();
     const { reset: uniswapReset } = useUniswapStore();
+
+    const deployAllExchanges = () => {
+        setPair(
+            Object.keys(PairList[environment])
+                .length
+        );
+    };
 
     return (
         <>
@@ -54,19 +65,33 @@ export default function Index({ environment }) {
                 {[...Array(pair)].map((_, i) => (
                     <Pair
                         key={i}
+                        index={i}
                         connected={connected}
                         environment={environment}
                     />
                 ))}
                 {Object.keys(PairList[environment]).length > pair && (
-                    <button
-                        className="flex mt-4 h-[100px] w-full items-center justify-center rounded-md border border-dashed text-sm"
-                        onClick={() => {
-                            setPair(pair + 1);
-                        }}
-                    >
-                        Add pair
-                    </button>
+                    <ContextMenu>
+                        <ContextMenuTrigger asChild>
+                            <button
+                                className="flex mt-4 h-[100px] w-full items-center justify-center rounded-md border border-dashed text-sm"
+                                onClick={() => {
+                                    setPair(pair + 1);
+                                }}
+                            >
+                                Add pair
+                            </button>
+                        </ContextMenuTrigger>
+                        <ContextMenuContent>
+                            <ContextMenuItem
+                                onSelect={() => {
+                                    deployAllExchanges();
+                                }}
+                            >
+                                Add all pairs
+                            </ContextMenuItem>
+                        </ContextMenuContent>
+                    </ContextMenu>
                 )}
                 {arbitrage && <EstimatedTime expectedTime={15000} />}
                 <Separator className="mt-8" />

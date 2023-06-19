@@ -20,6 +20,11 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@arguiot/broadcast.js@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@arguiot/broadcast.js/-/broadcast.js-1.0.4.tgz#dbb89cf791828af8932675b97e46e5567f9bdbe4"
+  integrity sha512-okTFQqhCpJ/IZNqjEz3hedU1D60+PJaxy52+aA7C/5KfiJh6bnjmoIVtfWm5wOsLbp8eM0rfiLCJCjxheZy2rA==
+
 "@babel/code-frame@7.12.11", "@babel/code-frame@^7.0.0":
   version "7.12.11"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.11.tgz"

@@ -97,36 +97,18 @@ export default class ExchangeController implements Actor<ExchangeOptions> {
     }
 
     async coordinateFlashSwap(
-        _exchange2: UniswapV2Exchange,
-        amountBetween: number,
-        path: Token[]
+        _exchanges: UniswapV2Exchange[],
+        path: Token[],
+        amountIn: number
     ): Promise<Receipt> {
         const exchange = getAdapter(
             this.query.exchange,
             this.wallet,
             this.query.routerAddress,
             this.query.factoryAddress
-        );
+        ) as UniswapV2;
 
-        const exchange2 = getAdapter(
-            _exchange2.name,
-            this.wallet,
-            _exchange2.routerAddress,
-            _exchange2.factoryAddress
-        );
-
-        if (
-            !(exchange instanceof UniswapV2) ||
-            !(exchange2 instanceof UniswapV2)
-        ) {
-            throw new Error("Not a UniswapV2 exchange");
-        }
-
-        return await exchange.coordinateFlashSwap(
-            exchange2,
-            amountBetween,
-            path
-        );
+        return await exchange.coordinateFlashSwap(_exchanges, path, amountIn);
     }
 
     addPeer(topic: string, type: any, query: any): void {

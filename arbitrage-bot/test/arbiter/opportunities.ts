@@ -356,6 +356,7 @@ describe("Find Best Route", () => {
 
     it("Should find the best route", async () => {
         const interRoute = await interExchangeRoute(quotes);
+        console.log(interRoute);
         expect(interRoute).to.exist;
     });
 });

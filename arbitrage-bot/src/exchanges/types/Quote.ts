@@ -1,7 +1,8 @@
 import { Token } from "../adapters/exchange";
 
 export type Quote = {
-    exchange: string;
+    exchangeType: string;
+    exchangeName: string;
     amount: number; // Amount of tokenA
     amountOut: number; // Amount of tokenB
     price: number; // Average price

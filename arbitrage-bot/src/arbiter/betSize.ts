@@ -4,14 +4,14 @@
 
 import { BigNumber } from "ethers";
 
-type UniData = {
+export type UniData = {
     inputBalance: number;
     fee: number;
     reserve0: BigNumber;
     reserve1: BigNumber;
 };
 
-type CexData = {
+export type CexData = {
     inputBalance: number;
     fee: number;
     price: number;

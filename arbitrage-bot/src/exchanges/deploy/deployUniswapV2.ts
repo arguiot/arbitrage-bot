@@ -4,9 +4,7 @@ import _UniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.js
 import _WETH9 from "@uniswap/v2-periphery/build/WETH9.json";
 import dotenv from "dotenv";
 
-export async function deployUniswapV2(
-    deployer: ethers.Wallet
-): Promise<{
+export async function deployUniswapV2(deployer: ethers.Wallet): Promise<{
     factory: Contract;
     router: Contract;
     weth: Contract;

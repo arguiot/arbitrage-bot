@@ -5,13 +5,19 @@ import { UniswapV2 } from "../../src/exchanges/UniswapV2";
 import IUniswapV2Pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 import { Token } from "@/src/exchanges/adapters/exchange";
 
-export async function deployV2(N: number, dexes: string[]) {
+export async function deployV2(
+    N: number,
+    dexes: string[],
+    maxSpread: number = 0
+) {
     await ethers.provider.send("hardhat_reset", []);
     const [deployer] = await ethers.getSigners();
 
     const uniswapInstances = [];
     for (let d = 0; d < dexes.length; d++) {
-        const { factory, router, weth } = await deployUniswapV2(deployer as ethers.Wallet);
+        const { factory, router, weth } = await deployUniswapV2(
+            deployer as ethers.Wallet
+        );
         const uniswapV2 = new UniswapV2(
             router,
             factory,
@@ -25,7 +31,12 @@ export async function deployV2(N: number, dexes: string[]) {
 
     const tokens = [];
     for (let i = 0; i < N; i++) {
-        const token = await tokenFactory.deploy(`Token${i}`, `TK${i}`, 18, ethers.utils.parseEther("1000000"));
+        const token = await tokenFactory.deploy(
+            `Token${i}`,
+            `TK${i}`,
+            18,
+            ethers.utils.parseEther("1000000")
+        );
         await token.deployed();
         console.log(`Token ${i} deployed at: `, token.address);
         tokens.push(token);
@@ -48,9 +59,16 @@ export async function deployV2(N: number, dexes: string[]) {
                 const priceYtoWETH = Math.random();
                 const priceXtoY = priceXtoWETH / priceYtoWETH;
 
+                const spread = maxSpread;
+                const adjustedPriceXtoY = priceXtoY * (1 + spread);
+
                 const liquidityX = ethers.utils.parseEther("1000");
                 const liquidityY = liquidityX
-                    .mul(ethers.BigNumber.from(Math.floor(priceXtoY * 1e6)).mul(1e12))
+                    .mul(
+                        ethers.BigNumber.from(
+                            Math.floor(adjustedPriceXtoY * 1e6)
+                        ).mul(1e12)
+                    )
                     .div(ethers.BigNumber.from(1e6).mul(1e12));
 
                 await router
@@ -66,8 +84,15 @@ export async function deployV2(N: number, dexes: string[]) {
                         ethers.constants.MaxUint256
                     );
 
-                const pairAddress = await factory.getPair(tokenX.address, tokenY.address);
-                const pair = new ethers.Contract(pairAddress, IUniswapV2Pair.abi, deployer);
+                const pairAddress = await factory.getPair(
+                    tokenX.address,
+                    tokenY.address
+                );
+                const pair = new ethers.Contract(
+                    pairAddress,
+                    IUniswapV2Pair.abi,
+                    deployer
+                );
                 pairs.push(pair);
             }
         }
@@ -76,10 +101,10 @@ export async function deployV2(N: number, dexes: string[]) {
     return { uniswapInstances, tokens, pairs };
 }
 
-describe("Uniswap V2 Deployment", function() {
-    it("Should deploy N tokens and create pairs between all tokens for D Uniswap V2 instances", async function() {
+describe("Uniswap V2 Deployment", function () {
+    it("Should deploy N tokens and create pairs between all tokens for D Uniswap V2 instances", async function () {
         const N = 4; // Number of tokens to deploy
-        const D = ["uniswap", "pancakeswap", "apeswap"]; // Number of Uniswap V2 instances to deploy
+        const D = ["uniswap", "apeswap", "uniswap2"]; // Number of Uniswap V2 instances to deploy
         const { uniswapInstances, tokens, pairs } = await deployV2(N, D);
 
         // Check if D Uniswap V2 instances are deployed

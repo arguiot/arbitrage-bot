@@ -160,10 +160,10 @@ export function DataTable<TData extends Record<string, any>>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
+                                                    header.column.columnDef
+                                                        .header,
+                                                    header.getContext()
+                                                )}
                                         </TableHead>
                                     );
                                 })}
@@ -172,8 +172,8 @@ export function DataTable<TData extends Record<string, any>>({
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <ContextMenu>
+                            table.getRowModel().rows.map((row, id) => (
+                                <ContextMenu key={id}>
                                     <ContextMenuTrigger asChild>
                                         <TableRow
                                             key={row.id}

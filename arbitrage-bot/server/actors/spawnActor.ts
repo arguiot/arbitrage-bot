@@ -80,9 +80,9 @@ export default function Worker({
                     action,
                     payload: {
                         receipt: await actor.coordinateFlashSwap(
-                            payload.exchange2,
-                            payload.amountBetween,
-                            payload.path
+                            payload.exchanges,
+                            payload.path,
+                            payload.amountIn
                         ),
                     },
                 });

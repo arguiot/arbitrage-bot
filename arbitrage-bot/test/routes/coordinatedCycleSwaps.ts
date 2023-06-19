@@ -1,13 +1,12 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
 import { deployV2 } from "./deployV2";
 import { interExchangeRoute } from "../../server/model/interExchangeRoute";
 
 describe("Coordinate Cycle Swaps", () => {
     it("should find the best cycle swap", async () => {
-        const N = 4; // Number of tokens to deploy
-        const D = ["uniswap", "pancakeswap", "apeswap"]; // Number of Uniswap V2 instances to deploy
-        const { uniswapInstances, tokens, pairs } = await deployV2(N, D);
+        const N = 5; // Number of tokens to deploy
+        const D = ["uniswap", "apeswap", "uniswap2"]; // Number of Uniswap V2 instances to deploy
+        const { uniswapInstances, pairs } = await deployV2(N, D, 0.5); // 50% spread, although it's big, it can actually happen in real life
 
         const quotes = {};
         for (const uniswapV2 of uniswapInstances) {
@@ -18,12 +17,12 @@ describe("Coordinate Cycle Swaps", () => {
                 const tokenA = {
                     name: "tokenA",
                     address: token0,
-                }
+                };
 
                 const tokenB = {
                     name: "tokenB",
                     address: token1,
-                }
+                };
 
                 const price = await uniswapV2.getQuote(10, tokenA, tokenB);
                 const pairName = `${token0}-${token1}`;
@@ -31,8 +30,11 @@ describe("Coordinate Cycle Swaps", () => {
                 quotes[pairName][uniswapV2.name] = price;
             }
         }
-        console.log(quotes);
+
         const interRoute = await interExchangeRoute(quotes);
+
+        console.log(JSON.stringify(interRoute, null, 2));
+
         expect(interRoute).to.exist;
     });
 });

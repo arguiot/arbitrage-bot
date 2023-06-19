@@ -20,8 +20,10 @@ export async function interPairOpportunity(
 
             const opportunity: Opportunity = {
                 exchanges: [exchange1, exchange2],
+                exchangesNames: [quote1.exchangeName, quote2.exchangeName],
                 profit: weight,
                 quotes: [quote1, quote2],
+                path: [quote1.tokenA, quote1.tokenB, quote2.tokenB],
             };
 
             if (

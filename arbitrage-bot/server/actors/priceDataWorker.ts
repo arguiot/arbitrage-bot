@@ -138,9 +138,9 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
     }
 
     async coordinateFlashSwap(
-        exchange2: UniswapV2Exchange,
-        amountBetween: number,
-        path: Token[]
+        exchanges: UniswapV2Exchange[],
+        path: Token[],
+        amountIn: number
     ): Promise<Receipt> {
         // ID is a unique identifier for this query
         const id = crypto.randomBytes(16).toString("hex");
@@ -149,8 +149,8 @@ export default class PriceDataWorker implements Actor<PriceDataWorkerOptions> {
             id,
             action: "coordinateFlashSwap",
             payload: {
-                exchange2,
-                amountBetween,
+                exchanges,
+                amountIn,
                 path,
             },
         });

@@ -41,6 +41,8 @@ export class Client {
 
     static shared: Client;
 
+    subscriptions: Set<string> = new Set(); // exchange:pair
+
     constructor() {
         this.connect();
     }
@@ -165,11 +167,11 @@ export class Client {
     }
 
     send(message: string) {
-        if (this.ws.readyState !== WebSocket.OPEN) {
-            console.log("Websocket not open, not sending message", message);
-            setTimeout(() => this.send(message), 1000);
+        if (this.ws.readyState === WebSocket.OPEN && useClientState.getState().connected) {
+            return this.ws.send(message);
         }
-        this.ws.send(message);
+        console.log("Websocket not open, not sending message", message);
+        setTimeout(() => this.send(message), 1000);
     }
 
     // MARK: - Exchange messages with server
@@ -180,6 +182,19 @@ export class Client {
         tokenA: Token,
         tokenB: Token
     ) {
+        if (
+            typeof tokenA === "undefined" ||
+            typeof tokenA.name === "undefined" ||
+            typeof tokenB === "undefined" ||
+            typeof tokenB.name === "undefined" ||
+            typeof exchange === "undefined"
+        ) {
+            return;
+        }
+        if (this.subscriptions.has(`${exchange}-${tokenA.name}-${tokenB.name}`)) {
+            return;
+        }
+
         const exchangeMetadata = ExchangesList[environment][exchange];
         this.send(
             JSON.stringify({
@@ -195,6 +210,7 @@ export class Client {
                 },
             })
         );
+        this.subscriptions.add(`${exchange}-${tokenA.name}-${tokenB.name}`);
     }
 
     unsubscribeFromPriceData(

@@ -17,8 +17,8 @@ export type Receipt = {
     amountIn: number;
     amountOut: number;
     price: number;
-    tokenA: Token;
-    tokenB: Token;
+    exchanges: string[];
+    path: Token[];
 };
 
 export interface Exchange<T, U> {
