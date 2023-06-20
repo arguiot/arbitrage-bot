@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BotResponse: Codable {
+public struct BotResponse: Codable {
     enum Status: String, Codable {
         case success
         case error

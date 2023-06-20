@@ -9,14 +9,22 @@ let package = Package(
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.76.0"),
-        .package(url: "https://github.com/Boilertalk/Web3.swift.git", from: "0.6.0")
+        .package(url: "https://github.com/Boilertalk/Web3.swift.git", from: "0.6.0"),
+        .package(url: "https://github.com/arguiot/Euler.git", from: "0.3.9"),
+        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0")
     ],
     targets: [
         .executableTarget(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
-                .product(name: "Web3", package: "Web3.swift")
+                .product(name: "Web3", package: "Web3.swift"),
+                .product(name: "Web3PromiseKit", package: "Web3.swift"),
+                .product(name: "Web3ContractABI", package: "Web3.swift"),
+                .product(name: "Euler", package: "Euler"),
+                .product(name: "OpenCombine", package: "OpenCombine"),
+                .product(name: "OpenCombineFoundation", package: "OpenCombine"),
+                .product(name: "OpenCombineDispatch", package: "OpenCombine")
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of

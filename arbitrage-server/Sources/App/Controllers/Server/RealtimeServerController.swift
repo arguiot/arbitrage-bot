@@ -9,6 +9,8 @@ import Foundation
 import Vapor
 
 class RealtimeServerController {
+    
+    // MARK: - Request
     func handleRequest(request: BotRequest, ws: WebSocket) async throws {
         let response = switch request.topic {
         case .priceData:
@@ -27,6 +29,7 @@ class RealtimeServerController {
     }
     
     func priceData(request: BotRequest, ws: WebSocket) async -> BotResponse {
+        
         return BotResponse(status: .success, topic: .priceData)
     }
     

@@ -6,30 +6,39 @@
 //
 
 import BigInt
+import Web3
 
 struct Cost {
     var gas: BigInt?
     var costInDollars: Double
 }
 
-struct Token {
+struct Token: Codable {
     var name: String
-    var address: String
+    var address: EthereumAddress
     var decimals: Int?
 }
 
 struct Receipt {
     var transactionHash: String?
-    var amountIn: Double
-    var amountOut: Double
+    var amountIn: BigUInt
+    var amountOut: BigUInt
     var price: Double
     var exchanges: [String]
     var path: [Token]
 }
 
+enum ExchangeType: String, Codable {
+    case dex, cex
+}
+
+struct ExchangeAdapter {
+    static let uniswap = UniswapV2.self
+}
+
 protocol Exchange {
-    var name: String { get }
-    var type: String { get } // "dex" or "cex"
+//    var name: String { get }
+    var type: ExchangeType { get } // "dex" or "cex"
     var fee: Double { get }
     
     // Properties
@@ -38,7 +47,7 @@ protocol Exchange {
     var delegate: T { get set }
     
     // Methods
-    func getQuote(maxAvailableAmount: Double, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: U?) async throws -> Quote<U> // Returns the best quote for the maximum given amount of tokenA
+    func getQuote(maxAvailableAmount: BigUInt, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: U?) async throws -> Quote<U> // Returns the best quote for the maximum given amount of tokenA
     func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int // Returns the estimated time to execute a transaction
     func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost // Returns the estimated cost to execute a transaction in dollars
     

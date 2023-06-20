@@ -6,14 +6,17 @@
 //
 
 import Foundation
+import BigInt
+import Euler
 
 struct Quote<U> {
-    var exchangeType: String
+    var exchangeType: any Exchange.Type
     var exchangeName: String
-    var amount: Double // Amount of tokenA
-    var amountOut: Double // Amount of tokenB
-    var price: Double // Average price
-    var transactionPrice: Double // The price at which we would buy/sell
+    var amount: BigUInt // Amount of tokenA
+    var amountOut: BigUInt // Amount of tokenB
+    var decimals = 18
+    var price: BigDouble // Average price
+    var transactionPrice: BigDouble // The price at which we would buy/sell
     var tokenA: Token
     var tokenB: Token
     var ask: Double?

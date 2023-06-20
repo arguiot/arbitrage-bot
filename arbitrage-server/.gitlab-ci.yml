@@ -1,0 +1,9 @@
+image: swift:5.8-focal
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - swift test

@@ -17,10 +17,6 @@ struct BotRequest: Codable {
         case development, production
     }
     
-    enum ExchangeType: String, Codable {
-        case dex, cex
-    }
-    
     struct Query: Codable {
         var exchange: String
         var type: ExchangeType?
