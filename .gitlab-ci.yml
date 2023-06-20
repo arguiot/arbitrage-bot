@@ -6,4 +6,5 @@ stages:
 test:
   stage: test
   script:
+    - cd arbitrage-server
     - swift test
