@@ -2,6 +2,7 @@ import Vapor
 
 func routes(_ app: Application) async throws {
     app.webSocket { req, ws in
+        app.logger.log(level: .info, "New socket, id: \(ws.combineIdentifier)")
         ws.onText { ws, text in
             do {
                 let botRequest = try BotRequest.fromJSON(jsonString: text)

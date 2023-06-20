@@ -29,7 +29,6 @@ class RealtimeServerController {
     }
     
     func priceData(request: BotRequest, ws: WebSocket) async -> BotResponse {
-        
         return BotResponse(status: .success, topic: .priceData)
     }
     

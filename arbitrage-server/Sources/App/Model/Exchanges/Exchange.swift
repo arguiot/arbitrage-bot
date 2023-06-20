@@ -13,7 +13,7 @@ struct Cost {
     var costInDollars: Double
 }
 
-struct Token: Codable {
+struct Token: Codable, Hashable {
     var name: String
     var address: EthereumAddress
     var decimals: Int?
@@ -36,18 +36,16 @@ struct ExchangeAdapter {
     static let uniswap = UniswapV2.self
 }
 
-protocol Exchange {
-//    var name: String { get }
+protocol Exchange: Hashable {
     var type: ExchangeType { get } // "dex" or "cex"
-    var fee: Double { get }
+    nonisolated var fee: Double { get }
     
     // Properties
-    associatedtype T
-    associatedtype U
-    var delegate: T { get set }
-    
+    associatedtype Delegate
+    associatedtype Meta
+    var delegate: Delegate { get }
     // Methods
-    func getQuote(maxAvailableAmount: BigUInt, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: U?) async throws -> Quote<U> // Returns the best quote for the maximum given amount of tokenA
+    func getQuote(maxAvailableAmount: BigUInt, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> Quote<Meta> // Returns the best quote for the maximum given amount of tokenA
     func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int // Returns the estimated time to execute a transaction
     func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost // Returns the estimated cost to execute a transaction in dollars
     

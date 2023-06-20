@@ -9,7 +9,15 @@ import Foundation
 import Vapor
 import OpenCombine
 
-extension WebSocket: Subscriber {
+extension WebSocket: Subscriber, Hashable {
+    public static func == (lhs: WebSocketKit.WebSocket, rhs: WebSocketKit.WebSocket) -> Bool {
+        return lhs.combineIdentifier == rhs.combineIdentifier
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.combineIdentifier)
+    }
+    
     public typealias Input = BotResponse
     public typealias Failure = Error
     
@@ -17,6 +25,7 @@ extension WebSocket: Subscriber {
     
     public func receive(subscription: OpenCombine.Subscription) {
 //        self.subscription = subscription
+        
     }
     
     public func receive(_ input: BotResponse) -> OpenCombine.Subscribers.Demand {

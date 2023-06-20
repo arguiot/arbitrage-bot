@@ -19,12 +19,12 @@ struct RequiredPriceInfo {
     let reserveB: BigUInt;
 }
 
-class UniswapV2: Exchange {
-    var name: UniType = .uniswap
+final class UniswapV2: Exchange {
+    let name: UniType
     
-    var type: ExchangeType = .dex
+    let type: ExchangeType = .dex
     
-    var fee: Double {
+    nonisolated var fee: Double {
         if name == .apeswap {
             return 0.003;
         } else if name == .pancakeswap {
@@ -33,12 +33,18 @@ class UniswapV2: Exchange {
         return 0.003;
     }
     
-    var delegate: UniswapV2Router
-    var factory: EthereumAddress
+    typealias Delegate = UniswapV2Router
+    typealias Meta = RequiredPriceInfo
     
-    init(delegate: UniswapV2Router, factory: EthereumAddress) {
-        self.delegate = delegate
+    let delegate: UniswapV2Router
+    let factory: EthereumAddress
+    let coordinator: EthereumAddress
+    
+    init(name: UniType, router: EthereumAddress, factory: EthereumAddress, coordinator: EthereumAddress) {
+        self.name = name
+        self.delegate = UniswapV2Router(address: router, eth: Credentials.shared.web3.eth)
         self.factory = factory
+        self.coordinator = coordinator
         
         let wethAddressEnv = Environment.get("WETH_CONTRACT_ADDRESS")
         ?? "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -226,8 +232,24 @@ class UniswapV2: Exchange {
     func balanceFor(token: Token) async throws -> Double {
         fatalError("Method not implemented")
     }
+}
+
+
+extension UniswapV2: Hashable {
+    static func == (lhs: UniswapV2, rhs: UniswapV2) -> Bool {
+        guard lhs.name == rhs.name else { return false }
+        guard lhs.factory == rhs.factory else { return false }
+        guard lhs.delegate.address == rhs.delegate.address else { return false }
+        guard lhs.type == rhs.type else { return false }
+        guard lhs.wethAddress == rhs.wethAddress else { return false }
+        return true
+    }
     
-    typealias T = UniswapV2Router
-    
-    typealias U = RequiredPriceInfo
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(factory)
+        hasher.combine(delegate.address)
+        hasher.combine(type)
+        hasher.combine(wethAddress)
+    }
 }

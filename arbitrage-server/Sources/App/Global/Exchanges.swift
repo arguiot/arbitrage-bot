@@ -18,57 +18,33 @@ struct ExchangeInfo: Codable {
     var testnet: Bool? = nil
 }
 
-struct IExchangesList: Codable {
-    let development: [String: ExchangeInfo]
-    let production: [String: ExchangeInfo]
+struct IExchangesList {
+    let development: [String: any Exchange]
+    let production: [String: any Exchange]
 }
 
 let ExchangesList: IExchangesList = IExchangesList(
     development: [
-        "uniswap": ExchangeInfo(
-            name: "Uniswap V2",
-            type: "dex",
-            adapter: "uniswap",
-            routerAddress: try? EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
-            factoryAddress: try? EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
-            coordinatorAddress: try? EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
+        "uniswap": UniswapV2(
+            name: .uniswap,
+            router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
+            factory: try! EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
         ),
-        "pancakeswap": ExchangeInfo(
-            name: "PancakeSwap",
-            type: "dex",
-            adapter: "uniswap",
-            routerAddress: try? EthereumAddress(hex: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", eip55: false),
-            factoryAddress: try? EthereumAddress(hex: "0x6725F303b657a9451d8BA641348b6761A6CC7a17", eip55: false),
-            coordinatorAddress: try? EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
+        "pancakeswap": UniswapV2(
+            name: .pancakeswap,
+            router: try! EthereumAddress(hex: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", eip55: false),
+            factory: try! EthereumAddress(hex: "0x6725F303b657a9451d8BA641348b6761A6CC7a17", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
         ),
-        "apeswap": ExchangeInfo(
-            name: "ApeSwap",
-            type: "dex",
-            adapter: "uniswap",
-            routerAddress: try? EthereumAddress(hex: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B", eip55: false),
-            factoryAddress: try? EthereumAddress(hex: "0x5722F3b02b9fe2003b3045D73E9230684707B257", eip55: false),
-            coordinatorAddress: try? EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
+        "apeswap": UniswapV2(
+            name: .apeswap,
+            router: try! EthereumAddress(hex: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B", eip55: false),
+            factory: try! EthereumAddress(hex: "0x5722F3b02b9fe2003b3045D73E9230684707B257", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
         ),
-        "binance": ExchangeInfo(
-            name: "Binance",
-            type: "cex",
-            testnet: true
-        )
     ],
-    production: [
-        "uniswap": ExchangeInfo(
-            name: "Uniswap V2",
-            type: "dex"
-        ),
-        "binance": ExchangeInfo(
-            name: "Binance",
-            type: "cex"
-        ),
-        "kraken": ExchangeInfo(
-            name: "Kraken",
-            type: "cex"
-        )
-    ]
+    production: [:]
 )
 
 // MARK: - Uniswap V2 Constants

@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  PriceDataPublisher.swift
+//
 //
 //  Created by Arthur Guiot on 20/06/2023.
 //
@@ -9,24 +9,27 @@ import Foundation
 import OpenCombine
 import Vapor
 
-class PriceDataController<T>: Subject where T: Exchange {
+class PriceDataPublisher<T>: Subject where T: Exchange {
     typealias Output = BotResponse
     typealias Failure = Error
     
-    var subscribers: [WebSocket] = []
+    var subscribers = Dictionary<WebSocket, Set<PairInfo>>()
     
     func receive<Subscriber>(subscriber: Subscriber) where Subscriber : OpenCombine.Subscriber, Failure == Subscriber.Failure, BotResponse == Subscriber.Input {
-        let subscription = PriceDataSubscription<Subscriber>()
-        subscription.target = subscriber
-        
-        // Attaching our subscription to the subscriber:
-        subscriber.receive(subscription: subscription)
         if let socket = subscriber as? WebSocket {
-            subscribers.append(socket)
+            let subscription = PriceDataSubscription<WebSocket>()
+            subscription.target = socket
+            
+            // Attaching our subscription to the subscriber:
+            subscriber.receive(subscription: subscription)
+            
+            if subscribers[socket] == nil {
+                subscribers[socket] = Set()
+            }
         }
     }
     
-    class PriceDataSubscription<Target: Subscriber>: Subscription {
+    class PriceDataSubscription<Target: Subscriber>: Subscription where Target == WebSocket {
         var target: Target?
         
         
@@ -45,19 +48,19 @@ class PriceDataController<T>: Subject where T: Exchange {
     
     func send(_ value: BotResponse) {
         for subscriber in subscribers {
-            _ = subscriber.receive(value)
+            _ = subscriber.key.receive(value)
         }
     }
     
     func send(completion: OpenCombine.Subscribers.Completion<Failure>) {
         for subscriber in subscribers {
-            subscriber.receive(completion: completion)
+            subscriber.key.receive(completion: completion)
         }
     }
     
     func send(subscription: OpenCombine.Subscription) {
         for subscriber in subscribers {
-            subscriber.receive(subscription: subscription)
+            subscriber.key.receive(subscription: subscription)
         }
     }
 }

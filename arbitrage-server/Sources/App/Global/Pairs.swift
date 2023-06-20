@@ -20,7 +20,7 @@ enum TokenSymbol: String {
     case aave = "AAVE"
 }
 
-struct PairInfo: Codable {
+struct PairInfo: Codable, Hashable {
     let tokenA: Token
     let tokenB: Token
 }
