@@ -3,7 +3,7 @@ image: swift:5.8-focal
 stages:
   - test
 
-test:
+Test Arbitrage Server:
   stage: test
   script:
     - cd arbitrage-server
