@@ -9,10 +9,9 @@ import Foundation
 import BigInt
 import Web3
 import Web3PromiseKit
-import Vapor
 import Euler
 
-struct RequiredPriceInfo {
+struct RequiredPriceInfo: Codable {
     let routerAddress: EthereumAddress;
     let factoryAddress: EthereumAddress;
     let reserveA: BigUInt;
@@ -20,9 +19,11 @@ struct RequiredPriceInfo {
 }
 
 final class UniswapV2: Exchange {
+    
     let name: UniType
     
     let type: ExchangeType = .dex
+    let trigger: PriceDataSubscriptionType = .ethereumBlock
     
     nonisolated var fee: Double {
         if name == .apeswap {
@@ -46,8 +47,8 @@ final class UniswapV2: Exchange {
         self.factory = factory
         self.coordinator = coordinator
         
-        let wethAddressEnv = Environment.get("WETH_CONTRACT_ADDRESS")
-        ?? "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+        let wethAddressEnv = // Environment.get("WETH_CONTRACT_ADDRESS") ??
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
         
         self.wethAddress = try! EthereumAddress(hex: wethAddressEnv, eip55: false)
     }
@@ -163,7 +164,7 @@ final class UniswapV2: Exchange {
 
     // MARK: - Methods
     
-    func getQuote(maxAvailableAmount: BigUInt, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> Quote<RequiredPriceInfo> {
+    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> Quote<RequiredPriceInfo> {
         let tokenA = normalizeToken(token: tokenA)
         let tokenB = normalizeToken(token: tokenB)
 
@@ -175,10 +176,6 @@ final class UniswapV2: Exchange {
         } else {
             (reserveA, reserveB) = try await getReserves(factory: self.factory, tokenA: tokenA.address, tokenB: tokenB.address)
         }
-        
-        let _quoteOut = maximizeB
-        ? try self.getAmountOut(amountIn: maxAvailableAmount, reserveIn: reserveA, reserveOut: reserveB)
-        : try self.getAmountIn(amountOut: maxAvailableAmount, reserveIn: reserveB, reserveOut: reserveA)
         
         let meta = RequiredPriceInfo(
             routerAddress: self.delegate.address!,
@@ -192,13 +189,30 @@ final class UniswapV2: Exchange {
         
         let price = BigDouble(biRD, over: biRN)
         
+        guard let maxAvailableAmount = maxAvailableAmount else {
+            return Quote(
+                exchangeName: self.name.rawValue,
+                amount: .zero,
+                amountOut: .zero,
+                price: price,
+                transactionPrice: price,
+                tokenA: tokenA,
+                tokenB: tokenB,
+                ttf: nil,
+                meta: meta
+            )
+        }
+        
+        let _quoteOut = maximizeB
+        ? try self.getAmountOut(amountIn: maxAvailableAmount, reserveIn: reserveA, reserveOut: reserveB)
+        : try self.getAmountIn(amountOut: maxAvailableAmount, reserveIn: reserveB, reserveOut: reserveA)
+        
         let biTN = Euler.BigInt(sign: false, words: _quoteOut.words.map { $0 })
         let biTD = Euler.BigInt(sign: false, words: maxAvailableAmount.words.map { $0 })
         
         let transactionPrice = BigDouble(biTN, over: biTD)
         
         let quote = Quote(
-            exchangeType: Self.self,
             exchangeName: self.name.rawValue,
             amount: maxAvailableAmount,
             amountOut: _quoteOut,

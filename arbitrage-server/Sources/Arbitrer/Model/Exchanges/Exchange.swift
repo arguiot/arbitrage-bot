@@ -13,11 +13,13 @@ struct Cost {
     var costInDollars: Double
 }
 
-struct Token: Codable, Hashable {
+public struct Token: Codable, Hashable, Sendable {
     var name: String
     var address: EthereumAddress
     var decimals: Int?
 }
+
+extension EthereumAddress: @unchecked Sendable {}
 
 struct Receipt {
     var transactionHash: String?
@@ -28,7 +30,7 @@ struct Receipt {
     var path: [Token]
 }
 
-enum ExchangeType: String, Codable {
+public enum ExchangeType: String, Codable {
     case dex, cex
 }
 
@@ -38,14 +40,15 @@ struct ExchangeAdapter {
 
 protocol Exchange: Hashable {
     var type: ExchangeType { get } // "dex" or "cex"
+    var trigger: PriceDataSubscriptionType { get }
     nonisolated var fee: Double { get }
     
     // Properties
     associatedtype Delegate
-    associatedtype Meta
+    associatedtype Meta: Codable, Sendable
     var delegate: Delegate { get }
     // Methods
-    func getQuote(maxAvailableAmount: BigUInt, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> Quote<Meta> // Returns the best quote for the maximum given amount of tokenA
+    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> Quote<Meta> // Returns the best quote for the maximum given amount of tokenA
     func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int // Returns the estimated time to execute a transaction
     func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost // Returns the estimated cost to execute a transaction in dollars
     
@@ -55,7 +58,12 @@ protocol Exchange: Hashable {
     /// Buy with fixed output
     func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt // Buys an exact amount of tokens for another token
     
-    // Liquidity methods
+    // Balance methods
     func balanceFor(token: Token) async throws -> Double // Returns the liquidity for the given token
 }
 
+extension Exchange {
+    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote<Meta> {
+        return try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
+    }
+}

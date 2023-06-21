@@ -7,9 +7,9 @@
 
 import Foundation
 import Web3
-import Vapor
 
-class Credentials {
+
+public class Credentials {
     static let shared = try! Credentials()
     
     let web3: Web3

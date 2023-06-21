@@ -9,8 +9,7 @@ import Foundation
 import BigInt
 import Euler
 
-struct Quote<U> {
-    var exchangeType: any Exchange.Type
+public struct Quote<U>: Codable, Sendable where U: Codable & Sendable {
     var exchangeName: String
     var amount: BigUInt // Amount of tokenA
     var amountOut: BigUInt // Amount of tokenB
@@ -24,3 +23,6 @@ struct Quote<U> {
     var ttf: Double?
     var meta: U?
 }
+
+extension BigUInt: @unchecked Sendable {}
+extension BigDouble: @unchecked Sendable {}

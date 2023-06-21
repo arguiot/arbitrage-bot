@@ -6,12 +6,13 @@
 //
 
 @testable import App
+@testable import Arbitrer
 import XCTVapor
 import Web3
 
 final class UniswapV2Tests: XCTestCase {
     func testPairFor() async throws {
-        let uniswapV2 = ExchangesList.development["uniswap"] as! UniswapV2
+        let uniswapV2 = ExchangesList[.development]!["uniswap"] as! UniswapV2
         let tokenA = TokenList[.wethBsctestnet]!
         let tokenB = TokenList[.usdtBsctestnet]!
         
@@ -20,7 +21,7 @@ final class UniswapV2Tests: XCTestCase {
     }
     
     func testGetReserves() async throws {
-        let uniswapV2 = ExchangesList.development["uniswap"] as! UniswapV2
+        let uniswapV2 = ExchangesList[.development]!["uniswap"] as! UniswapV2
         let tokenA = TokenList[.wethBsctestnet]!
         let tokenB = TokenList[.usdtBsctestnet]!
         
@@ -31,7 +32,7 @@ final class UniswapV2Tests: XCTestCase {
     }
     
     func testGetPrice() async throws {
-        let uniswapV2 = ExchangesList.development["uniswap"] as! UniswapV2
+        let uniswapV2 = ExchangesList[.development]!["uniswap"] as! UniswapV2
         let tokenA = TokenList[.wethBsctestnet]!
         let tokenB = TokenList[.usdtBsctestnet]!
         

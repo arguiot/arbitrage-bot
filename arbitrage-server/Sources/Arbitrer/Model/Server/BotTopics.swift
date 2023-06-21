@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum BotMessageType: String, Codable {
+public enum BotMessageType: String, Codable {
     case subscribe, unsubscribe, silent, reset, buy
 }
 
-enum BotTopic: String, Codable {
+public enum BotTopic: String, Codable, Sendable {
     case priceData, decision, reset, buy, none
 }

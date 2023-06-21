@@ -7,16 +7,22 @@
 
 import Foundation
 
-public struct BotResponse: Codable {
-    enum Status: String, Codable {
+public struct BotResponse: Sendable, Codable {
+    public enum Status: String, Codable, Sendable {
         case success
         case error
     }
     
-    let status: Status
-    let topic: BotTopic
-    var error: String? = nil
+    public let status: Status
+    public let topic: BotTopic
+    public var error: String? = nil
+    var quote: Quote<AnyCodable>? = nil
     
+    public init(status: Status, topic: BotTopic, error: String? = nil) {
+        self.status = status
+        self.topic = topic
+        self.error = error
+    }
     
     enum EncodingError: LocalizedError {
         case dataCorrupted
@@ -35,7 +41,7 @@ public struct BotResponse: Codable {
         }
     }
 
-    func toJSON() throws -> String {
+    public func toJSON() throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         let data = try encoder.encode(self)
@@ -45,3 +51,4 @@ public struct BotResponse: Codable {
         return json
     }
 }
+

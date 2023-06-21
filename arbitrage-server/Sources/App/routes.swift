@@ -1,8 +1,10 @@
 import Vapor
+import Arbitrer
 
 func routes(_ app: Application) async throws {
     app.webSocket { req, ws in
-        app.logger.log(level: .info, "New socket, id: \(ws.combineIdentifier)")
+//        let i = PriceDataStore.BigInteger
+        app.logger.log(level: .info, "New socket, id")
         ws.onText { ws, text in
             do {
                 let botRequest = try BotRequest.fromJSON(jsonString: text)
