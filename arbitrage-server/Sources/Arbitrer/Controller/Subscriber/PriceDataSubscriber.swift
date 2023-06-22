@@ -9,12 +9,32 @@ import Foundation
 import OpenCombine
 
 public class PriceDataSubscriber: Subscriber {
-    public typealias Input = BotResponse
+    public typealias Input = (BotResponse, Int)
     public typealias Failure = Error
     
     public var callback: (BotResponse) -> Void
     
-    var activeSubscriptions = Set<Int>()
+    internal var subscriptions = Set<Int>()
+    
+    public var activeSubscriptions: [PriceDataActiveSubscription] {
+        get {
+            PriceDataPublisher.shared.priceDataSubscription.subscriptions.activeSubscriptions.filter { subscription in
+                subscriptions.contains(subscription.hashValue)
+            }
+        }
+        
+        set {
+            subscriptions.removeAll(keepingCapacity: true)
+            newValue.forEach { subscription in
+                subscriptions.insert(subscription.hashValue)
+                PriceDataPublisher.shared
+                    .priceDataSubscription
+                    .subscriptions
+                    .activeSubscriptions
+                    .insert(subscription)
+            }
+        }
+    }
     
     public init(callback: @escaping (BotResponse) -> Void) {
         self.callback = callback
@@ -24,8 +44,10 @@ public class PriceDataSubscriber: Subscriber {
         subscription.request(.unlimited)
     }
     
-    public func receive(_ input: BotResponse) -> Subscribers.Demand {
-        callback(input)
+    public func receive(_ input: (BotResponse, Int)) -> Subscribers.Demand {
+        if subscriptions.contains(input.1) {
+            callback(input.0)
+        }
         return .none
     }
     

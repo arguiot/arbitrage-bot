@@ -7,7 +7,7 @@ let package = Package(
        .macOS(.v12)
     ],
     products: [
-//        .library(name: "PriceDataStore", targets: ["PriceDataStore"])
+//        .library(name: "PriceDataStore", type: .static, targets: ["PriceDataStore"]),
         .library(name: "Arbitrer", targets: ["Arbitrer"]),
     ],
     dependencies: [
@@ -18,12 +18,7 @@ let package = Package(
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0")
     ],
     targets: [
-//        .target(
-//            name: "PriceDataStore",
-//            swiftSettings: [
-//                .interoperabilityMode(.Cxx)
-//            ]
-//        ),
+        .systemLibrary(name: "PriceDataStore"),
         .target(name: "Arbitrer", dependencies: [
             .product(name: "Web3", package: "Web3.swift"),
             .product(name: "Web3PromiseKit", package: "Web3.swift"),
@@ -37,6 +32,7 @@ let package = Package(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
+                .target(name: "PriceDataStore"),
                 .byName(name: "Arbitrer")
             ],
             swiftSettings: [
@@ -54,5 +50,6 @@ let package = Package(
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
         ])
-    ]
+    ],
+    cLanguageStandard: .c99
 )

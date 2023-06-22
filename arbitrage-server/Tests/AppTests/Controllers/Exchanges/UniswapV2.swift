@@ -36,7 +36,7 @@ final class UniswapV2Tests: XCTestCase {
         let tokenA = TokenList[.wethBsctestnet]!
         let tokenB = TokenList[.usdtBsctestnet]!
         
-        let quote = try await uniswapV2.getQuote(maxAvailableAmount: 1, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
+        let (quote, _) = try await uniswapV2.getQuote(maxAvailableAmount: 1, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
         
         XCTAssert(quote.price > 0)
         XCTAssert(quote.price.nearlyEquals(quote.transactionPrice, epsilon: 50)) // 50$ difference

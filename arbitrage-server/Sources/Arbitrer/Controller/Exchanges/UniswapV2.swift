@@ -164,7 +164,7 @@ final class UniswapV2: Exchange {
 
     // MARK: - Methods
     
-    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> Quote<RequiredPriceInfo> {
+    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, Meta) {
         let tokenA = normalizeToken(token: tokenA)
         let tokenB = normalizeToken(token: tokenB)
 
@@ -190,7 +190,7 @@ final class UniswapV2: Exchange {
         let price = BigDouble(biRD, over: biRN)
         
         guard let maxAvailableAmount = maxAvailableAmount else {
-            return Quote(
+            let quote = Quote(
                 exchangeName: self.name.rawValue,
                 amount: .zero,
                 amountOut: .zero,
@@ -198,9 +198,9 @@ final class UniswapV2: Exchange {
                 transactionPrice: price,
                 tokenA: tokenA,
                 tokenB: tokenB,
-                ttf: nil,
-                meta: meta
+                ttf: nil
             )
+            return (quote, meta)
         }
         
         let _quoteOut = maximizeB
@@ -220,11 +220,10 @@ final class UniswapV2: Exchange {
             transactionPrice: transactionPrice,
             tokenA: tokenA,
             tokenB: tokenB,
-            ttf: nil,
-            meta: meta
+            ttf: nil
         )
         
-        return quote
+        return (quote, meta)
     }
     
     func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {

@@ -16,7 +16,7 @@ public struct BotResponse: Sendable, Codable {
     public let status: Status
     public let topic: BotTopic
     public var error: String? = nil
-    var quote: Quote<AnyCodable>? = nil
+    var quote: Quote? = nil
     
     public init(status: Status, topic: BotTopic, error: String? = nil) {
         self.status = status

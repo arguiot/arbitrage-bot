@@ -9,7 +9,21 @@ import Foundation
 import Vapor
 import Arbitrer
 
-class RealtimeServerController {
+actor RealtimeServerController {
+    var ws: WebSocket
+    var subscriber: PriceDataSubscriber
+    
+    init(ws: WebSocket) {
+        self.ws = ws
+        self.subscriber = PriceDataSubscriber { res in
+            guard let str = try? res.toJSON() else { return }
+            ws.send(str)
+        }
+        // Publishers
+        Task {
+            await PriceDataPublisher.shared.receive(subscriber: subscriber)
+        }
+    }
     
     // MARK: - Request
     func handleRequest(request: BotRequest, ws: WebSocket) async throws {
@@ -30,6 +44,23 @@ class RealtimeServerController {
     }
     
     func priceData(request: BotRequest, ws: WebSocket) async -> BotResponse {
+        guard let query = request.query else {
+            return BotResponse(status: .error, topic: .priceData)
+        }
+        let pair = PairInfo(tokenA: query.tokenA, tokenB: query.tokenB)
+        
+        let activeSub = PriceDataActiveSubscription(exchangeKey: query.exchange,
+                                                    environment: request.environment,
+                                                    pair: pair)
+        
+        if request.type == .subscribe {
+            self.subscriber.activeSubscriptions.append(activeSub)
+        } else {
+            self.subscriber.activeSubscriptions.removeAll { sub in
+                activeSub == sub
+            }
+        }
+        
         return BotResponse(status: .success, topic: .priceData)
     }
     
@@ -44,6 +75,4 @@ class RealtimeServerController {
     func buy(request: BotRequest, ws: WebSocket) async -> BotResponse {
         return BotResponse(status: .success, topic: .buy)
     }
-    
-    static let shared = RealtimeServerController()
 }

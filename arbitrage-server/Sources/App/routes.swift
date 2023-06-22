@@ -1,14 +1,14 @@
 import Vapor
 import Arbitrer
+import PriceDataStore
 
 func routes(_ app: Application) async throws {
     app.webSocket { req, ws in
-//        let i = PriceDataStore.BigInteger
-        app.logger.log(level: .info, "New socket, id")
+        let controller = RealtimeServerController(ws: ws)
         ws.onText { ws, text in
             do {
                 let botRequest = try BotRequest.fromJSON(jsonString: text)
-                try await RealtimeServerController.shared.handleRequest(request: botRequest, ws: ws)
+                try await controller.handleRequest(request: botRequest, ws: ws)
             } catch {
                 app.logger.error("Error: \(error)");
                 // Send it back to the client

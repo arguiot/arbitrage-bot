@@ -48,7 +48,7 @@ protocol Exchange: Hashable {
     associatedtype Meta: Codable, Sendable
     var delegate: Delegate { get }
     // Methods
-    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> Quote<Meta> // Returns the best quote for the maximum given amount of tokenA
+    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) // Returns the best quote for the maximum given amount of tokenA
     func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int // Returns the estimated time to execute a transaction
     func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost // Returns the estimated cost to execute a transaction in dollars
     
@@ -63,7 +63,7 @@ protocol Exchange: Hashable {
 }
 
 extension Exchange {
-    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote<Meta> {
-        return try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
+    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote {
+        return try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil).0
     }
 }

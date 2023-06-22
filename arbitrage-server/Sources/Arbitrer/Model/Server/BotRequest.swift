@@ -8,11 +8,6 @@
 import Foundation
 
 public struct BotRequest: Codable {
-    public struct Token: Codable {
-        var name: String
-        var address: String
-    }
-    
     public enum Environment: String, Codable {
         case development, production
     }

@@ -1,6 +1,6 @@
 #ifndef PRICE_DATA_STORE_H
 #define PRICE_DATA_STORE_H
 
-#import <adjacency_list.hpp>
+#include "../product/price_data_store.h"
 
 #endif // PRICE_DATA_STORE_H

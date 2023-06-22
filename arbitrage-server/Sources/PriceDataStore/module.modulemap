@@ -1,0 +1,4 @@
+module PriceDataStore {
+    header "./include/PriceDataStore.h"
+    export *
+}

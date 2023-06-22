@@ -10,10 +10,10 @@ import Web3
 
 class PriceDataSubscription {
     private let web3 = Credentials.shared.web3
-    private let callback: (Result<BotResponse, Error>) -> Void
-    private let subscriptions = PriceDataSubscriptionState()
+    private let callback: (Result<(BotResponse, Int), Error>) -> Void
+    internal let subscriptions = PriceDataSubscriptionState()
     
-    init(callback: @escaping (Result<BotResponse, Error>) -> Void) {
+    init(callback: @escaping (Result<(BotResponse, Int), Error>) -> Void) {
         self.callback = callback
         subscribeToNewHeads()
     }

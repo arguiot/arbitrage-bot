@@ -10,17 +10,17 @@ import OpenCombine
 import Web3
 
 public class PriceDataPublisher: Publisher {
-    public typealias Output = PriceDataSubscriptionType
+    public typealias Output = (BotResponse, Int)
     public typealias Failure = Error
     
     private let subject = PassthroughSubject<Output, Failure>()
-    private var priceDataSubscription: PriceDataSubscription?
+    internal var priceDataSubscription: PriceDataSubscription!
     
     init() {
         priceDataSubscription = PriceDataSubscription { [weak self] result in
             switch result {
-            case .success(let priceDataType):
-                self?.subject.send(priceDataType)
+            case .success(let response):
+                self?.subject.send(response)
             case .failure(let error):
                 self?.subject.send(completion: .failure(error))
             }
@@ -30,4 +30,6 @@ public class PriceDataPublisher: Publisher {
     public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         subject.receive(subscriber: subscriber)
     }
+    
+    public static let shared = PriceDataPublisher()
 }

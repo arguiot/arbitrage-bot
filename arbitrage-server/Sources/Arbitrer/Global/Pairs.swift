@@ -20,9 +20,14 @@ enum TokenSymbol: String {
     case aave = "AAVE"
 }
 
-struct PairInfo: Codable, Hashable {
-    let tokenA: Token
-    let tokenB: Token
+public struct PairInfo: Codable, Hashable {
+    public let tokenA: Token
+    public let tokenB: Token
+    
+    public init(tokenA: Token, tokenB: Token) {
+        self.tokenA = tokenA
+        self.tokenB = tokenB
+    }
 }
 
 struct PairListType: Codable {
