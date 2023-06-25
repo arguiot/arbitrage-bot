@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "5F978ED8-B8DA-4D80-AEE7-C7984DD295F8"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5D351AC2-1639-4B19-B790-15D2C5DD216B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Global/Credentials.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
+            landmarkName = "init()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5D351AC2-1639-4B19-B790-15D2C5DD216B - 9745c8fd0f423047"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.Credentials.init() throws -&gt; Arbitrage_Bot.Credentials"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Global/Credentials.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "24"
+                  endingLineNumber = "24"
+                  offsetFromSymbolStart = "100">
+               </Location>
+               <Location
+                  uuid = "5D351AC2-1639-4B19-B790-15D2C5DD216B - 9745c8fd0f423047"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.Credentials.init() throws -&gt; Arbitrage_Bot.Credentials"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Global/Credentials.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "24"
+                  endingLineNumber = "24"
+                  offsetFromSymbolStart = "212">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "145FB1F4-2996-42CB-84AB-FD08B742AE5C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Arbitrage Bot/arbitrager.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
+            landmarkName = "close_handler(ws, code, message, length)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "145FB1F4-2996-42CB-84AB-FD08B742AE5C - b03f0c18e8f031cb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "close_handler"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/arbitrager.m"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "28">
+               </Location>
+               <Location
+                  uuid = "145FB1F4-2996-42CB-84AB-FD08B742AE5C - b03f0c18e8f031e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "close_handler"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/arbitrager.m"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "174"
+                  endingLineNumber = "174"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C972717E-D773-4249-AE90-E35E2CE34B8F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "init(callback:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C972717E-D773-4249-AE90-E35E2CE34B8F - 5505376d7fbe9ac6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Arbitrage_Bot.BotResponse) -&gt; () in Arbitrage_Bot.RealtimeServerController.init(callback: (Swift.String) -&gt; ()) -&gt; Arbitrage_Bot.RealtimeServerController"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "18"
+                  endingLineNumber = "18"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  uuid = "C972717E-D773-4249-AE90-E35E2CE34B8F - 5505376d7fbe9ac6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Arbitrage_Bot.BotResponse) -&gt; () in Arbitrage_Bot.RealtimeServerController.init(callback: (Swift.String) -&gt; ()) -&gt; Arbitrage_Bot.RealtimeServerController"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "18"
+                  endingLineNumber = "18"
+                  offsetFromSymbolStart = "140">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "92CAAC44-50B4-4C7E-B72F-31821F240DC0"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscription.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "29"
+            endingLineNumber = "29"
+            landmarkName = "subscribeToNewHeads()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "meanPrice(for:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - 39ace0b0af31496c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "148">
+               </Location>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - e67febe0659fc827"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - 7a569eb455ea856a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - c4cbb5b58eff676b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "39"
+                  endingLineNumber = "39"
+                  offsetFromSymbolStart = "88">
+               </Location>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - 7a569eb455ea8509"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "596">
+               </Location>
+               <Location
+                  uuid = "96C7DAB9-4B1A-4FE3-A08F-C4AE122F9936 - c4cbb5b58eff6708"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #2 @Sendable () async -&gt; Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in closure #1 (inout Swift.TaskGroup&lt;Swift.Optional&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;&gt;) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt; in Arbitrage_Bot.PriceDataSubscriptionState.meanPrice(for: Arbitrage_Bot.PriceDataSubscriptionType) async -&gt; Swift.Array&lt;(Arbitrage_Bot.BotResponse, Swift.Int)&gt;"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "612">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F2148B20-1743-41BF-B0C4-0FDEA9A88E66"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscription.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "subscribeToNewHeads()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F2148B20-1743-41BF-B0C4-0FDEA9A88E66 - ecda5b9e48b15de2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (Web3.Web3Response&lt;Web3.EthereumBlockObject&gt;) -&gt; () in Arbitrage_Bot.PriceDataSubscription.subscribeToNewHeads() -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscription.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "120">
+               </Location>
+               <Location
+                  uuid = "F2148B20-1743-41BF-B0C4-0FDEA9A88E66 - 36ff0c69e62c647f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable () async -&gt; () in closure #2 (Web3.Web3Response&lt;Web3.EthereumBlockObject&gt;) -&gt; () in Arbitrage_Bot.PriceDataSubscription.subscribeToNewHeads() -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscription.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "264">
+               </Location>
+               <Location
+                  uuid = "F2148B20-1743-41BF-B0C4-0FDEA9A88E66 - e9d25093d0da2583"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in closure #2 (Web3.Web3Response&lt;Web3.EthereumBlockObject&gt;) -&gt; () in Arbitrage_Bot.PriceDataSubscription.subscribeToNewHeads() -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscription.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "112">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D9ECE3CC-A0C3-4136-99ED-B655D4232E1A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
+            landmarkName = "init(callback:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "D9ECE3CC-A0C3-4136-99ED-B655D4232E1A - 969442e32e0f1f7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable () async -&gt; () in Arbitrage_Bot.RealtimeServerController.init(callback: (Swift.String) -&gt; ()) -&gt; Arbitrage_Bot.RealtimeServerController"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "23"
+                  endingLineNumber = "23"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "D9ECE3CC-A0C3-4136-99ED-B655D4232E1A - d2dca4d2b0abb7e6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for closure #2 @Sendable () async -&gt; () in Arbitrage_Bot.RealtimeServerController.init(callback: (Swift.String) -&gt; ()) -&gt; Arbitrage_Bot.RealtimeServerController"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "23"
+                  endingLineNumber = "23"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "D9ECE3CC-A0C3-4136-99ED-B655D4232E1A - a4400581367275d5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #2 @Sendable () async -&gt; () in Arbitrage_Bot.RealtimeServerController.init(callback: (Swift.String) -&gt; ()) -&gt; Arbitrage_Bot.RealtimeServerController"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "23"
+                  endingLineNumber = "23"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B1C22813-5B11-4CD2-AF6B-8E755917E39E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "meanPrice(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "meanPrice(for:with:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0 - 89c9452083a9515a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.PriceDataSubscriptionState.meanPrice&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Arbitrage_Bot.Exchange&gt;(for: &#x3c4;_0_0, with: Arbitrage_Bot.PairInfo) async throws -&gt; Arbitrage_Bot.BotResponse"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "324">
+               </Location>
+               <Location
+                  uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0 - 4e5e74546a0413d3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) await resume partial function for Arbitrage_Bot.PriceDataSubscriptionState.meanPrice&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Arbitrage_Bot.Exchange&gt;(for: &#x3c4;_0_0, with: Arbitrage_Bot.PairInfo) async throws -&gt; Arbitrage_Bot.BotResponse"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0 - 1f82c26d9db3c402"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for Arbitrage_Bot.PriceDataSubscriptionState.meanPrice&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Arbitrage_Bot.Exchange&gt;(for: &#x3c4;_0_0, with: Arbitrage_Bot.PairInfo) async throws -&gt; Arbitrage_Bot.BotResponse"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "100">
+               </Location>
+               <Location
+                  uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0 - 54016e9fcd40a61d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.PriceDataSubscriptionState.meanPrice&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Arbitrage_Bot.Exchange&gt;(for: &#x3c4;_0_0, with: Arbitrage_Bot.PairInfo) async throws -&gt; Arbitrage_Bot.BotResponse"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  uuid = "265AB0C6-E1DE-471C-A2FA-967AA5794AF0 - 54016e9fcd40a61d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.PriceDataSubscriptionState.meanPrice&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Arbitrage_Bot.Exchange&gt;(for: &#x3c4;_0_0, with: Arbitrage_Bot.PairInfo) async throws -&gt; Arbitrage_Bot.BotResponse"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "140">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8F300BF9-B856-4D95-AE4E-37EA5B233F82"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Subscriptions/PriceDataSubscriptionState.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
+            landmarkName = "meanPrice(for:with:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "79AFF91E-78BF-4484-8EB2-2CC170C259BE"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "getQuote(maxAvailableAmount:tokenA:tokenB:maximizeB:meta:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "79AFF91E-78BF-4484-8EB2-2CC170C259BE - d71e613cefe13e29"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Arbitrage_Bot.UniswapV2.getQuote(maxAvailableAmount: Swift.Optional&lt;BigInt.BigUInt&gt;, tokenA: Arbitrage_Bot.Token, tokenB: Arbitrage_Bot.Token, maximizeB: Swift.Bool, meta: Swift.Optional&lt;Arbitrage_Bot.RequiredPriceInfo&gt;) async throws -&gt; (Arbitrage_Bot.Quote, Arbitrage_Bot.RequiredPriceInfo)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "384">
+               </Location>
+               <Location
+                  uuid = "79AFF91E-78BF-4484-8EB2-2CC170C259BE - d71e613cefe13e29"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Arbitrage_Bot.UniswapV2.getQuote(maxAvailableAmount: Swift.Optional&lt;BigInt.BigUInt&gt;, tokenA: Arbitrage_Bot.Token, tokenB: Arbitrage_Bot.Token, maximizeB: Swift.Bool, meta: Swift.Optional&lt;Arbitrage_Bot.RequiredPriceInfo&gt;) async throws -&gt; (Arbitrage_Bot.Quote, Arbitrage_Bot.RequiredPriceInfo)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "396">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9836FEEC-6DE4-4184-9BB0-45E3E7192DFD"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
+            landmarkName = "getQuote(maxAvailableAmount:tokenA:tokenB:maximizeB:meta:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "9836FEEC-6DE4-4184-9BB0-45E3E7192DFD - 6744582b7fe86b12"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.UniswapV2.getQuote(maxAvailableAmount: Swift.Optional&lt;BigInt.BigUInt&gt;, tokenA: Arbitrage_Bot.Token, tokenB: Arbitrage_Bot.Token, maximizeB: Swift.Bool, meta: Swift.Optional&lt;Arbitrage_Bot.RequiredPriceInfo&gt;) async throws -&gt; (Arbitrage_Bot.Quote, Arbitrage_Bot.RequiredPriceInfo)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "180"
+                  endingLineNumber = "180"
+                  offsetFromSymbolStart = "476">
+               </Location>
+               <Location
+                  uuid = "9836FEEC-6DE4-4184-9BB0-45E3E7192DFD - d71e613cefe13f10"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Arbitrage_Bot.UniswapV2.getQuote(maxAvailableAmount: Swift.Optional&lt;BigInt.BigUInt&gt;, tokenA: Arbitrage_Bot.Token, tokenB: Arbitrage_Bot.Token, maximizeB: Swift.Bool, meta: Swift.Optional&lt;Arbitrage_Bot.RequiredPriceInfo&gt;) async throws -&gt; (Arbitrage_Bot.Quote, Arbitrage_Bot.RequiredPriceInfo)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "180"
+                  endingLineNumber = "180"
+                  offsetFromSymbolStart = "1068">
+               </Location>
+               <Location
+                  uuid = "9836FEEC-6DE4-4184-9BB0-45E3E7192DFD - 6744582b7fe86b12"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.UniswapV2.getQuote(maxAvailableAmount: Swift.Optional&lt;BigInt.BigUInt&gt;, tokenA: Arbitrage_Bot.Token, tokenB: Arbitrage_Bot.Token, maximizeB: Swift.Bool, meta: Swift.Optional&lt;Arbitrage_Bot.RequiredPriceInfo&gt;) async throws -&gt; (Arbitrage_Bot.Quote, Arbitrage_Bot.RequiredPriceInfo)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "180"
+                  endingLineNumber = "180"
+                  offsetFromSymbolStart = "744">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
+            landmarkName = "getReserves(factory:tokenA:tokenB:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D - 3506286db344f09b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "127"
+                  endingLineNumber = "127"
+                  offsetFromSymbolStart = "416">
+               </Location>
+               <Location
+                  uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D - 47e0f22704cc10b7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "127"
+                  endingLineNumber = "127"
+                  offsetFromSymbolStart = "44">
+               </Location>
+               <Location
+                  uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D - f3018ef0e6f0c99"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "127"
+                  endingLineNumber = "127"
+                  offsetFromSymbolStart = "204">
+               </Location>
+               <Location
+                  uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D - ec371f2fbc1aeef9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "126"
+                  endingLineNumber = "126"
+                  offsetFromSymbolStart = "68">
+               </Location>
+               <Location
+                  uuid = "9A20BFB8-D6C2-4D29-A5EC-948AC21ED62D - ec371f2fbc1aee98"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "127"
+                  endingLineNumber = "127"
+                  offsetFromSymbolStart = "92">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5440A8B5-85B7-4F28-B776-17A1332B2C48"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
+            landmarkName = "getReserves(factory:tokenA:tokenB:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5440A8B5-85B7-4F28-B776-17A1332B2C48 - f3018ef0e6f0cba"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "128"
+                  endingLineNumber = "128"
+                  offsetFromSymbolStart = "276">
+               </Location>
+               <Location
+                  uuid = "5440A8B5-85B7-4F28-B776-17A1332B2C48 - f3018ef0e6f0cba"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_Bot.UniswapV2.getReserves(factory: Web3.EthereumAddress, tokenA: Web3.EthereumAddress, tokenB: Web3.EthereumAddress) async throws -&gt; (BigInt.BigUInt, BigInt.BigUInt)"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/arbitrage-server/Sources/Arbitrer/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "128"
+                  endingLineNumber = "128"
+                  offsetFromSymbolStart = "716">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

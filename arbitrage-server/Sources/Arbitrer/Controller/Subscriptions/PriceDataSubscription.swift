@@ -24,6 +24,7 @@ class PriceDataSubscription {
                 print("Listening to new heads")
             } onEvent: { resp in
                 Task {
+                    print("New block: \(resp.result?.number?.quantity ?? 0)")
                     let responses = await self.subscriptions.meanPrice(for: .ethereumBlock)
                     for response in responses {
                         self.callback(.success(response))

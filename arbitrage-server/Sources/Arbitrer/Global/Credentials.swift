@@ -29,6 +29,6 @@ public class Credentials {
         guard let privateKey = Environment.get("WALLET_PRIVATE_KEY") else { throw EnvironmentError.undefinedVariable }
         self.privateWallet = try EthereumPrivateKey(hexPrivateKey: privateKey)
         
-        print("Using Wallet: \(self.privateWallet.address.hex(eip55: true))")
+        print("Using Wallet: \(self.privateWallet.address.hex(eip55: false))")
     }
 }

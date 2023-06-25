@@ -11,23 +11,9 @@
 #define FRONT_ARBITRAGE_H
 
 #include <stdbool.h>
-#import <Data_Aggregator/Data_Aggregator-Swift.h>
-
-typedef struct {
-    // Define your price data structure here
-} PriceDataStore;
-
-typedef struct {
-    // Define your decision metadata structure here
-} DecisionMetadata;
-
-// Function pointer type for on-tick method
-typedef DecisionMetadata* (*OnTickCallback)(const PriceDataStore*);
-
-// Function pointer type for perform arbitrage method
-typedef void (*PerformArbitrageCallback)(const DecisionMetadata*);
 
 // Main function to start the server
-void start_server(OnTickCallback on_tick, PerformArbitrageCallback perform_arbitrage);
+void start_server(void);
+void wait_for_tasks_to_complete(void);
 
 #endif // FRONT_ARBITRAGE_H

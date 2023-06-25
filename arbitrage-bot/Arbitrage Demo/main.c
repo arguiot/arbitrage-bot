@@ -6,9 +6,14 @@
 //
 
 #include <stdio.h>
+#include <semaphore.h>
+#include <Arbitrage_Bot/Arbitrage_Bot.h>
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    printf("Hello, World!\n");
+    // Start the server
+    start_server();
+    
+    wait_for_tasks_to_complete();
+    
     return 0;
 }

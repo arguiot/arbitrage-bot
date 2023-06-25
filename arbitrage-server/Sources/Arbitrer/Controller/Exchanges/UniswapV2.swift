@@ -124,7 +124,7 @@ final class UniswapV2: Exchange {
     ) async throws -> (BigUInt, BigUInt) {
         let computedPair = try pairFor(factory: factory, tokenA: tokenA, tokenB: tokenB)
         let pair = Credentials.shared.web3.eth.Contract(type: UniswapV2Pair.self, address: computedPair)
-        let invocation = try await pair.getReserves().call().async()
+        let invocation = try await pair.getReserves().call().wait()
         guard let reserve0 = invocation["reserve0"] as? BigUInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }

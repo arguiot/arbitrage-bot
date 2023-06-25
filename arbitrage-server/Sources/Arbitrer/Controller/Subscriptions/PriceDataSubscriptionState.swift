@@ -36,8 +36,13 @@ final class PriceDataSubscriptionState {
             
             for (exchange, pair, hash) in subs {
                 taskGroup.addTask {
-                    guard let price = try? await self.meanPrice(for: exchange, with: pair) else { return nil }
-                    return (price, hash)
+                    do {
+                        let price = try await self.meanPrice(for: exchange, with: pair)
+                        return (price, hash)
+                    } catch {
+                        let res = BotResponse(status: .error, topic: .priceData, error: error.localizedDescription)
+                        return (res, hash)
+                    }
                 }
             }
             
