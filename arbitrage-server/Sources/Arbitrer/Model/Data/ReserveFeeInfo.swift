@@ -8,9 +8,8 @@
 import Foundation
 import BigInt
 
-struct ReserveFeeInfo {
-    let exchangeID: Int
-    let reserve0: BigUInt
-    let reserve1: BigUInt
+struct ReserveFeeInfo<Meta> {
+    let exchange: AnyExchange
+    let meta: Meta
     let fee: BigUInt
 }

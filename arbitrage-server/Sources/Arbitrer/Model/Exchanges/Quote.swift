@@ -35,7 +35,68 @@ public struct Quote: Codable, Sendable {
         case bid
         case ttf
     }
+    
+    public init(exchangeName: String, amount: BigUInt, amountOut: BigUInt, decimals: Int = 18, price: BigDouble, transactionPrice: BigDouble, tokenA: Token, tokenB: Token, ask: Double? = nil, bid: Double? = nil, ttf: Double? = nil) {
+        self.exchangeName = exchangeName
+        self.amount = amount
+        self.amountOut = amountOut
+        self.decimals = decimals
+        self.price = price
+        self.transactionPrice = transactionPrice
+        self.tokenA = tokenA
+        self.tokenB = tokenB
+        self.ask = ask
+        self.bid = bid
+        self.ttf = ttf
+    }
+    
+    // Custom Codable implementation
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        exchangeName = try container.decode(String.self, forKey: .exchangeName)
+        // Custom decoding for BigUInt and BigDouble
+        let amountString = try container.decode(String.self, forKey: .amount)
+        let amountOutString = try container.decode(String.self, forKey: .amountOut)
+        let priceString = try container.decode(Double.self, forKey: .price)
+        let transactionPriceString = try container.decode(Double.self, forKey: .transactionPrice)
+        
+        guard let bigUIntAmount = BigUInt(amountString),
+              let bigUIntAmountOut = BigUInt(amountOutString) else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid BigUInt or BigDouble value"))
+        }
+        
+        let bigDoublePrice = BigDouble(priceString)
+        let bigDoubleTransactionPrice = BigDouble(transactionPriceString)
+        
+        amount = bigUIntAmount
+        amountOut = bigUIntAmountOut
+        price = bigDoublePrice
+        transactionPrice = bigDoubleTransactionPrice
+        
+        // Remaining properties
+        tokenA = try container.decode(Token.self, forKey: .tokenA)
+        tokenB = try container.decode(Token.self, forKey: .tokenB)
+        ask = try container.decodeIfPresent(Double.self, forKey: .ask)
+        bid = try container.decodeIfPresent(Double.self, forKey: .bid)
+        ttf = try container.decodeIfPresent(Double.self, forKey: .ttf)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(exchangeName, forKey: .exchangeName)
+        // Custom encoding for BigUInt and BigDouble
+        try container.encode(amount.description, forKey: .amount)
+        try container.encode(amountOut.description, forKey: .amountOut)
+        try container.encode(price.asDouble(), forKey: .price)
+        try container.encode(transactionPrice.asDouble(), forKey: .transactionPrice)
+        
+        // Remaining properties
+        try container.encode(tokenA, forKey: .tokenA)
+        try container.encode(tokenB, forKey: .tokenB)
+        try container.encodeIfPresent(ask, forKey: .ask)
+        try container.encodeIfPresent(bid, forKey: .bid)
+        try container.encodeIfPresent(ttf, forKey: .ttf)
+    }
 }
-
-extension BigUInt: @unchecked Sendable {}
-extension BigDouble: @unchecked Sendable {}

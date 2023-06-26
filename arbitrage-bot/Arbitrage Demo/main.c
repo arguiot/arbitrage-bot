@@ -6,14 +6,19 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <semaphore.h>
 #include <Arbitrage_Bot/Arbitrage_Bot.h>
 
 int main(int argc, const char * argv[]) {
     // Start the server
-    start_server();
+    Server *server = new_server();
     
-    wait_for_tasks_to_complete();
+    PriceDataStore *store = create_store();
+    
+    server->pipe(store);
+    
+    start_server(server, 8080);
     
     return 0;
 }

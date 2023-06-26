@@ -7,11 +7,11 @@
 
 import Foundation
 
-@_cdecl("create_controller")
-public func create_controller() -> OpaquePointer {
-    let type = RealtimeServerController { res in
-        print(res)
-    }
-    let retained = Unmanaged.passRetained(type).toOpaque()
-    return OpaquePointer(retained)
-}
+//@_cdecl("create_controller")
+//public func create_controller() -> OpaquePointer {
+//    let type = RealtimeServerController { res in
+//        print(res)
+//    }
+//    let retained = Unmanaged.passRetained(type).toOpaque()
+//    return OpaquePointer(retained)
+//}

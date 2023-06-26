@@ -18,20 +18,36 @@ class PriceDataSubscription {
         subscribeToNewHeads()
     }
     
+    func dispatch(with type: PriceDataSubscriptionType) {
+        guard subscriptions.activeSubscriptions.count > 0 else { return }
+        Task {
+            let clock = ContinuousClock()
+            
+            var responses = [(BotResponse, Int)]()
+            
+            let time = await clock.measure {
+                responses = await self.subscriptions.meanPrice(for: .ethereumBlock)
+            }
+            
+            for var response in responses {
+                response.0.queryTime = time
+                self.callback(.success(response))
+            }
+            
+            print("Dispatched prices in \(time.ms)ms")
+        }
+    }
+    
     private func subscribeToNewHeads() {
         do {
             try web3.eth.subscribeToNewHeads { resp in
                 print("Listening to new heads")
             } onEvent: { resp in
-                Task {
-                    print("New block: \(resp.result?.number?.quantity ?? 0)")
-                    let responses = await self.subscriptions.meanPrice(for: .ethereumBlock)
-                    for response in responses {
-                        self.callback(.success(response))
-                    }
-                }
+                print("New block: \(resp.result?.number?.quantity ?? 0)")
+                self.dispatch(with: .ethereumBlock)
             }
         } catch {
+            print("Error: \(error.localizedDescription)")
             self.callback(.failure(error))
         }
     }

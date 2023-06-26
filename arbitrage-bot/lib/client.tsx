@@ -80,8 +80,8 @@ export class Client {
                 break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
-                    const pair = `${message.tokenA.name}/${message.tokenB.name}`;
-                    usePriceStore.getState().addQuote(message.exchange, pair, {
+                    const pair = `${message.quote.tokenA.name}/${message.quote.tokenB.name}`;
+                    usePriceStore.getState().addQuote(message.quote.exchangeName, pair, {
                         ...message.quote,
                         balanceA: message.balanceA,
                         balanceB: message.balanceB,
@@ -200,6 +200,7 @@ export class Client {
             JSON.stringify({
                 type: "subscribe",
                 topic: "priceData",
+                environment,
                 query: {
                     exchange,
                     type: exchangeMetadata.type,

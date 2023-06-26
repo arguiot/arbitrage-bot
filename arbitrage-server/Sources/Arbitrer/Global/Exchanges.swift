@@ -18,12 +18,8 @@ struct ExchangeInfo: Codable {
     var testnet: Bool? = nil
 }
 
-typealias IExchangesList = [
-    BotRequest.Environment: [String: any Exchange]
-]
-
-let ExchangesList: IExchangesList = [
-    .development: [
+let ExchangesList = [
+    BotRequest.Environment.development: [
         "uniswap": UniswapV2(
             name: .uniswap,
             router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
@@ -43,7 +39,7 @@ let ExchangesList: IExchangesList = [
             coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
         ),
     ],
-    .production: [:]
+    BotRequest.Environment.production: [:]
 ]
 
 // MARK: - Uniswap V2 Constants

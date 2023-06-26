@@ -28,16 +28,17 @@ final class PriceDataSubscriptionState {
     
     func meanPrice(for type: PriceDataSubscriptionType) async -> [(BotResponse, Int)] {
         return await withTaskGroup(of: Optional<(BotResponse, Int)>.self, returning: [(BotResponse, Int)].self) { taskGroup in
-            let subs: [(any Exchange, PairInfo, Int)] = activeSubscriptions.compactMap { activeSubscription in
+            let subs: [(AnyExchange, PairInfo, Int)] = activeSubscriptions.compactMap { activeSubscription in
                 guard let adapter = ExchangesList[activeSubscription.environment]?[activeSubscription.exchangeKey] else { return nil }
                 guard adapter.trigger == type else { return nil }
-                return (adapter, activeSubscription.pair, activeSubscription.hashValue)
+                return (adapter.untyped, activeSubscription.pair, activeSubscription.hashValue)
             }
             
             for (exchange, pair, hash) in subs {
                 taskGroup.addTask {
                     do {
                         let price = try await self.meanPrice(for: exchange, with: pair)
+                        // Return
                         return (price, hash)
                     } catch {
                         let res = BotResponse(status: .error, topic: .priceData, error: error.localizedDescription)
@@ -54,7 +55,7 @@ final class PriceDataSubscriptionState {
         }
     }
     
-    func meanPrice<T: Exchange>(for exchange: T, with pair: PairInfo) async throws -> BotResponse {
+    func meanPrice<T: AnyExchange>(for exchange: T, with pair: PairInfo) async throws -> BotResponse {
         let meanPrice = try await exchange.meanPrice(tokenA: pair.tokenA, tokenB: pair.tokenB)
 
         var response = BotResponse(status: .success, topic: .priceData)

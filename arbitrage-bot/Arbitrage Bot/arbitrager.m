@@ -21,7 +21,10 @@ typedef struct
 struct PerSocketData
 {
     RealtimeServerControllerWrapper *controller;
+    Server *server;
 };
+
+struct PerSocketData *socket_data_base;
 
 struct UpgradeData
 {
@@ -69,6 +72,8 @@ void perform_upgrade(void *data)
     if (!upgrade_data->aborted)
     {
         struct PerSocketData *socket_data = (struct PerSocketData *)malloc(sizeof(struct PerSocketData));
+        memcpy((void*)socket_data, (void*)socket_data_base, sizeof(struct PerSocketData));
+
         uws_res_upgrade(SSL,
                         upgrade_data->response,
                         socket_data,
@@ -127,10 +132,6 @@ void upgrade_handler(uws_res_t *response, uws_req_t *request, uws_socket_context
     
     uws_res_on_aborted(SSL, response, on_res_aborted, data);
     
-    /* Simulate checking auth for 5 seconds. This looks like crap, never write
-     * code that utilize us_timer_t like this; they are high-cost and should
-     * not be created and destroyed more than rarely!
-     * Either way, here we go!*/
     perform_upgrade(data);
 }
 
@@ -147,9 +148,9 @@ void open_handler(uws_websocket_t *ws)
     [[RealtimeServerControllerWrapper alloc]
      initWithCallback:^(NSString *message) {
         // Handle the callback message
-        NSLog(@"Message: %@", message);
         uws_ws_send(SSL, ws, [message UTF8String], [message length], TEXT);
     }];
+    
     data->controller = controller;
 }
 
@@ -194,7 +195,24 @@ void pong_handler(uws_websocket_t *ws, const char *message, size_t length)
     /* You don't need to handle this one either */
 }
 
-void start_server(void) {
+// MARK: - Public
+
+PriceDataStore *create_store(void) {
+    PriceDataStore *store = (PriceDataStore *)malloc(sizeof(PriceDataStore));
+    
+    [PriceDataStoreWrapper createStore];
+    
+    PriceDataStoreWrapper *sharedWrapper = PriceDataStoreWrapper.shared;
+    
+    store->wrapper = (__bridge void *)(sharedWrapper);
+    return store;
+}
+// Define the pipe function implementation
+void pipe_function(PriceDataStore *dataStore) {
+    socket_data_base->server->dataStore = dataStore;
+}
+
+Server *new_server(void) {
     [Environment loadFrom:@".env"];
     // Log how many environments are loaded
     NSLog(@"Loaded %lu environments from .env",
@@ -206,6 +224,14 @@ void start_server(void) {
 //        .cert_file_name = "../misc/cert.pem",
 //        .passphrase = "1234"
     });
+    
+    // Create and initialize the Server struct
+    Server *server = (Server *)malloc(sizeof(Server));
+    server->pipe = pipe_function;
+    server->app = app;
+    
+    socket_data_base = (struct PerSocketData *)malloc(sizeof(struct PerSocketData));
+    socket_data_base->server = server;
     
     uws_ws(SSL, app, "/*", (uws_socket_behavior_t){
         .compression = SHARED_COMPRESSOR,
@@ -221,18 +247,13 @@ void start_server(void) {
         .close = close_handler,
     }, NULL);
     
-    uws_app_listen(SSL, app, 9001, listen_handler, NULL);
-    
-    uws_app_run(SSL, app);
+    return server;
 }
 
-void wait_for_tasks_to_complete(void) {
-  // Create a dispatch group
-  dispatch_group_t group = dispatch_group_create();
-
-  // Enter the group
-  dispatch_group_enter(group);
-
-  // Wait for the group to be signaled
-  dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+void start_server(Server *server, int port) {
+    uws_app_t *app = server->app;
+    
+    uws_app_listen(SSL, app, port, listen_handler, NULL);
+    
+    uws_app_run(SSL, app);
 }

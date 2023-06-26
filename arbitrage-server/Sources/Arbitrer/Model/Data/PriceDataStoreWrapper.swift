@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+@objc public class PriceDataStoreWrapper: NSObject {
+    internal var adjacencyList = AdjacencyList()
+    
+    @objc public static var shared: PriceDataStoreWrapper? = nil
+    
+    @objc static public func createStore() {
+        self.shared = PriceDataStoreWrapper()
+    }
+}

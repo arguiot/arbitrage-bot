@@ -38,32 +38,74 @@ struct ExchangeAdapter {
     static let uniswap = UniswapV2.self
 }
 
-protocol Exchange: Hashable {
-    var type: ExchangeType { get } // "dex" or "cex"
-    var trigger: PriceDataSubscriptionType { get }
-    nonisolated var fee: Double { get }
+class Exchange<Delegate, Meta>: Hashable {
+    static func == (lhs: Exchange<Delegate, Meta>, rhs: Exchange<Delegate, Meta>) -> Bool {
+        guard lhs.untyped.hashValue == rhs.untyped.hashValue else { return false }
+        return true
+    }
     
-    // Properties
-    associatedtype Delegate
-    associatedtype Meta: Codable, Sendable
-    var delegate: Delegate { get }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(untyped.hashValue)
+    }
+    
+    var type: ExchangeType = .dex // "dex" or "cex"
+    var trigger: PriceDataSubscriptionType = .ethereumBlock
+    var fee: BigUInt { .zero }
+    
+    var delegate: Delegate
+    
+    internal init(delegate: Delegate) {
+        self.delegate = delegate
+    }
     // Methods
-    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) // Returns the best quote for the maximum given amount of tokenA
-    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int // Returns the estimated time to execute a transaction
-    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost // Returns the estimated cost to execute a transaction in dollars
+    
+    /// Returns the best quote for the maximum given amount of tokenA
+    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) {
+        fatalError("Not implemented");
+    }
+    /// Returns the estimated time to execute a transaction
+    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
+        fatalError("Not implemented");
+    }
+    
+    /// Returns the estimated cost to execute a transaction in dollars
+    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
+        fatalError("Not implemented");
+    }
     
     /// Buy with fixed input
-    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt // Buys an exact amount of tokens for another token
+    /// Buys an exact amount of tokens for another token
+    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+        fatalError("Not implemented");
+    }
     
     /// Buy with fixed output
-    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt // Buys an exact amount of tokens for another token
+    /// Buys an exact amount of tokens for another token
+    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+        fatalError("Not implemented");
+    }
     
     // Balance methods
-    func balanceFor(token: Token) async throws -> Double // Returns the liquidity for the given token
+    /// Returns the liquidity for the given token
+    func balanceFor(token: Token) async throws -> Double {
+        fatalError("Not implemented");
+    }
 }
 
 extension Exchange {
     func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote {
-        return try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil).0
+        let (quote, meta) = try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
+        
+        // Store in PriceDataStore
+        if let store = PriceDataStoreWrapper.shared {
+            let reserveFee = ReserveFeeInfo<Meta>(exchange: self.untyped, meta: meta, fee: self.fee)
+            await store.adjacencyList.insert(tokenA: tokenA, tokenB: tokenB, info: reserveFee as! ReserveFeeInfo<Any>)
+        }
+        
+        return quote
+    }
+    
+    var untyped: AnyExchange {
+        return AnyExchange(self)
     }
 }

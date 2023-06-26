@@ -11,9 +11,21 @@
 #define FRONT_ARBITRAGE_H
 
 #include <stdbool.h>
-
 // Main function to start the server
-void start_server(void);
-void wait_for_tasks_to_complete(void);
+
+// Server system
+typedef struct {
+    void *wrapper;
+} PriceDataStore;
+
+typedef struct {
+    PriceDataStore *dataStore;
+    void *app;
+    void (*pipe)(PriceDataStore *dataStore);
+} Server;
+
+Server *new_server(void);
+PriceDataStore *create_store(void);
+void start_server(Server *server, int port);
 
 #endif // FRONT_ARBITRAGE_H

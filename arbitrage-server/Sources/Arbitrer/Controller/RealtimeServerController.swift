@@ -11,6 +11,7 @@ import Foundation
 actor RealtimeServerController {
     var callback: (String) -> Void
     var subscriber: PriceDataSubscriber
+    var priceDataStore: PriceDataStoreWrapper? = nil
     
     public init(callback: @escaping (String) -> Void) {
         self.callback = callback
@@ -22,6 +23,10 @@ actor RealtimeServerController {
         Task {
             await PriceDataPublisher.shared.receive(subscriber: subscriber)
         }
+    }
+    
+    func setPriceDataStore(with store: PriceDataStoreWrapper) {
+        self.priceDataStore = store;
     }
     
     // MARK: - Request
@@ -81,7 +86,7 @@ actor RealtimeServerController {
 
 @objc public class RealtimeServerControllerWrapper: NSObject {
     private var serverController: RealtimeServerController
-    
+
     @objc public init(callback: @escaping (String) -> Void) {
         serverController = RealtimeServerController(callback: callback)
         super.init()

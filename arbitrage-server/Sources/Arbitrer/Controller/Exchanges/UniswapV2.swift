@@ -18,39 +18,35 @@ struct RequiredPriceInfo: Codable {
     let reserveB: BigUInt;
 }
 
-final class UniswapV2: Exchange {
+final class UniswapV2: Exchange<UniswapV2Router, RequiredPriceInfo> {
     
-    let name: UniType
+    var name: UniType = .uniswap
     
-    let type: ExchangeType = .dex
-    let trigger: PriceDataSubscriptionType = .ethereumBlock
-    
-    nonisolated var fee: Double {
+    nonisolated override var fee: BigUInt {
         if name == .apeswap {
-            return 0.003;
+            return 3;
         } else if name == .pancakeswap {
-            return 0.0025;
+            return 2;
         }
-        return 0.003;
+        return 3;
     }
     
-    typealias Delegate = UniswapV2Router
-    typealias Meta = RequiredPriceInfo
-    
-    let delegate: UniswapV2Router
-    let factory: EthereumAddress
-    let coordinator: EthereumAddress
+    var factory: EthereumAddress
+    var coordinator: EthereumAddress
     
     init(name: UniType, router: EthereumAddress, factory: EthereumAddress, coordinator: EthereumAddress) {
         self.name = name
-        self.delegate = UniswapV2Router(address: router, eth: Credentials.shared.web3.eth)
         self.factory = factory
         self.coordinator = coordinator
-        
-        let wethAddressEnv = // Environment.get("WETH_CONTRACT_ADDRESS") ??
+        let wethAddressEnv = Environment.get("WETH_CONTRACT_ADDRESS") ??
         "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
         
         self.wethAddress = try! EthereumAddress(hex: wethAddressEnv, eip55: false)
+        
+        super.init(delegate: UniswapV2Router(address: router, eth: Credentials.shared.web3.eth))
+        
+        self.type = .dex
+        self.trigger = .ethereumBlock
     }
     
     // MARK: - Error
@@ -124,7 +120,15 @@ final class UniswapV2: Exchange {
     ) async throws -> (BigUInt, BigUInt) {
         let computedPair = try pairFor(factory: factory, tokenA: tokenA, tokenB: tokenB)
         let pair = Credentials.shared.web3.eth.Contract(type: UniswapV2Pair.self, address: computedPair)
-        let invocation = try await pair.getReserves().call().wait()
+        let invocation: [String: Any] = try await withCheckedThrowingContinuation { continuation in
+            pair.getReserves().call { result, e in
+                if let error = e {
+                    return continuation.resume(throwing: error)
+                }
+                continuation.resume(returning: result ?? [:])
+            }
+        }
+        
         guard let reserve0 = invocation["reserve0"] as? BigUInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }
@@ -164,7 +168,7 @@ final class UniswapV2: Exchange {
 
     // MARK: - Methods
     
-    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, Meta) {
+    override func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, RequiredPriceInfo) {
         let tokenA = normalizeToken(token: tokenA)
         let tokenB = normalizeToken(token: tokenB)
 
@@ -226,43 +230,23 @@ final class UniswapV2: Exchange {
         return (quote, meta)
     }
     
-    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
+    override func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
         fatalError("Method not implemented")
     }
     
-    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
+    override func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
         fatalError("Method not implemented")
     }
     
-    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+    override func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
         fatalError("Method not implemented")
     }
     
-    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+    override func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
         fatalError("Method not implemented")
     }
     
-    func balanceFor(token: Token) async throws -> Double {
+    override func balanceFor(token: Token) async throws -> Double {
         fatalError("Method not implemented")
-    }
-}
-
-
-extension UniswapV2: Hashable {
-    static func == (lhs: UniswapV2, rhs: UniswapV2) -> Bool {
-        guard lhs.name == rhs.name else { return false }
-        guard lhs.factory == rhs.factory else { return false }
-        guard lhs.delegate.address == rhs.delegate.address else { return false }
-        guard lhs.type == rhs.type else { return false }
-        guard lhs.wethAddress == rhs.wethAddress else { return false }
-        return true
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(factory)
-        hasher.combine(delegate.address)
-        hasher.combine(type)
-        hasher.combine(wethAddress)
     }
 }
