@@ -6,13 +6,12 @@
 //
 
 import Foundation
-import BigInt
 import Euler
 
 public struct Quote: Codable, Sendable {
     var exchangeName: String
-    var amount: BigUInt // Amount of tokenA
-    var amountOut: BigUInt // Amount of tokenB
+    var amount: BigInt // Amount of tokenA
+    var amountOut: BigInt // Amount of tokenB
     var decimals = 18
     var price: BigDouble // Average price
     var transactionPrice: BigDouble // The price at which we would buy/sell
@@ -36,7 +35,7 @@ public struct Quote: Codable, Sendable {
         case ttf
     }
     
-    public init(exchangeName: String, amount: BigUInt, amountOut: BigUInt, decimals: Int = 18, price: BigDouble, transactionPrice: BigDouble, tokenA: Token, tokenB: Token, ask: Double? = nil, bid: Double? = nil, ttf: Double? = nil) {
+    public init(exchangeName: String, amount: BigInt, amountOut: BigInt, decimals: Int = 18, price: BigDouble, transactionPrice: BigDouble, tokenA: Token, tokenB: Token, ask: Double? = nil, bid: Double? = nil, ttf: Double? = nil) {
         self.exchangeName = exchangeName
         self.amount = amount
         self.amountOut = amountOut
@@ -55,14 +54,14 @@ public struct Quote: Codable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         exchangeName = try container.decode(String.self, forKey: .exchangeName)
-        // Custom decoding for BigUInt and BigDouble
+        // Custom decoding for BigInt and BigDouble
         let amountString = try container.decode(String.self, forKey: .amount)
         let amountOutString = try container.decode(String.self, forKey: .amountOut)
         let priceString = try container.decode(Double.self, forKey: .price)
         let transactionPriceString = try container.decode(Double.self, forKey: .transactionPrice)
         
-        guard let bigUIntAmount = BigUInt(amountString),
-              let bigUIntAmountOut = BigUInt(amountOutString) else {
+        guard let bigUIntAmount = BigInt(amountString),
+              let bigUIntAmountOut = BigInt(amountOutString) else {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid BigUInt or BigDouble value"))
         }
         

@@ -6,23 +6,22 @@
 //
 
 import Foundation
-import BigInt
 import Web3
 import Web3PromiseKit
 import Euler
-
-struct RequiredPriceInfo: Codable {
-    let routerAddress: EthereumAddress;
-    let factoryAddress: EthereumAddress;
-    let reserveA: BigUInt;
-    let reserveB: BigUInt;
-}
-
-final class UniswapV2: Exchange<UniswapV2Router, RequiredPriceInfo> {
+import BigInt
+final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
+    
+    struct RequiredPriceInfo: Codable {
+        let routerAddress: EthereumAddress;
+        let factoryAddress: EthereumAddress;
+        let reserveA: Euler.BigInt;
+        let reserveB: Euler.BigInt;
+    }
     
     var name: UniType = .uniswap
     
-    nonisolated override var fee: BigUInt {
+    nonisolated override var fee: Euler.BigInt {
         if name == .apeswap {
             return 3;
         } else if name == .pancakeswap {
@@ -117,7 +116,7 @@ final class UniswapV2: Exchange<UniswapV2Router, RequiredPriceInfo> {
         factory: EthereumAddress,
         tokenA: EthereumAddress,
         tokenB: EthereumAddress
-    ) async throws -> (BigUInt, BigUInt) {
+    ) async throws -> (Euler.BigInt, Euler.BigInt) {
         let computedPair = try pairFor(factory: factory, tokenA: tokenA, tokenB: tokenB)
         let pair = Credentials.shared.web3.eth.Contract(type: UniswapV2Pair.self, address: computedPair)
         let invocation: [String: Any] = try await withCheckedThrowingContinuation { continuation in
@@ -129,51 +128,51 @@ final class UniswapV2: Exchange<UniswapV2Router, RequiredPriceInfo> {
             }
         }
         
-        guard let reserve0 = invocation["reserve0"] as? BigUInt else {
+        guard let reserve0 = invocation["reserve0"] as? Web3BigInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }
-        guard  let reserve1 = invocation["reserve1"] as? BigUInt else {
+        guard  let reserve1 = invocation["reserve1"] as? Web3BigInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }
         
         let (token0, _) = try sortTokens(tokenA: tokenA, tokenB: tokenB)
         
-        return tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+        return tokenA == token0 ? (reserve0.euler, reserve1.euler) : (reserve1.euler, reserve0.euler);
     }
     
     func getAmountOut(
-        amountIn: BigUInt,
-        reserveIn: BigUInt,
-        reserveOut: BigUInt
-    ) throws -> BigUInt {
+        amountIn: Euler.BigInt,
+        reserveIn: Euler.BigInt,
+        reserveOut: Euler.BigInt
+    ) throws -> Euler.BigInt {
         guard amountIn > 0 else { throw UniswapV2Error.insufficientInputAmount }
         guard reserveIn > 0 && reserveOut > 0 else { throw UniswapV2Error.insufficientLiquidity }
-        let amountInWithFee = amountIn * BigUInt(1_000 - Int(fee * 1_000))
+        let amountInWithFee = amountIn * (1_000 - fee)
         let numerator = amountInWithFee * reserveOut
-        let denominator = reserveIn * BigUInt(1_000) + amountInWithFee
+        let denominator = reserveIn * BigInt(1_000) + amountInWithFee
         return numerator / denominator
     }
     
     func getAmountIn(
-        amountOut: BigUInt,
-        reserveIn: BigUInt,
-        reserveOut: BigUInt
-    ) throws -> BigUInt {
+        amountOut: Euler.BigInt,
+        reserveIn: Euler.BigInt,
+        reserveOut: Euler.BigInt
+    ) throws -> Euler.BigInt {
         guard amountOut > 0 else { throw UniswapV2Error.insufficientInputAmount }
         guard reserveIn > 0 && reserveOut > 0 else { throw UniswapV2Error.insufficientLiquidity }
-        let numerator = reserveIn * amountOut * BigUInt(1_000)
-        let denominator = (reserveOut - amountOut) * BigUInt(1_000 - Int(fee * 1_000))
+        let numerator = reserveIn * amountOut * BigInt(1_000)
+        let denominator = (reserveOut - amountOut) * (1_000 - fee)
         return (numerator / denominator) + 1
     }
 
     // MARK: - Methods
     
-    override func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, RequiredPriceInfo) {
+    override func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, RequiredPriceInfo) {
         let tokenA = normalizeToken(token: tokenA)
         let tokenB = normalizeToken(token: tokenB)
 
-        var reserveA: BigUInt;
-        var reserveB: BigUInt;
+        var reserveA: Euler.BigInt;
+        var reserveB: Euler.BigInt;
         if let meta = meta {
             reserveA = meta.reserveA
             reserveB = meta.reserveB
@@ -248,5 +247,38 @@ final class UniswapV2: Exchange<UniswapV2Router, RequiredPriceInfo> {
     
     override func balanceFor(token: Token) async throws -> Double {
         fatalError("Method not implemented")
+    }
+    
+    override func computeInputForMaximizingTrade(truePriceTokenA: Euler.BigInt, truePriceTokenB: Euler.BigInt, meta: RequiredPriceInfo) -> Euler.BigInt {
+        let reserveA = meta.reserveA
+        let reserveB = meta.reserveB
+        
+        let aToB = reserveA * truePriceTokenB / reserveB < truePriceTokenA
+        
+        let invariant = reserveA * reserveB
+        
+        let leftSide = (
+            invariant
+            * 1000
+            * (aToB ? truePriceTokenA : truePriceTokenB)
+            / ((aToB ? truePriceTokenB : truePriceTokenA) * fee)
+        ).squareRoot()?.rounded() ?? .zero
+        let rightSide = (aToB ? reserveA * 1000 : reserveB * 1000) / fee
+        
+        if leftSide < rightSide {
+            return .zero
+        }
+        
+        let amountIn = leftSide - rightSide
+        
+//        let amountOutA = aToB
+//        ? reserveB - (invariant / (reserveA + amountIn))
+//        : reserveA - (invariant / (reserveB + amountIn))
+//        
+//        let amountOutB = aToB
+//        ? reserveA - (invariant / (reserveB + amountOutA))
+//        : reserveB - (invariant / (reserveA + amountOutA))
+        
+        return amountIn
     }
 }

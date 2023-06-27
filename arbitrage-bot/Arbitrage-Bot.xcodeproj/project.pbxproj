@@ -24,7 +24,7 @@
 		68DCBF152A45E734007DCB50 /* Arbitrage_Bot.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		68F6FC6E2A459DA500E828DB /* Arbitrage_Bot.docc in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */; };
 		68F6FC742A459DA500E828DB /* Arbitrage_Bot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; };
-		68F6FC792A459DA500E828DB /* Arbitrage_BotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC782A459DA500E828DB /* Arbitrage_BotTests.swift */; };
+		68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC782A459DA500E828DB /* CycleTests.swift */; };
 		68F6FC7A2A459DA500E828DB /* Arbitrage_Bot.h in Headers */ = {isa = PBXBuildFile; fileRef = 68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68F6FCAA2A459DFE00E828DB /* Array+Uint8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC852A459DFE00E828DB /* Array+Uint8.swift */; };
 		68F6FCAB2A459DFE00E828DB /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC872A459DFE00E828DB /* AnyDecodable.swift */; };
@@ -59,6 +59,9 @@
 		68F6FCD02A45A0C100E828DB /* OpenCombine in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCCF2A45A0C100E828DB /* OpenCombine */; };
 		68F6FCD22A45A0C100E828DB /* OpenCombineDispatch in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCD12A45A0C100E828DB /* OpenCombineDispatch */; };
 		68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCD32A45A0C100E828DB /* OpenCombineFoundation */; };
+		68FE7D492A4B067500D3A706 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = 68FE7D482A4B067500D3A706 /* CollectionConcurrencyKit */; };
+		68FE7D4B2A4B10FD00D3A706 /* BigUInt+Euler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FE7D4A2A4B10FD00D3A706 /* BigUInt+Euler.swift */; };
+		68FE7D4D2A4B48CB00D3A706 /* BigInt+Typealias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FE7D4C2A4B48CB00D3A706 /* BigInt+Typealias.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -137,7 +140,7 @@
 		68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot.h; sourceTree = "<group>"; };
 		68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Arbitrage_Bot.docc; sourceTree = "<group>"; };
 		68F6FC732A459DA500E828DB /* Arbitrage-BotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Arbitrage-BotTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		68F6FC782A459DA500E828DB /* Arbitrage_BotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arbitrage_BotTests.swift; sourceTree = "<group>"; };
+		68F6FC782A459DA500E828DB /* CycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleTests.swift; sourceTree = "<group>"; };
 		68F6FC852A459DFE00E828DB /* Array+Uint8.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Uint8.swift"; sourceTree = "<group>"; };
 		68F6FC872A459DFE00E828DB /* AnyDecodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyDecodable.swift; sourceTree = "<group>"; };
 		68F6FC882A459DFE00E828DB /* AnyCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyCodable.swift; sourceTree = "<group>"; };
@@ -165,6 +168,8 @@
 		68F6FCA92A459DFE00E828DB /* PriceDataSubscriber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataSubscriber.swift; sourceTree = "<group>"; };
 		68F6FCC32A459E8800E828DB /* arbitrager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = arbitrager.m; sourceTree = "<group>"; };
 		68F6FCC52A459EF700E828DB /* RealtimeServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeServerController.swift; sourceTree = "<group>"; };
+		68FE7D4A2A4B10FD00D3A706 /* BigUInt+Euler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+Euler.swift"; sourceTree = "<group>"; };
+		68FE7D4C2A4B48CB00D3A706 /* BigInt+Typealias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigInt+Typealias.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +198,7 @@
 				68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */,
 				68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */,
 				68F6FCCD2A45A01300E828DB /* Web3PromiseKit in Frameworks */,
+				68FE7D492A4B067500D3A706 /* CollectionConcurrencyKit in Frameworks */,
 				68F6FCD22A45A0C100E828DB /* OpenCombineDispatch in Frameworks */,
 				68F6FCD02A45A0C100E828DB /* OpenCombine in Frameworks */,
 				68F6FCC92A45A01300E828DB /* Web3 in Frameworks */,
@@ -276,7 +282,7 @@
 		68F6FC772A459DA500E828DB /* Arbitrage-BotTests */ = {
 			isa = PBXGroup;
 			children = (
-				68F6FC782A459DA500E828DB /* Arbitrage_BotTests.swift */,
+				68F6FC782A459DA500E828DB /* CycleTests.swift */,
 			);
 			path = "Arbitrage-BotTests";
 			sourceTree = "<group>";
@@ -299,6 +305,8 @@
 				68F6FC852A459DFE00E828DB /* Array+Uint8.swift */,
 				68F6FC862A459DFE00E828DB /* AnyCodable */,
 				68F6FC8A2A459DFE00E828DB /* EthereumAddress.swift */,
+				68FE7D4A2A4B10FD00D3A706 /* BigUInt+Euler.swift */,
+				68FE7D4C2A4B48CB00D3A706 /* BigInt+Typealias.swift */,
 			);
 			name = Utils;
 			path = "../../../arbitrage-server/Sources/Arbitrer/Utils";
@@ -511,6 +519,7 @@
 				68F6FCD12A45A0C100E828DB /* OpenCombineDispatch */,
 				68F6FCD32A45A0C100E828DB /* OpenCombineFoundation */,
 				6842921B2A45A1120043EF2F /* Euler */,
+				68FE7D482A4B067500D3A706 /* CollectionConcurrencyKit */,
 			);
 			productName = "Arbitrage-Bot";
 			productReference = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */;
@@ -572,6 +581,7 @@
 				68F6FCC72A45A01300E828DB /* XCRemoteSwiftPackageReference "Web3" */,
 				68F6FCCE2A45A0C100E828DB /* XCRemoteSwiftPackageReference "OpenCombine" */,
 				6842921A2A45A1120043EF2F /* XCRemoteSwiftPackageReference "Euler" */,
+				68FE7D472A4B067500D3A706 /* XCRemoteSwiftPackageReference "CollectionConcurrencyKit" */,
 			);
 			productRefGroup = 68F6FC6A2A459DA500E828DB /* Products */;
 			projectDirPath = "";
@@ -638,6 +648,7 @@
 				683FF8502A49B8410010DB3F /* Exchangeable.swift in Sources */,
 				6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */,
 				68F6FCAD2A459DFE00E828DB /* AnyEncodable.swift in Sources */,
+				68FE7D4B2A4B10FD00D3A706 /* BigUInt+Euler.swift in Sources */,
 				68F6FCAC2A459DFE00E828DB /* AnyCodable.swift in Sources */,
 				68F6FCBF2A459DFF00E828DB /* PriceDataSubscriptionType.swift in Sources */,
 				68F6FCC62A459EF700E828DB /* RealtimeServerController.swift in Sources */,
@@ -659,6 +670,7 @@
 				68F6FCC02A459DFF00E828DB /* PriceDataSubscriptionState.swift in Sources */,
 				68F6FCB62A459DFE00E828DB /* UniswapV2Pair.swift in Sources */,
 				68F6FC6E2A459DA500E828DB /* Arbitrage_Bot.docc in Sources */,
+				68FE7D4D2A4B48CB00D3A706 /* BigInt+Typealias.swift in Sources */,
 				68F6FCB32A459DFE00E828DB /* Quote.swift in Sources */,
 				68F6FCC12A459DFF00E828DB /* PriceDataPublisher.swift in Sources */,
 			);
@@ -668,7 +680,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68F6FC792A459DA500E828DB /* Arbitrage_BotTests.swift in Sources */,
+				68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1169,6 +1181,14 @@
 				minimumVersion = 0.14.0;
 			};
 		};
+		68FE7D472A4B067500D3A706 /* XCRemoteSwiftPackageReference "CollectionConcurrencyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/JohnSundell/CollectionConcurrencyKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1206,6 +1226,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 68F6FCCE2A45A0C100E828DB /* XCRemoteSwiftPackageReference "OpenCombine" */;
 			productName = OpenCombineFoundation;
+		};
+		68FE7D482A4B067500D3A706 /* CollectionConcurrencyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68FE7D472A4B067500D3A706 /* XCRemoteSwiftPackageReference "CollectionConcurrencyKit" */;
+			productName = CollectionConcurrencyKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

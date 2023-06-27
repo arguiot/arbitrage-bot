@@ -5,26 +5,30 @@
 //  Created by Arthur Guiot on 19/06/2023.
 //
 
-import BigInt
 import Web3
+import Euler
 
 struct Cost {
-    var gas: BigInt?
+    var gas: Euler.BigInt?
     var costInDollars: Double
 }
 
-public struct Token: Codable, Hashable, Sendable {
+public struct Token: Codable, Hashable, Sendable, Identifiable {
     var name: String
     var address: EthereumAddress
     var decimals: Int?
+    
+    public var id: Int {
+        return address.hashValue
+    }
 }
 
 extension EthereumAddress: @unchecked Sendable {}
 
 struct Receipt {
     var transactionHash: String?
-    var amountIn: BigUInt
-    var amountOut: BigUInt
+    var amountIn: Euler.BigInt
+    var amountOut: Euler.BigInt
     var price: Double
     var exchanges: [String]
     var path: [Token]
@@ -50,7 +54,7 @@ class Exchange<Delegate, Meta>: Hashable {
     
     var type: ExchangeType = .dex // "dex" or "cex"
     var trigger: PriceDataSubscriptionType = .ethereumBlock
-    var fee: BigUInt { .zero }
+    var fee: Euler.BigInt { .zero }
     
     var delegate: Delegate
     
@@ -60,7 +64,7 @@ class Exchange<Delegate, Meta>: Hashable {
     // Methods
     
     /// Returns the best quote for the maximum given amount of tokenA
-    func getQuote(maxAvailableAmount: BigUInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) {
+    func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) {
         fatalError("Not implemented");
     }
     /// Returns the estimated time to execute a transaction
@@ -90,6 +94,22 @@ class Exchange<Delegate, Meta>: Hashable {
     func balanceFor(token: Token) async throws -> Double {
         fatalError("Not implemented");
     }
+    
+    // Math
+    
+    /// Compute the best input for two exchanges
+    /// - Parameters:
+    ///   - truePriceTokenA: price of token A on next exchange
+    ///   - truePriceTokenB: price of token B on next exchange
+    ///   - meta: Meta to calculate pice
+    /// - Returns: Input
+    func computeInputForMaximizingTrade(
+        truePriceTokenA: Euler.BigInt,
+        truePriceTokenB: Euler.BigInt,
+        meta: Meta
+    ) -> Euler.BigInt {
+        fatalError("Not implemented");
+    }
 }
 
 extension Exchange {
@@ -98,7 +118,7 @@ extension Exchange {
         
         // Store in PriceDataStore
         if let store = PriceDataStoreWrapper.shared {
-            let reserveFee = ReserveFeeInfo<Meta>(exchange: self.untyped, meta: meta, fee: self.fee)
+            let reserveFee = ReserveFeeInfo<Meta>(exchange: self.untyped, meta: meta, spot: quote.transactionPrice, fee: self.fee)
             await store.adjacencyList.insert(tokenA: tokenA, tokenB: tokenB, info: reserveFee as! ReserveFeeInfo<Any>)
         }
         
