@@ -59,7 +59,7 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>1</integer>
 		</dict>
 		<key>FastSockets.xcscheme_^#shared#^_</key>
 		<dict>
@@ -112,6 +112,16 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>68DCBF072A45E0B8007DCB50</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>68F6FC682A459DA500E828DB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>68F6FC722A459DA500E828DB</key>
 		<dict>
 			<key>primary</key>
 			<true/>

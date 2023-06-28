@@ -16,6 +16,7 @@
 // Server system
 typedef struct {
     void *wrapper;
+    void (*on_tick)(const double* rates, int size);
 } PriceDataStore;
 
 typedef struct {

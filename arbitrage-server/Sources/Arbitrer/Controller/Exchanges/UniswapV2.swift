@@ -10,7 +10,15 @@ import Web3
 import Web3PromiseKit
 import Euler
 import BigInt
-final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
+final class UniswapV2: Exchange {    
+    typealias Delegate = UniswapV2Router
+    
+    typealias Meta = RequiredPriceInfo
+    
+    var type: ExchangeType
+    
+    var trigger: PriceDataSubscriptionType
+    
     
     struct RequiredPriceInfo: Codable {
         let routerAddress: EthereumAddress;
@@ -19,22 +27,19 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         let reserveB: Euler.BigInt;
     }
     
-    var name: UniType = .uniswap
-    
-    nonisolated override var fee: Euler.BigInt {
-        if name == .apeswap {
-            return 3;
-        } else if name == .pancakeswap {
-            return 2;
-        }
-        return 3;
+    var path: KeyPath<ExchangesList, ExchangeMetadata>!
+    var name: String {
+        ExchangesList.shared[keyPath: self.path].name
     }
     
+    var fee: Euler.BigInt = 3
+    
+    var delegate: UniswapV2Router
     var factory: EthereumAddress
     var coordinator: EthereumAddress
     
-    init(name: UniType, router: EthereumAddress, factory: EthereumAddress, coordinator: EthereumAddress) {
-        self.name = name
+    init(router: EthereumAddress, factory: EthereumAddress, coordinator: EthereumAddress, fee: Euler.BigInt) {
+        self.delegate = UniswapV2Router(address: router, eth: Credentials.shared.web3.eth)
         self.factory = factory
         self.coordinator = coordinator
         let wethAddressEnv = Environment.get("WETH_CONTRACT_ADDRESS") ??
@@ -42,10 +47,9 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         
         self.wethAddress = try! EthereumAddress(hex: wethAddressEnv, eip55: false)
         
-        super.init(delegate: UniswapV2Router(address: router, eth: Credentials.shared.web3.eth))
-        
         self.type = .dex
         self.trigger = .ethereumBlock
+        self.fee = fee
     }
     
     // MARK: - Error
@@ -89,7 +93,7 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         if tokenA == tokenB {
             throw UniswapV2Error.identicalAddresses
         }
-        let (token0, token1) = tokenA.hex(eip55: false).lowercased() < tokenB.hex(eip55: false).lowercased() ? (tokenA, tokenB) : (tokenB, tokenA)
+        let (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA)
         if token0 == .zero {
             throw UniswapV2Error.zeroAddress
         }
@@ -98,7 +102,7 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
     
     func pairFor(factory: EthereumAddress, tokenA: EthereumAddress, tokenB: EthereumAddress) throws -> EthereumAddress {
         let (token0, token1) = try sortTokens(tokenA: tokenA, tokenB: tokenB)
-        guard let initCodeHash = UniswapV2PairHash[self.name] else { // UniswapV2 Pair init code hash
+        guard let initCodeHash = UniswapV2PairHash[UniType(rawValue: self.name) ?? .uniswap] else { // UniswapV2 Pair init code hash
             throw UniswapV2Error.pairForEncodeIssue
         }
         
@@ -128,10 +132,10 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
             }
         }
         
-        guard let reserve0 = invocation["reserve0"] as? Web3BigInt else {
+        guard let reserve0 = invocation["reserve0"] as? Web3BigUInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }
-        guard  let reserve1 = invocation["reserve1"] as? Web3BigInt else {
+        guard  let reserve1 = invocation["reserve1"] as? Web3BigUInt else {
             throw UniswapV2Error.getReserveIssue(computedPair)
         }
         
@@ -167,7 +171,7 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
 
     // MARK: - Methods
     
-    override func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, RequiredPriceInfo) {
+    func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: RequiredPriceInfo?) async throws -> (Quote, RequiredPriceInfo) {
         let tokenA = normalizeToken(token: tokenA)
         let tokenB = normalizeToken(token: tokenB)
 
@@ -194,7 +198,7 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         
         guard let maxAvailableAmount = maxAvailableAmount else {
             let quote = Quote(
-                exchangeName: self.name.rawValue,
+                exchangeName: self.name,
                 amount: .zero,
                 amountOut: .zero,
                 price: price,
@@ -216,7 +220,7 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         let transactionPrice = BigDouble(biTN, over: biTD)
         
         let quote = Quote(
-            exchangeName: self.name.rawValue,
+            exchangeName: self.name,
             amount: maxAvailableAmount,
             amountOut: _quoteOut,
             price: price,
@@ -229,27 +233,27 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
         return (quote, meta)
     }
     
-    override func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
+    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
         fatalError("Method not implemented")
     }
     
-    override func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
+    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
         fatalError("Method not implemented")
     }
     
-    override func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
         fatalError("Method not implemented")
     }
     
-    override func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
+    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
         fatalError("Method not implemented")
     }
     
-    override func balanceFor(token: Token) async throws -> Double {
+    func balanceFor(token: Token) async throws -> Double {
         fatalError("Method not implemented")
     }
     
-    override func computeInputForMaximizingTrade(truePriceTokenA: Euler.BigInt, truePriceTokenB: Euler.BigInt, meta: RequiredPriceInfo) -> Euler.BigInt {
+    func computeInputForMaximizingTrade(truePriceTokenA: Euler.BigInt, truePriceTokenB: Euler.BigInt, meta: RequiredPriceInfo) -> Euler.BigInt {
         let reserveA = meta.reserveA
         let reserveB = meta.reserveB
         
@@ -280,5 +284,11 @@ final class UniswapV2: Exchange<UniswapV2Router, UniswapV2.RequiredPriceInfo> {
 //        : reserveB - (invariant / (reserveA + amountOutA))
         
         return amountIn
+    }
+}
+
+extension UniswapV2 {
+    static func == (lhs: UniswapV2, rhs: UniswapV2) -> Bool {
+        return lhs.name == rhs.name
     }
 }

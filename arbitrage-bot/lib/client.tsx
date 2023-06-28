@@ -67,7 +67,13 @@ export class Client {
     }
 
     onMessage(event: MessageEvent) {
-        const message = JSON.parse(event.data);
+        let message;
+        try {
+            message = JSON.parse(event.data);
+        } catch (e) {
+            console.log("Error parsing message", event.data);
+            return;
+        }
         switch (message.topic) {
             case "notify":
                 toast({

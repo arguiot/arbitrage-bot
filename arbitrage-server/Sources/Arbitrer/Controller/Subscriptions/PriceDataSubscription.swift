@@ -35,6 +35,9 @@ class PriceDataSubscription {
             }
             
             print("Dispatched prices in \(time.ms)ms")
+            
+            // Dispatch to front-end
+            PriceDataStoreWrapper.shared?.dispatch()
         }
     }
     

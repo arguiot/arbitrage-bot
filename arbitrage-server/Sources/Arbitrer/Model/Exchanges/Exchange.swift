@@ -13,13 +13,17 @@ struct Cost {
     var costInDollars: Double
 }
 
-public struct Token: Codable, Hashable, Sendable, Identifiable {
+public struct Token: Codable, Hashable, Sendable, Identifiable, Comparable {
     var name: String
     var address: EthereumAddress
     var decimals: Int?
     
     public var id: Int {
         return address.hashValue
+    }
+    
+    public static func < (lhs: Token, rhs: Token) -> Bool {
+        return lhs.address < rhs.address
     }
 }
 
@@ -42,58 +46,40 @@ struct ExchangeAdapter {
     static let uniswap = UniswapV2.self
 }
 
-class Exchange<Delegate, Meta>: Hashable {
-    static func == (lhs: Exchange<Delegate, Meta>, rhs: Exchange<Delegate, Meta>) -> Bool {
-        guard lhs.untyped.hashValue == rhs.untyped.hashValue else { return false }
-        return true
-    }
+protocol Exchange: Hashable {
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(untyped.hashValue)
-    }
+    associatedtype Delegate
+    associatedtype Meta
     
-    var type: ExchangeType = .dex // "dex" or "cex"
-    var trigger: PriceDataSubscriptionType = .ethereumBlock
-    var fee: Euler.BigInt { .zero }
+    var path: KeyPath<ExchangesList, ExchangeMetadata>! { get set }
+    var type: ExchangeType { get }
+    var trigger: PriceDataSubscriptionType { get }
+    var fee: Euler.BigInt { get }
     
-    var delegate: Delegate
+    var delegate: Delegate { get }
     
-    internal init(delegate: Delegate) {
-        self.delegate = delegate
-    }
     // Methods
     
     /// Returns the best quote for the maximum given amount of tokenA
-    func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta) {
-        fatalError("Not implemented");
-    }
+    func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta)
+    
     /// Returns the estimated time to execute a transaction
-    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int {
-        fatalError("Not implemented");
-    }
+    func estimateTransactionTime(tokenA: Token, tokenB: Token) async throws -> Int
     
     /// Returns the estimated cost to execute a transaction in dollars
-    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost {
-        fatalError("Not implemented");
-    }
+    func estimateTransactionCost(amountIn: Double, price: Double, tokenA: Token, tokenB: Token, direction: String) async throws -> Cost
     
     /// Buy with fixed input
     /// Buys an exact amount of tokens for another token
-    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
-        fatalError("Not implemented");
-    }
+    func buyAtMaximumOutput(amountIn: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt
     
     /// Buy with fixed output
     /// Buys an exact amount of tokens for another token
-    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt {
-        fatalError("Not implemented");
-    }
+    func buyAtMinimumInput(amountOut: Double, path: [Token], to: String, deadline: Int, nonce: Int?) async throws -> Receipt
     
     // Balance methods
     /// Returns the liquidity for the given token
-    func balanceFor(token: Token) async throws -> Double {
-        fatalError("Not implemented");
-    }
+    func balanceFor(token: Token) async throws -> Double
     
     // Math
     
@@ -107,25 +93,35 @@ class Exchange<Delegate, Meta>: Hashable {
         truePriceTokenA: Euler.BigInt,
         truePriceTokenB: Euler.BigInt,
         meta: Meta
-    ) -> Euler.BigInt {
-        fatalError("Not implemented");
-    }
+    ) -> Euler.BigInt
+    
+    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote
 }
 
 extension Exchange {
+    static func == (lhs: any Exchange, rhs: any Exchange) -> Bool {
+        guard lhs.hashValue == rhs.hashValue else { return false }
+        return true
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.path.hashValue)
+    }
+    
     func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote {
         let (quote, meta) = try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
         
         // Store in PriceDataStore
         if let store = PriceDataStoreWrapper.shared {
-            let reserveFee = ReserveFeeInfo<Meta>(exchange: self.untyped, meta: meta, spot: quote.transactionPrice, fee: self.fee)
-            await store.adjacencyList.insert(tokenA: tokenA, tokenB: tokenB, info: reserveFee as! ReserveFeeInfo<Any>)
+            let key: PartialKeyPath = self.path.appending(path: \.exchange)
+            
+            let reserveFee = ReserveFeeInfo(exchangeKey: key as! KeyPath<ExchangesList, any Exchange>,
+                                            meta: meta,
+                                            spot: quote.transactionPrice.asDouble() ?? 0, fee: self.fee)
+            await store.adjacencyList.insert(tokenA: tokenA, tokenB: tokenB, info: reserveFee)
         }
         
         return quote
     }
-    
-    var untyped: AnyExchange {
-        return AnyExchange(self)
-    }
+
 }

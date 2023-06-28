@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		6809AFA72A486FB100A89952 /* uSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68DCBEFF2A45D420007DCB50 /* uSockets.a */; };
-		683FF8502A49B8410010DB3F /* Exchangeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 683FF84F2A49B8410010DB3F /* Exchangeable.swift */; };
 		6842921C2A45A1120043EF2F /* Euler in Frameworks */ = {isa = PBXBuildFile; productRef = 6842921B2A45A1120043EF2F /* Euler */; };
 		6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */; };
 		684292202A45A9180043EF2F /* arbitrager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842921F2A45A9180043EF2F /* arbitrager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		684292292A45AAA70043EF2F /* FastSockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 684292282A45AAA70043EF2F /* FastSockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6842922F2A45AAE40043EF2F /* libuwebsockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6894020D2A4C2B6A0089D4AA /* negate_log.c in Sources */ = {isa = PBXBuildFile; fileRef = 6894020C2A4C2B6A0089D4AA /* negate_log.c */; };
 		68B34C762A498E09000548B6 /* PriceDataStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68B34C752A498E09000548B6 /* PriceDataStoreWrapper.swift */; };
 		68DCBF032A45DEC3007DCB50 /* libuwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842922E2A45AAE40043EF2F /* libuwebsockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF0B2A45E0B8007DCB50 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DCBF0A2A45E0B8007DCB50 /* main.c */; };
@@ -123,7 +123,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		683FF84F2A49B8410010DB3F /* Exchangeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exchangeable.swift; sourceTree = "<group>"; };
 		6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitragerInterface.swift; sourceTree = "<group>"; };
 		6842921F2A45A9180043EF2F /* arbitrager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = arbitrager.h; sourceTree = "<group>"; };
 		684292262A45AAA60043EF2F /* FastSockets.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FastSockets.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +130,8 @@
 		6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = libuwebsockets.cpp; sourceTree = "<group>"; };
 		6842922E2A45AAE40043EF2F /* libuwebsockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libuwebsockets.h; sourceTree = "<group>"; };
 		68832F352A4752D400607523 /* libusockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libusockets.h; sourceTree = "<group>"; };
+		6894020B2A4C2B6A0089D4AA /* negate_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = negate_log.h; sourceTree = "<group>"; };
+		6894020C2A4C2B6A0089D4AA /* negate_log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = negate_log.c; sourceTree = "<group>"; };
 		68B34C752A498E09000548B6 /* PriceDataStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataStoreWrapper.swift; sourceTree = "<group>"; };
 		68DCBEFF2A45D420007DCB50 /* uSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = uSockets.a; path = FastSockets/uWebSockets/uSockets/uSockets.a; sourceTree = "<group>"; };
 		68DCBF082A45E0B8007DCB50 /* Arbitrage Demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Arbitrage Demo"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -240,6 +241,8 @@
 			children = (
 				68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */,
 				68DCBF0A2A45E0B8007DCB50 /* main.c */,
+				6894020B2A4C2B6A0089D4AA /* negate_log.h */,
+				6894020C2A4C2B6A0089D4AA /* negate_log.c */,
 			);
 			path = "Arbitrage Demo";
 			sourceTree = "<group>";
@@ -351,7 +354,6 @@
 			children = (
 				68F6FC922A459DFE00E828DB /* Quote.swift */,
 				68F6FC932A459DFE00E828DB /* Exchange.swift */,
-				683FF84F2A49B8410010DB3F /* Exchangeable.swift */,
 			);
 			path = Exchanges;
 			sourceTree = "<group>";
@@ -632,6 +634,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6894020D2A4C2B6A0089D4AA /* negate_log.c in Sources */,
 				68DCBF0B2A45E0B8007DCB50 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -645,7 +648,6 @@
 				68F6FCB12A459DFE00E828DB /* Exchanges.swift in Sources */,
 				68F6FCB22A459DFE00E828DB /* Credentials.swift in Sources */,
 				68F6FCBB2A459DFF00E828DB /* ReserveFeeInfo.swift in Sources */,
-				683FF8502A49B8410010DB3F /* Exchangeable.swift in Sources */,
 				6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */,
 				68F6FCAD2A459DFE00E828DB /* AnyEncodable.swift in Sources */,
 				68FE7D4B2A4B10FD00D3A706 /* BigUInt+Euler.swift in Sources */,
@@ -1004,6 +1006,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
+				MERGEABLE_LIBRARY = YES;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.PyratzLabs.Arbitrage-Bot";
@@ -1050,6 +1053,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
+				MERGEABLE_LIBRARY = YES;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.PyratzLabs.Arbitrage-Bot";

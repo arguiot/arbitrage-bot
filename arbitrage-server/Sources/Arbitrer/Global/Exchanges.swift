@@ -18,29 +18,89 @@ struct ExchangeInfo: Codable {
     var testnet: Bool? = nil
 }
 
-let ExchangesList = [
-    BotRequest.Environment.development: [
-        "uniswap": UniswapV2(
-            name: .uniswap,
+struct ExchangeMetadata {
+    let name: String
+    var exchange: any Exchange
+    var path: KeyPath<ExchangesList, Self>! = nil {
+        didSet {
+            exchange.path = path
+        }
+    }
+    
+    init(name: String, exchange: any Exchange) {
+        self.name = name
+        self.exchange = exchange
+    }
+}
+
+struct ExchangesList {
+    static let shared = ExchangesList()
+    
+    struct Development {
+        var uniswap = ExchangeMetadata(name: "uniswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
             factory: try! EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
-        ),
-        "pancakeswap": UniswapV2(
-            name: .pancakeswap,
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false),
+            fee: 3
+        ))
+        
+        var pancakeswap = ExchangeMetadata(name: "pancakeswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", eip55: false),
             factory: try! EthereumAddress(hex: "0x6725F303b657a9451d8BA641348b6761A6CC7a17", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
-        ),
-        "apeswap": UniswapV2(
-            name: .apeswap,
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false),
+            fee: 2
+        ))
+        
+        var apeswap = ExchangeMetadata(name: "apeswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B", eip55: false),
             factory: try! EthereumAddress(hex: "0x5722F3b02b9fe2003b3045D73E9230684707B257", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false)
-        ),
-    ],
-    BotRequest.Environment.production: [:]
-]
+            coordinator: try! EthereumAddress(hex: "0x6db4fa64f67AADc606deFAFA8106E83113d2f730", eip55: false),
+            fee: 3
+        ))
+        
+        init() {
+            uniswap.path = \.development.uniswap
+            pancakeswap.path = \.development.pancakeswap
+            apeswap.path = \.development.apeswap
+        }
+
+        subscript(key: String) -> (any Exchange)? {
+            let mirror = Mirror(reflecting: self)
+            for child in mirror.children {
+                if child.label == key {
+                    guard let meta = child.value as? ExchangeMetadata else { return nil }
+                    return meta.exchange
+                }
+            }
+            return nil
+        }
+    }
+
+    struct Production {
+        subscript(key: String) -> (any Exchange)? {
+            let mirror = Mirror(reflecting: self)
+            for child in mirror.children {
+                if child.label == key {
+                    guard let meta = child.value as? ExchangeMetadata else { return nil }
+                    return meta.exchange
+                }
+            }
+            return nil
+        }
+    }
+    
+    subscript(environment: BotRequest.Environment, name: String) -> (any Exchange)? {
+        switch environment {
+        case .development:
+            return development[name]
+        case .production:
+            return production[name]
+        }
+    }
+    
+    let development = Development()
+    let production = Production()
+}
 
 // MARK: - Uniswap V2 Constants
 let UniswapV2PairHash: [UniType: [UInt8]] = [
@@ -50,7 +110,9 @@ let UniswapV2PairHash: [UniType: [UInt8]] = [
 ]
 
 enum UniType: String {
-    case apeswap, pancakeswap, uniswap
+    case apeswap = "apeswap"
+    case pancakeswap = "pancakeswap"
+    case uniswap = "uniswap"
 }
 
 struct UniswapV2Exchange {

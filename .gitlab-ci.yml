@@ -1,4 +1,4 @@
-image: swift:5.8-focal
+image: sickcodes/docker-osx:naked
 
 stages:
   - test
@@ -6,5 +6,5 @@ stages:
 Test Arbitrage Server:
   stage: test
   script:
-    - cd arbitrage-server
-    - swift test
+    - cd arbitrage-bot
+    - xcodebuild test -scheme Arbitrage\ Bot -project Arbitrage-Bot.xcodeproj/

@@ -39,19 +39,16 @@ class CycleTests: XCTestCase {
         ].map { Token(name: $0, address: .zero) }
         
         let list = AdjacencyList()
-        
-        let exchange = ExchangesList[.development]!["uniswap"]!
+        let path = \ExchangesList.development.uniswap.exchange
+        let exchange = ExchangesList.shared[keyPath: path] as! UniswapV2
         
         let pass: ((Double) -> ReserveFeeInfo) = { rate in
             let reserveB = 100.eth.euler * BN(rate)
-            
-            return ReserveFeeInfo<Any>(exchange: exchange.untyped,
-                                  meta: UniswapV2.RequiredPriceInfo(routerAddress: exchange.delegate.address!,
-                                                                    factoryAddress: exchange.factory,
-                                                                    reserveA: 100.eth.euler,
-                                                                    reserveB: reserveB.rounded()),
-                                       spot: BN(rate),
-                                  fee: exchange.fee)
+            let meta = UniswapV2.RequiredPriceInfo(routerAddress: exchange.delegate.address!,
+                                                   factoryAddress: exchange.factory,
+                                                   reserveA: 100.eth.euler,
+                                                   reserveB: reserveB.rounded())
+            return ReserveFeeInfo(exchangeKey: path, meta: meta, spot: rate, fee: exchange.fee)
         }
         
         for tokenId in 0..<tokens.count {
@@ -63,21 +60,9 @@ class CycleTests: XCTestCase {
                 await list.insert(tokenA: tokens[tokenId2], tokenB: tokens[tokenId], info: outRates[tokenId2])
             }
         }
-        var cycles = [[Token]]()
         
-        self.measure {
-            let sema = DispatchSemaphore(value: 0)
-            Task {
-                cycles = await list.findArbitrage(tokens: tokens)
-                
-                sema.signal()
-            }
-            sema.wait()
-        }
-        cycles.forEach { cycle in
-            print(cycle.map(\.name).joined(separator: "->"))
-        }
-        XCTAssert(cycles.count > 0)
+        let snapshot = await list.spotPicture
+        XCTAssertEqual(snapshot, rates.flatten() as! [Double])
     }
     
 }

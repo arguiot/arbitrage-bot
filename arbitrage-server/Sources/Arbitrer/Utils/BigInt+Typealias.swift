@@ -9,3 +9,4 @@ import Foundation
 import BigInt
 
 typealias Web3BigInt = BigInt
+typealias Web3BigUInt = BigUInt
