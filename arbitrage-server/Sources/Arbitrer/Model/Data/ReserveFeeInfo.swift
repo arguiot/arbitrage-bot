@@ -9,33 +9,41 @@ import Foundation
 import Euler
 
 
-struct ReserveFeeInfo {
+struct ReserveFeeInfo: CustomStringConvertible {
     let exchangeKey: KeyPath<ExchangesList, any Exchange>
     var exchange: any Exchange {
         ExchangesList.shared[keyPath: self.exchangeKey]
     }
-    let meta: Any
-    let _spot: Double
     
-    var spot: Double {
-        swap ? 1 / _spot : _spot
+    let tokenA: Token
+    let tokenB: Token
+    
+    let meta: Any
+    
+    var spotAB: Double? = nil
+    var spotBA: Double? = nil
+    
+    func spot(_ tokenA: Token, _ tokenB: Token) -> Double? {
+        tokenA < tokenB ? spotAB : spotBA
     }
     
     let fee: BigInt
-    var swap: Bool = false
     
-    init(exchangeKey: KeyPath<ExchangesList, any Exchange>, meta: Any, spot: Double, fee: BigInt) {
+    init(exchangeKey: KeyPath<ExchangesList, any Exchange>, meta: Any, spot: Double, tokenA: Token, tokenB: Token, fee: BigInt) {
         self.exchangeKey = exchangeKey
         self.meta = meta
-        self._spot = spot
+        self.spotAB = tokenA < tokenB ? spot : self.spotAB
+        self.spotBA = tokenB < tokenA ? spot : self.spotBA
         self.fee = fee
+        self.tokenA = tokenA < tokenB ? tokenA : tokenB
+        self.tokenB = tokenA < tokenB ? tokenB : tokenA
     }
     
-    func calculatedQuote(with amount: BigInt?, tokenA: Token, tokenB: Token) async throws -> Quote {
+    func calculatedQuote(with amount: BigInt?, aToB: Bool = true) async throws -> Quote {
         return try await ReserveFeeInfo.calculatedQuote(for: self.exchange,
                                                         with: amount,
-                                                        tokenA: tokenA,
-                                                        tokenB: tokenB,
+                                                        tokenA: aToB ? tokenA : tokenB,
+                                                        tokenB: aToB ? tokenB : tokenA,
                                                         using: self.meta)
     }
     
@@ -45,5 +53,9 @@ struct ReserveFeeInfo {
                                        tokenB: tokenB,
                                        maximizeB: true,
                                            meta: meta as? T.Meta).0
+    }
+    
+    public var description: String {
+        return "\(ExchangesList.shared[keyPath: exchange.path].name) - \((spotAB ?? 1 / (spotBA ?? 0)))"
     }
 }

@@ -24,7 +24,7 @@
 #endif
 #endif
 
-void calculate_neg_log(double* in_data, double* out_data, int count);
+void calculate_neg_log(const double* in_data, double* out_data, int count);
 
 #endif // _NEGATIVE_LOG_H_
 

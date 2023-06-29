@@ -211,8 +211,8 @@ PriceDataStore *create_store(void) {
 void pipe_function(PriceDataStore *dataStore) {
     socket_data_base->server->dataStore = dataStore;
     // Bind the on_tick callback to the data store
-    attach_tick_price_data_store(^(const double * _Nonnull array, int size) {
-        dataStore->on_tick(array, size);
+    attach_tick_price_data_store(^(const double * _Nonnull array, const CToken * _Nonnull tokens, int size) {
+        dataStore->on_tick(array, tokens, size);
     });
 }
 

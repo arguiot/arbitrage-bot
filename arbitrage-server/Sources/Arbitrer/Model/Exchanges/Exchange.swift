@@ -13,20 +13,6 @@ struct Cost {
     var costInDollars: Double
 }
 
-public struct Token: Codable, Hashable, Sendable, Identifiable, Comparable {
-    var name: String
-    var address: EthereumAddress
-    var decimals: Int?
-    
-    public var id: Int {
-        return address.hashValue
-    }
-    
-    public static func < (lhs: Token, rhs: Token) -> Bool {
-        return lhs.address < rhs.address
-    }
-}
-
 extension EthereumAddress: @unchecked Sendable {}
 
 struct Receipt {
@@ -114,10 +100,18 @@ extension Exchange {
         // Store in PriceDataStore
         if let store = PriceDataStoreWrapper.shared {
             let key: PartialKeyPath = self.path.appending(path: \.exchange)
-            
-            let reserveFee = ReserveFeeInfo(exchangeKey: key as! KeyPath<ExchangesList, any Exchange>,
+            guard let tP = quote.transactionPrice.asDouble() else { throw EvaluationError.ImpossibleOperation }
+            var reserveFee = ReserveFeeInfo(exchangeKey: key as! KeyPath<ExchangesList, any Exchange>,
                                             meta: meta,
-                                            spot: quote.transactionPrice.asDouble() ?? 0, fee: self.fee)
+                                            spot: tP,
+                                            tokenA: tokenA,
+                                            tokenB: tokenB,
+                                            fee: self.fee)
+            if tokenA < tokenB {
+                reserveFee.spotBA = 1 / tP
+            } else {
+                reserveFee.spotAB = 1 / tP
+            }
             await store.adjacencyList.insert(tokenA: tokenA, tokenB: tokenB, info: reserveFee)
         }
         

@@ -11,12 +11,19 @@
 #define FRONT_ARBITRAGE_H
 
 #include <stdbool.h>
+#include <stdint.h>
 // Main function to start the server
+
+// Token
+typedef struct {
+    const char *name;
+    const unsigned char *address; // UInt8
+} CToken;
 
 // Server system
 typedef struct {
     void *wrapper;
-    void (*on_tick)(const double* rates, int size);
+    void (*on_tick)(const double* rates, const CToken* tokens, int size);
 } PriceDataStore;
 
 typedef struct {

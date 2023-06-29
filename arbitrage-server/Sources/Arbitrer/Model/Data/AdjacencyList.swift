@@ -13,11 +13,13 @@ actor AdjacencyList {
         let tokenB: Token
         
         init(_ tokenA: Token, _ tokenB: Token) {
-            self.tokenA = tokenA
-            self.tokenB = tokenB
+            let (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA)
+            
+            self.tokenA = token0
+            self.tokenB = token1
         }
     }
-    internal var prices: [Int: [Int: ReserveFeeInfo]]
+    internal var prices: [Pair: [Int: ReserveFeeInfo]]
     internal var tokens: [Token]
     
     init() {
@@ -26,7 +28,7 @@ actor AdjacencyList {
     }
     
     func insert(tokenA: Token, tokenB: Token, info: ReserveFeeInfo) {
-        let (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA)
+        let (token0, token1) = (info.tokenA, info.tokenB)
         var queue = [token0, token1].filter { !self.tokens.contains($0) }
         var i = 0
         while !queue.isEmpty {
@@ -36,22 +38,35 @@ actor AdjacencyList {
             }
             i += 1
         }
-        guard let row: Int = tokens.firstIndex(of: token0) else { fatalError("Unexpected error while inserting") }
-        guard let col: Int = tokens.firstIndex(of: token1) else { fatalError("Unexpected error while inserting") }
         
-        let firstN = row * (row + 1) / 2
-        let index = firstN + 1 + col
+        let index = Pair(token0, token1)
         
         if prices[index] == nil {
             prices[index] = [:]
         }
         
-        var info = info
+        var oldInfo = prices[index]?[info.exchangeKey.hashValue] ?? info
         
-        if token0 != tokenA {
-            info.swap = true
+        if tokenA < tokenB {
+            oldInfo.spotAB = info.spotAB ?? oldInfo.spotAB
+        } else {
+            oldInfo.spotBA = info.spotBA ?? oldInfo.spotBA
         }
-        prices[index]?[info.exchangeKey.hashValue] = info
+        
+        prices[index]?[info.exchangeKey.hashValue] = oldInfo
+    }
+    
+    func getPrice(tokenA: Token, tokenB: Token) -> Double {
+        guard tokenA != tokenB else { return 1 }
+        
+        let index = Pair(tokenA, tokenB)
+        let aToB = index.tokenA == tokenA
+        
+        guard let infos = prices[index]?.values else { return .infinity }
+        let price = infos.map { info in
+            return (aToB ? info.spotAB : info.spotBA) ?? 0
+        }.reduce(0, { max($0, $1) })
+        return price
     }
     
     var spotPicture: [Double] {
@@ -60,32 +75,11 @@ actor AdjacencyList {
         
         var flattenConversionRates = Array(repeating: Double.infinity, count: size * size)
         
-        func findRow(k: Int) -> Int {
-            var sum = 0
-            var row = 0
+        for i in 0..<flattenConversionRates.count {
+            let row = i / size
+            let col = i % size
             
-            while sum < k {
-                row += 1
-                sum += row
-            }
-            return row - 1 // 0-based index
-        }
-        
-        for (index, exchanges) in prices {
-            let (minSpot, maxSpot) = exchanges.values.reduce((.infinity, 0), { (min($0.0, $1.spot), max($0.1, $1.spot)) })
-            
-            let row = findRow(k: index)
-            let col = index - row - 1
-            
-            let computedLowerIndex = row * size + col
-            let computedUpperIndex = col * size + row
-            
-            flattenConversionRates[computedLowerIndex] = maxSpot
-            flattenConversionRates[computedUpperIndex] = 1 / minSpot
-        }
-        
-        for i in 0..<tokens.count {
-            flattenConversionRates[(tokens.count + 1) * i] = 1
+            flattenConversionRates[i] = getPrice(tokenA: tokens[row], tokenB: tokens[col])
         }
         
         return flattenConversionRates

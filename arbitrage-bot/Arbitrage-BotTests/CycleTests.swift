@@ -18,50 +18,67 @@ class CycleTests: XCTestCase {
         Environment.shared["WALLET_PRIVATE_KEY"] = try EthereumPrivateKey().hex()
     }
 
-    
-    func testExample() async throws {
-        let rates: [[Double]] = [
-            [1,0.23,0.25,16.43,18.21,4.94],
-            [4.34,1,1.11,71.4,79.09,21.44],
-            [3.93,0.9,1,64.52,71.48,19.37],
-            [0.061,0.014,0.015,1,1.11,0.3],
-            [0.055,0.013,0.014,0.9,1,0.27],
-            [0.2,0.047,0.052,3.33,3.69,1]
-        ]
+    func generateExchangeMatrix(size: Int) -> [[Double]] {
         
-        let tokens = [
-            "CHF",
-            "EUR",
-            "USD",
-            "GBP",
-            "YEN",
-            "CAD"
-        ].map { Token(name: $0, address: .zero) }
+        var matrix = Array(repeating: Array(repeating: 0.0, count: size), count: size)
+        
+        for i in 0..<size {
+            for j in 0..<size {
+                if i == j {
+                    // The exchange rate for the same currency is 1
+                    matrix[i][j] = 1.0
+                } else if i < j {
+                    // Generate a random exchange rate between 0.1 and 10
+                    let rate = Double.random(in: 0.1...10)
+                    matrix[i][j] = rate
+                    
+                    // Generate a reciprocal rate with ±5% variation
+                    let variation = 1.0 + Double.random(in: -0.05...0.05)
+                    let reciprocalRate = (1.0 / rate) * variation
+                    
+                    matrix[j][i] = reciprocalRate
+                }
+            }
+        }
+        
+        return matrix
+    }
+    
+    func testSnapshot() async throws {
+        let rates: [[Double]] = generateExchangeMatrix(size: 200)
+        
+        let tokens = (0..<rates.count).map { Token(name: "TK\($0 + 1)", address: .init($0 + 1)) }
         
         let list = AdjacencyList()
         let path = \ExchangesList.development.uniswap.exchange
         let exchange = ExchangesList.shared[keyPath: path] as! UniswapV2
         
-        let pass: ((Double) -> ReserveFeeInfo) = { rate in
+        let pass: ((Double, Token, Token) -> ReserveFeeInfo) = { rate, tokenA, tokenB in
             let reserveB = 100.eth.euler * BN(rate)
             let meta = UniswapV2.RequiredPriceInfo(routerAddress: exchange.delegate.address!,
                                                    factoryAddress: exchange.factory,
                                                    reserveA: 100.eth.euler,
                                                    reserveB: reserveB.rounded())
-            return ReserveFeeInfo(exchangeKey: path, meta: meta, spot: rate, fee: exchange.fee)
+            return ReserveFeeInfo(exchangeKey: path, meta: meta, spot: rate, tokenA: tokenA, tokenB: tokenB, fee: exchange.fee)
         }
         
         for tokenId in 0..<tokens.count {
-            let inRates = rates[tokenId].map(pass)
-            let outRates = rates.map { $0[tokenId] }.map(pass)
+            let inRates = rates[tokenId][0..<tokenId].enumerated()
+                .map { pass($0.element, tokens[tokenId], tokens[$0.offset]) }
+            let outRates = rates.map { $0[tokenId] }[0..<tokenId].enumerated()
+                .map{ pass($0.element, tokens[$0.offset], tokens[tokenId]) }
             
             for tokenId2 in 0..<inRates.count {
                 await list.insert(tokenA: tokens[tokenId], tokenB: tokens[tokenId2], info: inRates[tokenId2])
                 await list.insert(tokenA: tokens[tokenId2], tokenB: tokens[tokenId], info: outRates[tokenId2])
             }
         }
+
+        var snapshot = [Double]()
+        self.measureAsync {
+            snapshot = await list.spotPicture
+        }
         
-        let snapshot = await list.spotPicture
         XCTAssertEqual(snapshot, rates.flatten() as! [Double])
     }
     

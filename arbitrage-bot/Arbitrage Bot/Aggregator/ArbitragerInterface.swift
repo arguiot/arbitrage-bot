@@ -17,11 +17,17 @@ import Foundation
 //}
 
 @_cdecl("attach_tick_price_data_store")
-public func attachTick(callback: @escaping (UnsafePointer<Double>, CInt) -> Void) {
-    PriceDataStoreWrapper.shared?.callback = { array in
-        array.withUnsafeBufferPointer { cArray in
-            guard let base = cArray.baseAddress else { return }
-            callback(base, CInt(cArray.count))
+public func attachTick(callback: @escaping (UnsafePointer<Double>, UnsafePointer<CToken>, CInt) -> Void) {
+    PriceDataStoreWrapper.shared?.callback = { array, tokens in
+        
+        tokens
+            .map { CToken(name: strdup($0.name), address: $0.address.rawAddress) }
+            .withUnsafeBufferPointer { cTokens in
+            guard let baseToken = cTokens.baseAddress else { return }
+            array.withUnsafeBufferPointer { cArray in
+                guard let base = cArray.baseAddress else { return }
+                callback(base, baseToken, CInt(cTokens.count))
+            }
         }
     }
 }

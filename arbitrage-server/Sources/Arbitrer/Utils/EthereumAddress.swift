@@ -10,6 +10,26 @@ import Web3
 
 extension EthereumAddress {
     static let zero = try! EthereumAddress(hex: "0x0000000000000000000000000000000000000000", eip55: false)
+    static var random: EthereumAddress {
+        guard let random = try? EthereumPrivateKey() else { return .zero }
+        return random.address
+    }
+    
+    init(_ n: Int) {
+        // First we map n into an array of [UInt8]
+        var bytes = [UInt8]()
+        var n = n
+        while n > 0 {
+            bytes.append(UInt8(n % 256))
+            n /= 256
+        }
+        // Then we pad it with zeros to make it 20 bytes long
+        while bytes.count < 20 {
+            bytes.append(0)
+        }
+        // Then we create an EthereumAddress from it
+        try! self.init(bytes)
+    }
 }
 
 extension EthereumAddress: Comparable {

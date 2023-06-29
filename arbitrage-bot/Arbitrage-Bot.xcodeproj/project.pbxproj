@@ -22,6 +22,8 @@
 		68DCBF102A45E710007DCB50 /* FastSockets.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		68DCBF142A45E734007DCB50 /* Arbitrage_Bot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; };
 		68DCBF152A45E734007DCB50 /* Arbitrage_Bot.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		68F342382A4D8DCF002AC4B8 /* XCTest+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */; };
+		68F3423A2A4DAD87002AC4B8 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F342392A4DAD87002AC4B8 /* Token.swift */; };
 		68F6FC6E2A459DA500E828DB /* Arbitrage_Bot.docc in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */; };
 		68F6FC742A459DA500E828DB /* Arbitrage_Bot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; };
 		68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC782A459DA500E828DB /* CycleTests.swift */; };
@@ -137,6 +139,8 @@
 		68DCBF082A45E0B8007DCB50 /* Arbitrage Demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Arbitrage Demo"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68DCBF0A2A45E0B8007DCB50 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Arbitrage Demo.entitlements"; sourceTree = "<group>"; };
+		68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Utils.swift"; sourceTree = "<group>"; };
+		68F342392A4DAD87002AC4B8 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Arbitrage_Bot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot.h; sourceTree = "<group>"; };
 		68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Arbitrage_Bot.docc; sourceTree = "<group>"; };
@@ -286,6 +290,7 @@
 			isa = PBXGroup;
 			children = (
 				68F6FC782A459DA500E828DB /* CycleTests.swift */,
+				68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */,
 			);
 			path = "Arbitrage-BotTests";
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 			children = (
 				68F6FC922A459DFE00E828DB /* Quote.swift */,
 				68F6FC932A459DFE00E828DB /* Exchange.swift */,
+				68F342392A4DAD87002AC4B8 /* Token.swift */,
 			);
 			path = Exchanges;
 			sourceTree = "<group>";
@@ -661,6 +667,7 @@
 				68F6FCC22A459DFF00E828DB /* PriceDataSubscriber.swift in Sources */,
 				68F6FCBE2A459DFF00E828DB /* PriceDataSubscription.swift in Sources */,
 				68F6FCB52A459DFE00E828DB /* UniswapV2Router.swift in Sources */,
+				68F3423A2A4DAD87002AC4B8 /* Token.swift in Sources */,
 				68F6FCB82A459DFE00E828DB /* BotRequest.swift in Sources */,
 				68F6FCBC2A459DFF00E828DB /* CycleArbtirage.swift in Sources */,
 				68F6FCB02A459DFE00E828DB /* Pairs.swift in Sources */,
@@ -682,6 +689,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				68F342382A4D8DCF002AC4B8 /* XCTest+Utils.swift in Sources */,
 				68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
