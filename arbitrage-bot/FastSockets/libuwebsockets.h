@@ -26,7 +26,11 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#ifdef XCODEBUILD
 #include <FastSockets/libusockets.h>
+#else
+#include "libusockets.h"
+#endif
 
 #ifdef __cplusplus
 extern "C"

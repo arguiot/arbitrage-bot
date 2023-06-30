@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define XCODEBUILD
+
 //! Project version number for FastSockets.
 FOUNDATION_EXPORT double FastSocketsVersionNumber;
 

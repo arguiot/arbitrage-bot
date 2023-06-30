@@ -5,9 +5,14 @@
 //  Created by Arthur Guiot on 23/06/2023.
 //
 
-#import "arbitrager.h"
+#import "include/arbitrager.h"
+#if XCODEBUILD
 #import <Arbitrage_Bot/Arbitrage_Bot-Swift.h>
 #import <FastSockets/FastSockets.h>
+#else
+@import Aggregator;
+@import FastSockets;
+#endif
 
 #define SSL 0
 
@@ -211,8 +216,38 @@ PriceDataStore *create_store(void) {
 void pipe_function(PriceDataStore *dataStore) {
     socket_data_base->server->dataStore = dataStore;
     // Bind the on_tick callback to the data store
-    attach_tick_price_data_store(^(const double * _Nonnull array, const CToken * _Nonnull tokens, int size) {
-        dataStore->on_tick(array, tokens, size);
+    attach_tick_price_data_store(^(const double * _Nonnull array, NSArray<ObjCToken *> * _Nonnull tokens) {
+        size_t size = tokens.count;
+        CToken *cTokens = malloc(sizeof(CToken) * size);
+        
+        for (size_t i = 0; i < size; i++) {
+            ObjCToken *token = tokens[i];
+            NSUInteger nameCount = token.name.count;
+            NSUInteger addressCount = token.address.count;
+            
+            char *name = (char *)malloc(sizeof(char) * nameCount);
+            unsigned char *address = (unsigned char *)malloc(sizeof(unsigned char) * addressCount);
+            
+            for (size_t j = 0; j < nameCount; j++) {
+                name[j] = (char)[token.name[j] intValue];
+            }
+            for (size_t j = 0; j < addressCount; j++) {
+                address[j] = (unsigned char)[token.address[j] intValue];
+            }
+            
+            CToken cToken;
+            cToken.name = name;
+            cToken.address = address;
+            cTokens[i] = cToken;
+        }
+        
+        dataStore->on_tick(array, cTokens, size);
+        
+        // Don't forget to free allocated memory
+        for (size_t i = 0; i < size; i++) {
+            free((void *)cTokens[i].name);
+            free((void *)cTokens[i].address);
+        }
     });
 }
 

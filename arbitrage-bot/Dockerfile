@@ -6,11 +6,10 @@ FROM swift:5.8.1 as build
 # Install OS updates and, if needed, sqlite3
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
-    && apt-get -y install sudo curl
+    && apt install -y \
+      make \
+      build-essential
 
-RUN git clone https://github.com/gnustep/libs-xcode \
-	&& cd libs-xcode \
-	&& .github/scripts/build.sh
 
 
 # Set up a build area
@@ -20,7 +19,7 @@ WORKDIR /build
 COPY . .
 
 # Build everything, with optimizations
-RUN ./build/bot
+RUN make && swift build -c release
 
 
 # # Switch to the staging area

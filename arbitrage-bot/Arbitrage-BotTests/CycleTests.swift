@@ -10,6 +10,9 @@ import Euler
 import Web3
 
 @testable import Arbitrage_Bot
+#if canImport(Aggregator)
+@testable import Aggregator
+#endif
 
 class CycleTests: XCTestCase {
     
