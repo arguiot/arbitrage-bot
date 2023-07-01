@@ -84,15 +84,21 @@ actor RealtimeServerController {
 }
 
 
-@objc public class RealtimeServerControllerWrapper: NSObject {
+class RealtimeServerControllerWrapper {
+    // For simplicity in this example, I will assume that
+    // the callback takes a C string.
     private var serverController: RealtimeServerController
-
-    @objc public init(callback: @escaping (String) -> Void) {
-        serverController = RealtimeServerController(callback: callback)
-        super.init()
+    
+    init(userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
+        self.serverController = RealtimeServerController(callback: { message in
+            var message = message
+            message.withCString { cMessage in
+                callback(cMessage, UInt16(message.count),userData)
+            }
+        })
     }
     
-    @objc public func handleRequest(request: String, completion: @escaping (Error?) -> Void) {
+    public func handleRequest(request: String, completion: @escaping (Error) -> Void) {
         Task {
             do {
                 try await serverController.handleRequest(request: request)
@@ -101,4 +107,27 @@ actor RealtimeServerController {
             }
         }
     }
+}
+
+// To mimic a reference to the class we can use a Dictionary
+var controllers: [Int: RealtimeServerControllerWrapper] = [:]
+
+@_cdecl("create_realtime_server_controller")
+public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
+    let controller = RealtimeServerControllerWrapper(userData: userData, callback: callback)
+    let id = controllers.count
+    controllers[id] = controller
+    return id
+}
+
+@_cdecl("realtime_server_handle_request")
+public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size: Int) {
+    guard let controller = controllers[controllerId] else {
+        print("No controller found with this ID")
+        return
+    }
+    let requestString = String(cString: request).prefix(size)
+    controller.handleRequest(request: String(requestString), completion: { error in
+        print("Request failed: \(error)")
+    })
 }

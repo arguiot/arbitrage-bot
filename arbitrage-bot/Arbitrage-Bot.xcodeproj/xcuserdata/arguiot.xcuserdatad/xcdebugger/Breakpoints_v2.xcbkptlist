@@ -36,5 +36,68 @@
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A775DF1A-B798-4E57-A7F4-28D198B56EFF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Arbitrage Bot/Aggregator/Controller/RealtimeServerController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "handleRequest(request:completion:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "A775DF1A-B798-4E57-A7F4-28D198B56EFF - 8448e6949791abb0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.RealtimeServerControllerWrapper.handleRequest(request: Swift.String, completion: (Swift.Error) -&gt; ()) -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "102"
+                  endingLineNumber = "102"
+                  offsetFromSymbolStart = "164">
+               </Location>
+               <Location
+                  uuid = "A775DF1A-B798-4E57-A7F4-28D198B56EFF - c5253729ee5afe67"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable () async -&gt; () in Arbitrage_Bot.RealtimeServerControllerWrapper.handleRequest(request: Swift.String, completion: (Swift.Error) -&gt; ()) -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "102"
+                  endingLineNumber = "102"
+                  offsetFromSymbolStart = "100">
+               </Location>
+               <Location
+                  uuid = "A775DF1A-B798-4E57-A7F4-28D198B56EFF - d06fc27809a55381"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in Arbitrage_Bot.RealtimeServerControllerWrapper.handleRequest(request: Swift.String, completion: (Swift.Error) -&gt; ()) -&gt; ()"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/RealtimeServerController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "102"
+                  endingLineNumber = "102"
+                  offsetFromSymbolStart = "56">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

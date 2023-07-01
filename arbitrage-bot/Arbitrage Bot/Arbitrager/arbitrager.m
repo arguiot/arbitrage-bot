@@ -25,7 +25,7 @@ typedef struct
 } header_t;
 struct PerSocketData
 {
-    RealtimeServerControllerWrapper *controller;
+    int controller;
     Server *server;
 };
 
@@ -140,6 +140,13 @@ void upgrade_handler(uws_res_t *response, uws_req_t *request, uws_socket_context
     perform_upgrade(data);
 }
 
+void realtime_msg_forward(const char * _Nonnull message, uint16_t length, uws_websocket_t *ws) {
+    // Do something with the data.
+    
+    // As a simple example, let's just print it. Assume data is a NULL-terminated string for simplicity.
+    uws_ws_send(SSL, ws, message, length, TEXT);
+}
+
 void open_handler(uws_websocket_t *ws)
 {
     
@@ -149,27 +156,17 @@ void open_handler(uws_websocket_t *ws)
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     
     // Create an instance of RealtimeServerController
-    RealtimeServerControllerWrapper *controller =
-    [[RealtimeServerControllerWrapper alloc]
-     initWithCallback:^(NSString *message) {
-        // Handle the callback message
-        uws_ws_send(SSL, ws, [message UTF8String], [message length], TEXT);
-    }];
-    
+    int controller = create_realtime_server_controller(realtime_msg_forward, ws);
+
     data->controller = controller;
 }
 
 void message_handler(uws_websocket_t *ws, const char *message, size_t length, uws_opcode_t opcode)
 {
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
-    RealtimeServerControllerWrapper *controller = data->controller;
+    int controller = data->controller;
 
-    NSString *request = [[NSString alloc] initWithBytes:message length:length encoding:NSUTF8StringEncoding];
-
-    [controller handleRequestWithRequest:request
-                           completion:^(NSError *result) {
-                             NSLog(@"Request failed: %@", result);
-                           }];
+    realtime_server_handle_request(controller, message, length);
 }
 
 void close_handler(uws_websocket_t *ws, int code, const char *message, size_t length)
