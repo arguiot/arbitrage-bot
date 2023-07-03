@@ -84,4 +84,47 @@ class CycleTests: XCTestCase {
         XCTAssertEqual(snapshot, rates.flatten() as! [Double])
     }
     
+    func testBuilder() async throws {
+        let rates: [[Double]] = generateExchangeMatrix(size: 200)
+        
+        let tokens = (0..<rates.count).map { Token(name: "TK\($0 + 1)", address: .init($0 + 1)) }
+        
+        let list = AdjacencyList()
+        let path = \ExchangesList.development.uniswap.exchange
+        let exchange = ExchangesList.shared[keyPath: path] as! UniswapV2
+        
+        let pass: ((Double, Token, Token) -> ReserveFeeInfo) = { rate, tokenA, tokenB in
+            let reserveB = 100.eth.euler * BN(rate)
+            let meta = UniswapV2.RequiredPriceInfo(routerAddress: exchange.delegate.address!,
+                                                   factoryAddress: exchange.factory,
+                                                   reserveA: 100.eth.euler,
+                                                   reserveB: reserveB.rounded())
+            return ReserveFeeInfo(exchangeKey: path, meta: meta, spot: rate, tokenA: tokenA, tokenB: tokenB, fee: exchange.fee)
+        }
+        
+        for tokenId in 0..<tokens.count {
+            let inRates = rates[tokenId][0..<tokenId].enumerated()
+                .map { pass($0.element, tokens[tokenId], tokens[$0.offset]) }
+            let outRates = rates.map { $0[tokenId] }[0..<tokenId].enumerated()
+                .map{ pass($0.element, tokens[$0.offset], tokens[tokenId]) }
+            
+            for tokenId2 in 0..<inRates.count {
+                await list.insert(tokenA: tokens[tokenId], tokenB: tokens[tokenId2], info: inRates[tokenId2])
+                await list.insert(tokenA: tokens[tokenId2], tokenB: tokens[tokenId], info: outRates[tokenId2])
+            }
+        }
+        
+        let stepPath = [50, 25, 15, 4, 50]
+        self.measureAsync {
+            try? await list.buildSteps(from: stepPath)
+        }
+        let step = try await list.buildSteps(from: stepPath)
+        
+        let optimum = try! await step.optimalPrice()
+        
+        print(try await step.price(for: 2000000000))
+
+
+        XCTAssert(optimum.path.count == 5)
+    }
 }

@@ -8,7 +8,7 @@
 import Foundation
 import Euler
 import BigInt
-final class UniswapV2: Exchange {    
+final class UniswapV2: Exchange {
     typealias Delegate = UniswapV2Router
     
     typealias Meta = RequiredPriceInfo
@@ -147,12 +147,19 @@ final class UniswapV2: Exchange {
         reserveIn: Euler.BigInt,
         reserveOut: Euler.BigInt
     ) throws -> Euler.BigInt {
-        guard amountIn > 0 else { throw UniswapV2Error.insufficientInputAmount }
+        guard amountIn != 0 else { return .zero } // Zero in, zero out!
+        guard amountIn > 0 else {
+            throw UniswapV2Error.insufficientInputAmount
+        }
         guard reserveIn > 0 && reserveOut > 0 else { throw UniswapV2Error.insufficientLiquidity }
         let amountInWithFee = amountIn * (1_000 - fee)
         let numerator = amountInWithFee * reserveOut
         let denominator = reserveIn * BigInt(1_000) + amountInWithFee
         return numerator / denominator
+    }
+    
+    func getAmountOut(amountIn: Euler.BigInt, meta: RequiredPriceInfo) throws -> Euler.BigInt {
+        return try self.getAmountOut(amountIn: amountIn, reserveIn: meta.reserveA, reserveOut: meta.reserveB)
     }
     
     func getAmountIn(
@@ -189,12 +196,12 @@ final class UniswapV2: Exchange {
             reserveB: reserveB
         )
         
-        let biRN = Euler.BigInt(sign: false, words: reserveA.words.map { $0 })
-        let biRD = Euler.BigInt(sign: false, words: reserveB.words.map { $0 })
-        
-        let price = BigDouble(biRD, over: biRN)
-        
         guard let maxAvailableAmount = maxAvailableAmount else {
+            let biRN = Euler.BigInt(sign: false, words: reserveA.words.map { $0 })
+            let biRD = Euler.BigInt(sign: false, words: reserveB.words.map { $0 })
+            
+            let price = BigDouble(biRD, over: biRN)
+            
             let quote = Quote(
                 exchangeName: self.name,
                 amount: .zero,
@@ -216,6 +223,11 @@ final class UniswapV2: Exchange {
         let biTD = Euler.BigInt(sign: false, words: maxAvailableAmount.words.map { $0 })
         
         let transactionPrice = BigDouble(biTN, over: biTD)
+        
+        let biRN = Euler.BigInt(sign: false, words: reserveA.words.map { $0 })
+        let biRD = Euler.BigInt(sign: false, words: reserveB.words.map { $0 })
+        
+        let price = BigDouble(biRD, over: biRN)
         
         let quote = Quote(
             exchangeName: self.name,

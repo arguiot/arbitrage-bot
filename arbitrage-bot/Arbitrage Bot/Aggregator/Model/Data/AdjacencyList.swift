@@ -22,6 +22,8 @@ actor AdjacencyList {
     internal var prices: [Pair: [Int: ReserveFeeInfo]]
     internal var tokens: [Token]
     
+    let builder = Builder()
+    
     init() {
         prices = [:]
         tokens = []
@@ -67,6 +69,13 @@ actor AdjacencyList {
             return (aToB ? info.spotAB : info.spotBA) ?? 0
         }.reduce(0, { max($0, $1) })
         return price
+    }
+    
+    func getReserves(tokenA: Token, tokenB: Token) -> [ReserveFeeInfo]? {
+        let index = Pair(tokenA, tokenB)
+        guard let values = prices[index]?.values else { return nil }
+        guard values.count > 0 else { return nil }
+        return Array(values)
     }
     
     var spotPicture: [Double] {

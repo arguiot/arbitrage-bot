@@ -12,17 +12,17 @@ import Foundation
     
     @objc public static var shared: PriceDataStoreWrapper? = nil
     
-    var callback: (([Double], [Token]) -> Void)? = nil
+    var callback: (([Double], [Token], UInt32) -> Void)? = nil
     
     @objc static public func createStore() {
         self.shared = PriceDataStoreWrapper()
     }
     
-    func dispatch() {
+    func dispatch(time: UInt32) {
         guard let callback = self.callback else { return }
         Task {
             let spot = await self.adjacencyList.spotPicture // Take a picture of the price data store
-            await callback(spot, self.adjacencyList.tokens)
+            await callback(spot, self.adjacencyList.tokens, time)
         }
     }
 }

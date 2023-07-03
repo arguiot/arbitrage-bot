@@ -17,7 +17,7 @@ class PriceDataSubscription {
         subscribeToNewHeads()
     }
     
-    func dispatch(with type: PriceDataSubscriptionType) {
+    func dispatch(with type: PriceDataSubscriptionType, systemTime: UInt32) {
         guard subscriptions.activeSubscriptions.count > 0 else { return }
         Task {
             let clock = ContinuousClock()
@@ -36,7 +36,7 @@ class PriceDataSubscription {
             print("Dispatched prices in \(time.ms)ms")
             
             // Dispatch to front-end
-            PriceDataStoreWrapper.shared?.dispatch()
+            PriceDataStoreWrapper.shared?.dispatch(time: systemTime)
         }
     }
     
@@ -45,8 +45,10 @@ class PriceDataSubscription {
             try web3.eth.subscribeToNewHeads { resp in
                 print("Listening to new heads")
             } onEvent: { resp in
-                print("New block: \(resp.result?.number?.quantity ?? 0)")
-                self.dispatch(with: .ethereumBlock)
+                guard let blockNumber = resp.result?.number?.quantity else { return }
+                print("New block: \(blockNumber)")
+                let time = Int(blockNumber)
+                self.dispatch(with: .ethereumBlock, systemTime: UInt32(time))
             }
         } catch {
             print("Error: \(error.localizedDescription)")

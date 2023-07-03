@@ -5,21 +5,20 @@
 //  Created by Arthur Guiot on 23/06/2023.
 //
 
-#include <Arbitrage_Bot/Arbitrage_Bot.h>
+#include "Arbitrage_Bot_Demo.h"
 #include "negate_log.h"
 #include <stdio.h>
 #include <math.h>
 
 #define MAX_EDGES 100
 
-void on_tick(const double* rates, const CToken* tokens, int size);
 // MARK: - Utils
 bool isValueNotInArray(int value, int *print_cycle);
 void reverseArray(int *a, int n);
-void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size);
+void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime);
 
 // MARK: - Main
-int main(int argc, const char * argv[]) {
+int arbitrage_main(int argc, const char * argv[]) {
     // Start the server
     Server *server = new_server();
     
@@ -34,17 +33,16 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-void on_tick(const double* rates, const CToken* tokens, int size) {
-    
+void on_tick(const double* rates, const CToken* tokens, size_t size, size_t systemTime) {
     int sourceIndex = 0;    // Could start with any source vertex
     
-    int rateSize = size * size;
+    size_t rateSize = size * size;
     // Let's get the weights
     double weights[rateSize];
     double edges[rateSize];
     int predecessor[rateSize];
     
-    calculate_neg_log(rates, weights, rateSize);
+    calculate_neg_log(rates, weights, (int)rateSize);
     
     // Step 2: Initialize distances from src to all other vertices as infinite
     for (int i = 0; i < size; i++) edges[i] = INFINITY;
@@ -92,11 +90,13 @@ void on_tick(const double* rates, const CToken* tokens, int size) {
                 // Add the last vertex
                 arbitrageOrder[counter] = predecessor[i];
                 counter++;
-                printArbitrage(tokens, arbitrageOrder, counter);
+                printArbitrage(tokens, arbitrageOrder, counter, systemTime);
             }
         }
         i = currentI;
     }
+    
+    process_opportunities();
 }
 
 
@@ -118,14 +118,22 @@ void reverseArray(int *a, int n) {
     }
 }
 
-void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size) {
+void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime) {
     int i;
     reverseArray(arbitrageOrder, size);
+    
+    add_opportunity_in_queue(arbitrageOrder, size, systemTime);
     
     printf("Arbitrage Opportunity detected: \n\n");
     for (i = 0; i < size; i++)
     {
-        printf("%s", tokens[arbitrageOrder[i]].name);
+        char *name = NULL;
+        get_name_for_token(tokens[arbitrageOrder[i]].address, &name);
+        
+        printf("%s", name);
+        
+        free(name);
+        
         if (size > i + 1) printf(" -> "); // Print arrow only n-1 times
     }
     printf("\n");

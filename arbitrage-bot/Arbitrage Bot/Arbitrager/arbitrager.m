@@ -215,39 +215,23 @@ PriceDataStore *create_store(void) {
 void pipe_function(PriceDataStore *dataStore) {
     socket_data_base->server->dataStore = dataStore;
     // Bind the on_tick callback to the data store
-//    attach_tick_price_data_store(^(const double * _Nonnull array, NSArray<ObjCToken *> * _Nonnull tokens) {
-//        size_t size = tokens.count;
-//        CToken *cTokens = malloc(sizeof(CToken) * size);
-//        
-//        for (size_t i = 0; i < size; i++) {
-//            ObjCToken *token = tokens[i];
-//            NSUInteger nameCount = token.name.count;
-//            NSUInteger addressCount = token.address.count;
-//            
-//            char *name = (char *)malloc(sizeof(char) * nameCount);
-//            unsigned char *address = (unsigned char *)malloc(sizeof(unsigned char) * addressCount);
-//            
-//            for (size_t j = 0; j < nameCount; j++) {
-//                name[j] = (char)[token.name[j] intValue];
-//            }
-//            for (size_t j = 0; j < addressCount; j++) {
-//                address[j] = (unsigned char)[token.address[j] intValue];
-//            }
-//            
-//            CToken cToken;
-//            cToken.name = name;
-//            cToken.address = address;
-//            cTokens[i] = cToken;
-//        }
-//        
-//        dataStore->on_tick(array, cTokens, size);
-//        
-//        // Don't forget to free allocated memory
-//        for (size_t i = 0; i < size; i++) {
-//            free((void *)cTokens[i].name);
-//            free((void *)cTokens[i].address);
-//        }
-//    });
+    attach_tick_price_data_store(^(const double * _Nonnull array, const uint8_t * _Nonnull tokens, uint32_t size, uint32_t systemTime) {
+        CToken *cTokens = malloc(sizeof(CToken) * size);
+        
+        // Assign each cToken. Remember, each address is 20 long.
+        for (uint32_t i = 0; i < size; i++) {
+            CToken temp = {
+                .index = i,
+                .address = tokens + i*20
+            };
+            memcpy(cTokens + i, &temp, sizeof(CToken));
+        }
+        
+        dataStore->on_tick(array, cTokens, size, systemTime);
+        
+        // Free the dynamically allocated memory
+        free(cTokens);
+    });
 }
 
 Server *new_server(void) {
@@ -294,4 +278,17 @@ void start_server(Server *server, int port) {
     uws_app_listen(SSL, app, port, listen_handler, NULL);
     
     uws_app_run(SSL, app);
+}
+
+
+void get_name_for_token(const uint8_t * _Nonnull tokenAddress, char * _Nonnull result) {
+    name_for_token(tokenAddress, result);
+}
+
+void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTime) {
+    add_opportunity_for_review(order, size, systemTime);
+}
+
+void process_opportunities(void) {
+    review_and_process_opportunities();
 }

@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Arbitrage Bot Demo.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>Arbitrage Bot.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -13,6 +18,11 @@
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+		<key>Arbitrage-Bot-Main.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
 		</dict>
 		<key>Arbitrage-Bot.xcscheme_^#shared#^_</key>
 		<dict>
@@ -59,12 +69,12 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 		<key>FastSockets.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>PromiseKit (Playground) 1.xcscheme</key>
 		<dict>
@@ -111,6 +121,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>68137F632A52C8C400E6264A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>68DCBF072A45E0B8007DCB50</key>
 		<dict>
 			<key>primary</key>

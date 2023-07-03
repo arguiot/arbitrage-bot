@@ -45,6 +45,9 @@ protocol Exchange: Hashable {
     
     // Methods
     
+    /// Better than getQuote for fast calculation
+    func getAmountOut(amountIn: Euler.BigInt, meta: Meta) throws -> Euler.BigInt
+    
     /// Returns the best quote for the maximum given amount of tokenA
     func getQuote(maxAvailableAmount: Euler.BigInt?, tokenA: Token, tokenB: Token, maximizeB: Bool, meta: Meta?) async throws -> (Quote, Meta)
     

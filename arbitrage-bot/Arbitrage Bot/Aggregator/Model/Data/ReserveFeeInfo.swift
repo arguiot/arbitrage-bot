@@ -38,7 +38,7 @@ struct ReserveFeeInfo: CustomStringConvertible {
         self.tokenB = tokenA < tokenB ? tokenB : tokenA
     }
     
-    func calculatedQuote(with amount: Euler.BigInt?, aToB: Bool = true) async throws -> Quote {
+    func calculatedQuote(with amount: Euler.BigInt?, aToB: Bool = true) async throws -> Euler.BigInt {
         return try await ReserveFeeInfo.calculatedQuote(for: self.exchange,
                                                         with: amount,
                                                         tokenA: aToB ? tokenA : tokenB,
@@ -46,12 +46,16 @@ struct ReserveFeeInfo: CustomStringConvertible {
                                                         using: self.meta)
     }
     
-    static func calculatedQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt?, tokenA: Token, tokenB: Token, using meta: Any) async throws -> Quote {
+    static func calculatedQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt?, tokenA: Token, tokenB: Token, using meta: Any) async throws -> Euler.BigInt {
+        if let amount = amount {
+            guard let meta = meta as? T.Meta else { return .zero }
+            return try exchange.getAmountOut(amountIn: amount, meta: meta)
+        }
         return try await exchange.getQuote(maxAvailableAmount: amount,
                                        tokenA: tokenA,
                                        tokenB: tokenB,
                                        maximizeB: true,
-                                           meta: meta as? T.Meta).0
+                                           meta: meta as? T.Meta).0.amountOut
     }
     
     public var description: String {

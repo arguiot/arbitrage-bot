@@ -111,23 +111,3 @@ class RealtimeServerControllerWrapper {
 
 // To mimic a reference to the class we can use a Dictionary
 var controllers: [Int: RealtimeServerControllerWrapper] = [:]
-
-@_cdecl("create_realtime_server_controller")
-public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
-    let controller = RealtimeServerControllerWrapper(userData: userData, callback: callback)
-    let id = controllers.count
-    controllers[id] = controller
-    return id
-}
-
-@_cdecl("realtime_server_handle_request")
-public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size: Int) {
-    guard let controller = controllers[controllerId] else {
-        print("No controller found with this ID")
-        return
-    }
-    let requestString = String(cString: request).prefix(size)
-    controller.handleRequest(request: String(requestString), completion: { error in
-        print("Request failed: \(error)")
-    })
-}
