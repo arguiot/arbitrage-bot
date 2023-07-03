@@ -7,7 +7,6 @@
 
 import XCTest
 import Euler
-import Web3
 
 @testable import Arbitrage_Bot
 #if canImport(Aggregator)

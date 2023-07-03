@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Web3
 
 enum TokenSymbol: String {
     case eth = "ETH"

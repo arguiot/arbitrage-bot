@@ -5,7 +5,6 @@
 //  Created by Arthur Guiot on 19/06/2023.
 //
 
-import Web3
 import Euler
 
 struct Cost {

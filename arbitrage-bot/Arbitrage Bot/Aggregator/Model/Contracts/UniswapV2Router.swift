@@ -7,8 +7,6 @@
 
 import Foundation
 import BigInt
-import Web3
-import Web3ContractABI
 
 public protocol UniswapV2RouterContract: EthereumContract {
     func swapExactTokensForTokens(amountIn: BigUInt, amountOutMin: BigUInt, path: [EthereumAddress], to: EthereumAddress, deadline: BigUInt) -> SolidityInvocation

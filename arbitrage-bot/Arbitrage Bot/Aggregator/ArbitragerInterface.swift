@@ -16,28 +16,17 @@ import Foundation
 //    return OpaquePointer(retained)
 //}
 
-@objc
-public class ObjCToken: NSObject {
-    @objc public let name: [CChar];
-    @objc public let address: [UInt8]; // UInt8
-    
-    internal init(name: [CChar], address: [UInt8]) {
-        self.name = name
-        self.address = address
-    }
-}
-
 @_cdecl("attach_tick_price_data_store")
-public func attachTick(callback: @escaping (UnsafePointer<Double>, [ObjCToken]) -> Void) {
+public func attachTick(callback: @escaping (UnsafePointer<Double>, UnsafePointer<UInt8>, UInt32) -> Void) {
     PriceDataStoreWrapper.shared?.callback = { array, tokens in
-        let objcTokens: [ObjCToken] = tokens
-            .compactMap { token in
-                guard let name = token.name.cString(using: .ascii) else { return nil }
-                return ObjCToken(name: name, address: token.address.rawAddress)
+        guard let addresses = tokens.map(\.address.rawAddress).flatten() as? [UInt8] else { return }
+        
+        addresses.withUnsafeBufferPointer { cAddresses in
+            guard let baseAddress = cAddresses.baseAddress else { return }
+            array.withUnsafeBufferPointer { cArray in
+                guard let base = cArray.baseAddress else { return }
+                callback(base, baseAddress, UInt32(tokens.count))
             }
-        array.withUnsafeBufferPointer { cArray in
-            guard let base = cArray.baseAddress else { return }
-            callback(base, objcTokens)
         }
     }
 }

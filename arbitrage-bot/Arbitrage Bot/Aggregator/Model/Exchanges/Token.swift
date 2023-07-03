@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Web3
 
 public struct Token: Codable, Hashable, Sendable, Identifiable, Comparable, CustomStringConvertible {
     var name: String

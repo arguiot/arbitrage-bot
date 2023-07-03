@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 // Main function to start the server
 typedef struct {
     const char *name;

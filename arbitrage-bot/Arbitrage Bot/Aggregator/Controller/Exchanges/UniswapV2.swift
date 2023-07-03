@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import Web3
-import Web3PromiseKit
 import Euler
 import BigInt
 final class UniswapV2: Exchange {    

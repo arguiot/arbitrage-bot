@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Web3
 
 struct ExchangeInfo: Codable {
     let name: String

@@ -7,7 +7,6 @@
 
 import Foundation
 import OpenCombine
-import Web3
 
 public class PriceDataPublisher: Publisher {
     public typealias Output = (BotResponse, Int)

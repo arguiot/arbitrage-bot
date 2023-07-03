@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Web3
 
 
 public class Credentials {

@@ -6,7 +6,6 @@
 //
 
 import OpenCombine
-import Web3
 
 class PriceDataSubscription {
     private let web3 = Credentials.shared.web3

@@ -7,8 +7,6 @@
 
 import Foundation
 import BigInt
-import Web3
-import Web3ContractABI
 
 public protocol UniswapV2PairContract: EthereumContract {
     func getReserves() -> SolidityInvocation

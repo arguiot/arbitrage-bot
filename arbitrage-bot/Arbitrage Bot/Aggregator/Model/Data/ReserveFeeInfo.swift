@@ -8,7 +8,6 @@
 import Foundation
 import Euler
 
-
 struct ReserveFeeInfo: CustomStringConvertible {
     let exchangeKey: KeyPath<ExchangesList, any Exchange>
     var exchange: any Exchange {
@@ -27,9 +26,9 @@ struct ReserveFeeInfo: CustomStringConvertible {
         tokenA < tokenB ? spotAB : spotBA
     }
     
-    let fee: BigInt
+    let fee: Euler.BigInt
     
-    init(exchangeKey: KeyPath<ExchangesList, any Exchange>, meta: Any, spot: Double, tokenA: Token, tokenB: Token, fee: BigInt) {
+    init(exchangeKey: KeyPath<ExchangesList, any Exchange>, meta: Any, spot: Double, tokenA: Token, tokenB: Token, fee: Euler.BigInt) {
         self.exchangeKey = exchangeKey
         self.meta = meta
         self.spotAB = tokenA < tokenB ? spot : self.spotAB
@@ -39,7 +38,7 @@ struct ReserveFeeInfo: CustomStringConvertible {
         self.tokenB = tokenA < tokenB ? tokenB : tokenA
     }
     
-    func calculatedQuote(with amount: BigInt?, aToB: Bool = true) async throws -> Quote {
+    func calculatedQuote(with amount: Euler.BigInt?, aToB: Bool = true) async throws -> Quote {
         return try await ReserveFeeInfo.calculatedQuote(for: self.exchange,
                                                         with: amount,
                                                         tokenA: aToB ? tokenA : tokenB,
@@ -47,7 +46,7 @@ struct ReserveFeeInfo: CustomStringConvertible {
                                                         using: self.meta)
     }
     
-    static func calculatedQuote<T: Exchange>(for exchange: T, with amount: BigInt?, tokenA: Token, tokenB: Token, using meta: Any) async throws -> Quote {
+    static func calculatedQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt?, tokenA: Token, tokenB: Token, using meta: Any) async throws -> Quote {
         return try await exchange.getQuote(maxAvailableAmount: amount,
                                        tokenA: tokenA,
                                        tokenB: tokenB,
