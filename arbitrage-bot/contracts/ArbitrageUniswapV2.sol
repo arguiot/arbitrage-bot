@@ -121,11 +121,17 @@ contract ArbitrageUniswapV2 is
 
         SwapRouteCoordinator(sender).performArbitrage(startAmount, steps);
         // Repay the flash loan
-
-        // ERROR HERE, ArbitrageUniswapV2 is not the owner of the tokens, Coordinator is, let's fix that tmrw
-
-        IERC20(address(steps[0].token)).transfer(msg.sender, amountToRepay);
-        console.log("Repayed %s to %s", amountToRepay, msg.sender);
+        try
+            SwapRouteCoordinator(sender).repay(
+                address(steps[0].token),
+                amountToRepay,
+                msg.sender
+            )
+        {
+            console.log("Repayed %s to %s", amountToRepay, msg.sender);
+        } catch Error(string memory reason) {
+            console.log("Repay failed: %s", reason);
+        }
     }
 
     // MARK: - Helpers

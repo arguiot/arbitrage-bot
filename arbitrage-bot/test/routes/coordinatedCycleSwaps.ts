@@ -118,7 +118,9 @@ describe("Coordinate Cycle Swaps", () => {
 
         const receipt = await tx.wait();
         // Amount out is returned from the call
-        const amountOut = receipt.logs[0].data;
-        console.log("Amount out: ", amountOut.toString());
+        const event = receipt.events?.find(e => e.event == 'Arbitrage');
+
+        const eventResult = swapRouteCoordinator.interface.parseLog(event as any);
+        console.log(eventResult.args.amountOut.toString());
     });
 });

@@ -10,6 +10,8 @@ import "./Step.sol";
 import "hardhat/console.sol";
 
 contract SwapRouteCoordinator {
+    event Arbitrage(uint256 amountOut);
+
     function startArbitrage(
         uint256 startAmount,
         address lapExchange,
@@ -33,13 +35,13 @@ contract SwapRouteCoordinator {
         tokenA.approve(contractToCall, startAmount);
         (bool success, bytes memory data) = contractToCall.call(callData);
 
-        console.log("success: %s", success);
-
         require(success, "Swap operation failed");
 
         // Return amount of tokenB received
         IERC20 lastToken = steps[steps.length - 1].token;
         amountOut = lastToken.balanceOf(address(this));
+
+        emit Arbitrage(amountOut);
     }
 
     function performArbitrage(uint256 startAmount, Step[] memory steps) public {
@@ -97,5 +99,9 @@ contract SwapRouteCoordinator {
 
             // require(success, "Swap operation failed");
         }
+    }
+
+    function repay(address token, uint256 amount, address destination) public {
+        IERC20(token).transfer(destination, amount);
     }
 }
