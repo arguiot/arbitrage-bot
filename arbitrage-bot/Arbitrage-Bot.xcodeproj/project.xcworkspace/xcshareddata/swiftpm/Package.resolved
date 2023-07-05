@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/arguiot/Euler",
       "state" : {
-        "revision" : "7674e201fa1b37536d2039171b6a4c0a078c080d",
-        "version" : "0.3.9"
+        "revision" : "5b6484626d9d1b57f9124b24da6d76e4b14caa5a",
+        "version" : "0.3.10"
       }
     },
     {
@@ -97,6 +97,15 @@
       "state" : {
         "revision" : "937e904258d22af6e447a0b72c0bc67583ef64a2",
         "version" : "1.0.4"
+      }
+    },
+    {
+      "identity" : "swiftplot",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/KarthikRIyer/swiftplot",
+      "state" : {
+        "revision" : "c5424eb8688217029d44e941d3a1d2ccc18c3a82",
+        "version" : "2.0.0"
       }
     }
   ],

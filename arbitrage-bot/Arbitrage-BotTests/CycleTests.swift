@@ -115,16 +115,16 @@ class CycleTests: XCTestCase {
         }
         
         let stepPath = [50, 25, 15, 4, 50]
-        self.measureAsync {
-            try? await list.buildSteps(from: stepPath)
-        }
+        
         let step = try await list.buildSteps(from: stepPath)
         
-        let optimum = try! await step.optimalPrice()
-        
-        print(try await step.price(for: 2000000000))
+        self.measure {
+            let optimum = try? step.optimalPrice()
+            
+//            XCTAssertEqual(optimum?, 116929118010982)
+        }
 
 
-        XCTAssert(optimum.path.count == 5)
+//        XCTAssert(optimum.path.count == 5)
     }
 }

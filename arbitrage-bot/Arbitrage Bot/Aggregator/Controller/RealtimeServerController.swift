@@ -13,16 +13,16 @@ actor RealtimeServerController {
     var subscriber: PriceDataSubscriber
     var priceDataStore: PriceDataStoreWrapper? = nil
     
-    public init(callback: @escaping (String) -> Void) {
+    public init(id: Int, callback: @escaping (String) -> Void) {
         self.callback = callback
         self.subscriber = PriceDataSubscriber { res in
             guard let str = try? res.toJSON() else { return }
-            callback(str)
+            if controllers.keys.contains(id) {
+                callback(str)
+            }
         }
         // Publishers
-        Task {
-            await PriceDataPublisher.shared.receive(subscriber: subscriber)
-        }
+        PriceDataPublisher.shared.receive(subscriber: subscriber)
     }
     
     func setPriceDataStore(with store: PriceDataStoreWrapper) {
@@ -89,11 +89,11 @@ class RealtimeServerControllerWrapper {
     // the callback takes a C string.
     private var serverController: RealtimeServerController
     
-    init(userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
-        self.serverController = RealtimeServerController(callback: { message in
+    init(id: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
+        self.serverController = RealtimeServerController(id: id, callback: { message in
             var message = message
             message.withCString { cMessage in
-                callback(cMessage, UInt16(message.count),userData)
+                callback(cMessage, UInt16(message.count), userData)
             }
         })
     }

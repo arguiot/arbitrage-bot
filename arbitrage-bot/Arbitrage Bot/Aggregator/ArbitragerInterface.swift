@@ -65,22 +65,27 @@ public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, syst
 }
 
 @_cdecl("review_and_process_opportunities")
-public func reviewAndProcessOpportunities() {
+public func reviewAndProcessOpportunities(systemTime: Int) {
     PriceDataStoreWrapper
         .shared?
         .adjacencyList
         .builder
-        .process()
+        .process(systemTime: systemTime)
 }
 
 // MARK: - Realtime Server
 
 @_cdecl("create_realtime_server_controller")
 public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
-    let controller = RealtimeServerControllerWrapper(userData: userData, callback: callback)
     let id = controllers.count
+    let controller = RealtimeServerControllerWrapper(id: id, userData: userData, callback: callback)
     controllers[id] = controller
     return id
+}
+
+@_cdecl("close_realtime_server_controller")
+public func closeRealtimeServerController(id: Int) {
+    controllers.removeValue(forKey: id)
 }
 
 @_cdecl("realtime_server_handle_request")

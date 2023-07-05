@@ -15,7 +15,7 @@
 // MARK: - Utils
 bool isValueNotInArray(int value, int *print_cycle);
 void reverseArray(int *a, int n);
-void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime);
+void processArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime);
 
 // MARK: - Main
 int arbitrage_main(int argc, const char * argv[]) {
@@ -90,13 +90,13 @@ void on_tick(const double* rates, const CToken* tokens, size_t size, size_t syst
                 // Add the last vertex
                 arbitrageOrder[counter] = predecessor[i];
                 counter++;
-                printArbitrage(tokens, arbitrageOrder, counter, systemTime);
+                processArbitrage(tokens, arbitrageOrder, counter, systemTime);
             }
         }
         i = currentI;
     }
     
-    process_opportunities();
+    process_opportunities(systemTime);
 }
 
 
@@ -118,7 +118,7 @@ void reverseArray(int *a, int n) {
     }
 }
 
-void printArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime) {
+void processArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime) {
     int i;
     reverseArray(arbitrageOrder, size);
     

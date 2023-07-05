@@ -23,11 +23,13 @@
 		68137F742A52F2D900E6264A /* OptimalPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F732A52F2D900E6264A /* OptimalPrice.swift */; };
 		68137F762A52FC7100E6264A /* ArbitrageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F752A52FC7100E6264A /* ArbitrageBuilder.swift */; };
 		68137F782A53106400E6264A /* ProcessOpportunities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F772A53106400E6264A /* ProcessOpportunities.swift */; };
+		68137F7D2A53347600E6264A /* PriceCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F7C2A53347600E6264A /* PriceCalculation.swift */; };
 		6842921C2A45A1120043EF2F /* Euler in Frameworks */ = {isa = PBXBuildFile; productRef = 6842921B2A45A1120043EF2F /* Euler */; };
 		6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */; };
 		684292202A45A9180043EF2F /* arbitrager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842921F2A45A9180043EF2F /* arbitrager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		684292292A45AAA70043EF2F /* FastSockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 684292282A45AAA70043EF2F /* FastSockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6842922F2A45AAE40043EF2F /* libuwebsockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */; };
+		684EE4AF2A5438E2001E793F /* Cash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684EE4AE2A5438E2001E793F /* Cash.swift */; };
 		68518EE02A52A5DB00E22676 /* EthereumPublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E8F2A52A5D700E22676 /* EthereumPublicKey.swift */; };
 		68518EE12A52A5DB00E22676 /* EthereumAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E902A52A5D700E22676 /* EthereumAddress.swift */; };
 		68518EE22A52A5DB00E22676 /* EthereumPrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E912A52A5D700E22676 /* EthereumPrivateKey.swift */; };
@@ -103,6 +105,11 @@
 		68518F322A52B7D100E22676 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F312A52B7D100E22676 /* secp256k1 */; };
 		68518F8C2A52BC8000E22676 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F8B2A52BC8000E22676 /* Quick */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8F92A544B9400CC9779 /* AGGRenderer */; };
+		68A6F8FC2A544B9400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8FB2A544B9400CC9779 /* SwiftPlot */; };
+		68A6F8FE2A545FC900CC9779 /* VisualGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */; };
+		68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9012A547D4400CC9779 /* SwiftPlot */; };
+		68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9072A54880B00CC9779 /* SVGRenderer */; };
 		68DCBF032A45DEC3007DCB50 /* libuwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842922E2A45AAE40043EF2F /* libuwebsockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; };
 		68DCBF102A45E710007DCB50 /* FastSockets.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -242,12 +249,14 @@
 		68137F732A52F2D900E6264A /* OptimalPrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptimalPrice.swift; sourceTree = "<group>"; };
 		68137F752A52FC7100E6264A /* ArbitrageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrageBuilder.swift; sourceTree = "<group>"; };
 		68137F772A53106400E6264A /* ProcessOpportunities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessOpportunities.swift; sourceTree = "<group>"; };
+		68137F7C2A53347600E6264A /* PriceCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceCalculation.swift; sourceTree = "<group>"; };
 		6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitragerInterface.swift; sourceTree = "<group>"; };
 		6842921F2A45A9180043EF2F /* arbitrager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = arbitrager.h; sourceTree = "<group>"; };
 		684292262A45AAA60043EF2F /* FastSockets.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FastSockets.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		684292282A45AAA70043EF2F /* FastSockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastSockets.h; sourceTree = "<group>"; };
 		6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = libuwebsockets.cpp; sourceTree = "<group>"; };
 		6842922E2A45AAE40043EF2F /* libuwebsockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libuwebsockets.h; sourceTree = "<group>"; };
+		684EE4AE2A5438E2001E793F /* Cash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cash.swift; sourceTree = "<group>"; };
 		68518E8F2A52A5D700E22676 /* EthereumPublicKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumPublicKey.swift; sourceTree = "<group>"; };
 		68518E902A52A5D700E22676 /* EthereumAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumAddress.swift; sourceTree = "<group>"; };
 		68518E912A52A5D700E22676 /* EthereumPrivateKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumPrivateKey.swift; sourceTree = "<group>"; };
@@ -320,6 +329,7 @@
 		68832F352A4752D400607523 /* libusockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libusockets.h; sourceTree = "<group>"; };
 		6894020B2A4C2B6A0089D4AA /* negate_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = negate_log.h; sourceTree = "<group>"; };
 		6894020C2A4C2B6A0089D4AA /* negate_log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = negate_log.c; sourceTree = "<group>"; };
+		68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualGraph.swift; sourceTree = "<group>"; };
 		68DCBEFF2A45D420007DCB50 /* uSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = uSockets.a; path = FastSockets/uWebSockets/uSockets/uSockets.a; sourceTree = "<group>"; };
 		68DCBF0A2A45E0B8007DCB50 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Arbitrage Demo.entitlements"; sourceTree = "<group>"; };
@@ -404,6 +414,8 @@
 			files = (
 				6842921C2A45A1120043EF2F /* Euler in Frameworks */,
 				68518F322A52B7D100E22676 /* secp256k1 in Frameworks */,
+				68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */,
+				68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */,
 				68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */,
 				68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */,
 				68518F2C2A52B6E400E22676 /* BigInt in Frameworks */,
@@ -420,6 +432,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				68137F332A52BCB900E6264A /* Nimble in Frameworks */,
+				68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */,
+				68A6F8FC2A544B9400CC9779 /* SwiftPlot in Frameworks */,
 				68518F8C2A52BC8000E22676 /* Quick in Frameworks */,
 				68F6FC742A459DA500E828DB /* Arbitrage_Bot.framework in Frameworks */,
 			);
@@ -458,6 +472,7 @@
 		68137F702A52E9C500E6264A /* Arbitrage Builder */ = {
 			isa = PBXGroup;
 			children = (
+				68FCE1F32A4EDA17009B79ED /* Test */,
 				68137F712A52EA6E00E6264A /* BuilderStep.swift */,
 				68137F732A52F2D900E6264A /* OptimalPrice.swift */,
 				68137F752A52FC7100E6264A /* ArbitrageBuilder.swift */,
@@ -477,6 +492,14 @@
 				68FCE21F2A4F1AD5009B79ED /* FastSocketsPM.h */,
 			);
 			path = FastSockets;
+			sourceTree = "<group>";
+		};
+		684EE4AD2A5438D8001E793F /* Cash */ = {
+			isa = PBXGroup;
+			children = (
+				684EE4AE2A5438E2001E793F /* Cash.swift */,
+			);
+			path = Cash;
 			sourceTree = "<group>";
 		};
 		68518E8C2A52A5C800E22676 /* Web3 */ = {
@@ -712,6 +735,7 @@
 			children = (
 				68F6FC782A459DA500E828DB /* CycleTests.swift */,
 				68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */,
+				68137F7C2A53347600E6264A /* PriceCalculation.swift */,
 			);
 			path = "Arbitrage-BotTests";
 			sourceTree = "<group>";
@@ -719,6 +743,7 @@
 		68F6FC832A459DDE00E828DB /* Aggregator */ = {
 			isa = PBXGroup;
 			children = (
+				684EE4AD2A5438D8001E793F /* Cash */,
 				68518E8C2A52A5C800E22676 /* Web3 */,
 				68FCE1CF2A4EDA17009B79ED /* Controller */,
 				68FCE1F62A4EDA17009B79ED /* Global */,
@@ -843,7 +868,6 @@
 			children = (
 				68FCE1F12A4EDA17009B79ED /* AdjacencyList.swift */,
 				68FCE1F22A4EDA17009B79ED /* PriceDataStoreWrapper.swift */,
-				68FCE1F32A4EDA17009B79ED /* Test */,
 				68FCE1F42A4EDA17009B79ED /* ReserveFeeInfo.swift */,
 				68FCE1F52A4EDA17009B79ED /* CycleArbtirage.swift */,
 			);
@@ -853,6 +877,7 @@
 		68FCE1F32A4EDA17009B79ED /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */,
 			);
 			path = Test;
 			sourceTree = "<group>";
@@ -1019,6 +1044,8 @@
 				68518F2B2A52B6E400E22676 /* BigInt */,
 				68518F2E2A52B76100E22676 /* Collections */,
 				68518F312A52B7D100E22676 /* secp256k1 */,
+				68A6F9012A547D4400CC9779 /* SwiftPlot */,
+				68A6F9072A54880B00CC9779 /* SVGRenderer */,
 			);
 			productName = "Arbitrage-Bot";
 			productReference = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */;
@@ -1041,6 +1068,8 @@
 			packageProductDependencies = (
 				68518F8B2A52BC8000E22676 /* Quick */,
 				68137F322A52BCB900E6264A /* Nimble */,
+				68A6F8F92A544B9400CC9779 /* AGGRenderer */,
+				68A6F8FB2A544B9400CC9779 /* SwiftPlot */,
 			);
 			productName = "Arbitrage-BotTests";
 			productReference = 68F6FC732A459DA500E828DB /* Arbitrage-BotTests.xctest */;
@@ -1096,6 +1125,7 @@
 				68518F302A52B7D100E22676 /* XCRemoteSwiftPackageReference "secp256k1" */,
 				68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */,
 				68137F312A52BCB900E6264A /* XCRemoteSwiftPackageReference "Nimble" */,
+				68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */,
 			);
 			productRefGroup = 68F6FC6A2A459DA500E828DB /* Products */;
 			projectDirPath = "";
@@ -1193,6 +1223,7 @@
 				68FCE20C2A4EDA18009B79ED /* UniswapV2Router.swift in Sources */,
 				68FCE2182A4EDA18009B79ED /* Credentials.swift in Sources */,
 				68137F782A53106400E6264A /* ProcessOpportunities.swift in Sources */,
+				68A6F8FE2A545FC900CC9779 /* VisualGraph.swift in Sources */,
 				68518EFF2A52A5DB00E22676 /* String+HexBytes.swift in Sources */,
 				68FCE2032A4EDA18009B79ED /* AnyDecodable.swift in Sources */,
 				68FCE2162A4EDA18009B79ED /* Pairs.swift in Sources */,
@@ -1274,6 +1305,7 @@
 				68518EF52A52A5DB00E22676 /* EthereumCall.swift in Sources */,
 				68518F0C2A52A5DB00E22676 /* UnsignedInteger+Shifting.swift in Sources */,
 				68518F1D2A52A5DB00E22676 /* SolidityType.swift in Sources */,
+				684EE4AF2A5438E2001E793F /* Cash.swift in Sources */,
 				68518F1F2A52A5DB00E22676 /* SolidityWrappedValue.swift in Sources */,
 				68518F132A52A5DB00E22676 /* ABIObject.swift in Sources */,
 				68518F222A52A5DB00E22676 /* ABIConvertible.swift in Sources */,
@@ -1301,6 +1333,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				68F342382A4D8DCF002AC4B8 /* XCTest+Utils.swift in Sources */,
+				68137F7D2A53347600E6264A /* PriceCalculation.swift in Sources */,
 				68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1970,6 +2003,14 @@
 				minimumVersion = 5.0.1;
 			};
 		};
+		68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/KarthikRIyer/swiftplot";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		68F6FCCE2A45A0C100E828DB /* XCRemoteSwiftPackageReference "OpenCombine" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OpenCombine/OpenCombine";
@@ -2023,6 +2064,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */;
 			productName = Quick;
+		};
+		68A6F8F92A544B9400CC9779 /* AGGRenderer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */;
+			productName = AGGRenderer;
+		};
+		68A6F8FB2A544B9400CC9779 /* SwiftPlot */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */;
+			productName = SwiftPlot;
+		};
+		68A6F9012A547D4400CC9779 /* SwiftPlot */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */;
+			productName = SwiftPlot;
+		};
+		68A6F9072A54880B00CC9779 /* SVGRenderer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */;
+			productName = SVGRenderer;
 		};
 		68F6FCCF2A45A0C100E828DB /* OpenCombine */ = {
 			isa = XCSwiftPackageProductDependency;

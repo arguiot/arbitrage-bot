@@ -23,4 +23,8 @@ public struct Token: Codable, Hashable, Sendable, Identifiable, Comparable, Cust
     public var description: String {
         return name
     }
+    
+    static internal func fake(id: Int) -> Token {
+        return Token(name: "TK\(id)", address: .init(id))
+    }
 }

@@ -31,7 +31,7 @@ typedef struct {
 } PriceDataStore;
 
 void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTime);
-void process_opportunities(void);
+void process_opportunities(size_t systemTime);
 
 typedef struct {
     PriceDataStore * _Nonnull dataStore;

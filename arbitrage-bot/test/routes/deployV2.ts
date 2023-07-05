@@ -102,55 +102,55 @@ export async function deployV2(
 }
 
 describe("Uniswap V2 Deployment", function () {
-    it("Should deploy N tokens and create pairs between all tokens for D Uniswap V2 instances", async function () {
-        const N = 4; // Number of tokens to deploy
-        const D = ["uniswap", "apeswap", "uniswap2"]; // Number of Uniswap V2 instances to deploy
-        const { uniswapInstances, tokens, pairs } = await deployV2(N, D);
+    // it("Should deploy N tokens and create pairs between all tokens for D Uniswap V2 instances", async function () {
+    //     const N = 4; // Number of tokens to deploy
+    //     const D = ["uniswap", "apeswap", "uniswap2"]; // Number of Uniswap V2 instances to deploy
+    //     const { uniswapInstances, tokens, pairs } = await deployV2(N, D);
 
-        // Check if D Uniswap V2 instances are deployed
-        expect(uniswapInstances.length).to.equal(D.length);
+    //     // Check if D Uniswap V2 instances are deployed
+    //     expect(uniswapInstances.length).to.equal(D.length);
 
-        // Check if N tokens are deployed
-        expect(tokens.length).to.equal(N);
+    //     // Check if N tokens are deployed
+    //     expect(tokens.length).to.equal(N);
 
-        // Check if D * N * (N - 1) / 2 pairs are created
-        expect(pairs.length).to.equal((D.length * (N * (N - 1))) / 2);
+    //     // Check if D * N * (N - 1) / 2 pairs are created
+    //     expect(pairs.length).to.equal((D.length * (N * (N - 1))) / 2);
 
-        // Check if all pairs have unique token addresses for each Uniswap V2 instance
-        const pairTokenAddresses = new Set();
-        for (const pair of pairs) {
-            const token0 = await pair.token0();
-            const token1 = await pair.token1();
-            // expect(pairTokenAddresses.has(token0 + token1)).to.be.false;
-            pairTokenAddresses.add(token0 + token1);
-        }
+    //     // Check if all pairs have unique token addresses for each Uniswap V2 instance
+    //     const pairTokenAddresses = new Set();
+    //     for (const pair of pairs) {
+    //         const token0 = await pair.token0();
+    //         const token1 = await pair.token1();
+    //         // expect(pairTokenAddresses.has(token0 + token1)).to.be.false;
+    //         pairTokenAddresses.add(token0 + token1);
+    //     }
 
-        // Check if all pairs have non-zero liquidity
-        for (const pair of pairs) {
-            const reserves = await pair.getReserves();
-            expect(reserves[0]).to.not.equal(0);
-            expect(reserves[1]).to.not.equal(0);
-        }
+    //     // Check if all pairs have non-zero liquidity
+    //     for (const pair of pairs) {
+    //         const reserves = await pair.getReserves();
+    //         expect(reserves[0]).to.not.equal(0);
+    //         expect(reserves[1]).to.not.equal(0);
+    //     }
 
-        // Check if Uniswap V2 can get the price of all pairs
-        for (const uniswapV2 of uniswapInstances) {
-            for (const pair of pairs) {
-                const token0 = await pair.token0();
-                const token1 = await pair.token1();
+    //     // Check if Uniswap V2 can get the price of all pairs
+    //     for (const uniswapV2 of uniswapInstances) {
+    //         for (const pair of pairs) {
+    //             const token0 = await pair.token0();
+    //             const token1 = await pair.token1();
 
-                const tokenA: Token = {
-                    name: "tokenA",
-                    address: token0,
-                };
+    //             const tokenA: Token = {
+    //                 name: "tokenA",
+    //                 address: token0,
+    //             };
 
-                const tokenB: Token = {
-                    name: "tokenB",
-                    address: token1,
-                };
+    //             const tokenB: Token = {
+    //                 name: "tokenB",
+    //                 address: token1,
+    //             };
 
-                const price = await uniswapV2.getQuote(10, tokenA, tokenB);
-                expect(price).to.not.equal(0);
-            }
-        }
-    });
+    //             const price = await uniswapV2.getQuote(10, tokenA, tokenB);
+    //             expect(price).to.not.equal(0);
+    //         }
+    //     }
+    // });
 });

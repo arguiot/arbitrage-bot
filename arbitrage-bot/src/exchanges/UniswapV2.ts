@@ -4,7 +4,7 @@ import { Quote } from "./types/Quote";
 const IUniswapV2Pair = require("@uniswap/v2-periphery/build/IUniswapV2Pair.json");
 const _UniswapV2Factory = require("@uniswap/v2-core/build/UniswapV2Factory.json");
 const _UniswapV2Router02 = require("@uniswap/v2-periphery/build/UniswapV2Router02.json");
-const _CoordinateUniswapV2 = require("../../artifacts/contracts/CoordinateUniswapV2.sol/CoordinateUniswapV2.json");
+const _ArbitrageUniswapV2 = require("../../artifacts/contracts/ArbitrageUniswapV2.sol/ArbitrageUniswapV2.json");
 
 export const hashes = {
     apeswap:
@@ -520,7 +520,7 @@ export class UniswapV2 implements Exchange<Contract, RequiredPriceInfo> {
 
         const coordinator = new ethers.Contract(
             this.coordinator,
-            _CoordinateUniswapV2.abi,
+            _ArbitrageUniswapV2.abi,
             this.wallet
         );
 

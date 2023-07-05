@@ -9,62 +9,101 @@ import Foundation
 import Euler
 
 extension BuilderStep {
-    struct PartialOptimum {
-        let step: Euler.BigInt
-        let amount: Euler.BigInt
-        let chain: [ReserveFeeInfo]
+    enum PriceCalculationError: LocalizedError {
+        case noSolutions
+
+        var errorDescription: String? {
+            switch self {
+            case .noSolutions:
+                return "No solutions found"
+            }
+        }
     }
     
     struct OptimumResult {
-        let optimalPrice: Euler.BigInt
+        let amountIn: Euler.BigInt
+        let amountOut: Euler.BigInt
         let path: [ReserveFeeInfo]
     }
     
-    func optimalPrice() async throws -> OptimumResult {
-        var currentPrice = BigInt(100000000) // Starting point
-        var currentStep = BigInt(1) // Initial step size
-        let initialPriceInfo = try await self.price(for: currentPrice)
+    func optimalPrice() throws -> OptimumResult {
+        let precision: BN = 1
+        let interval: (BN, BN) = (0, 10000)
         
-        // Initialize the PartialOptimum object with default values.
-        var bestAmountOut = PartialOptimum(
-            step: currentStep,
-            amount: initialPriceInfo.0,
-            chain: initialPriceInfo.1)
-        
-        while true {
-            var bestStepSize: Euler.BigInt? = nil
-            
-            // Check a few different step sizes in parallel
-            try await withThrowingTaskGroup(of: PartialOptimum.self) { group in
-                for stepSize in stride(from: currentStep - 1, through: currentStep + 1, by: 1) {
-                    let localCurrentPrice = currentPrice
-                    group.addTask {
-                        let newPriceInfo = try await self.price(for: localCurrentPrice + stepSize)
-                        return PartialOptimum(
-                            step: stepSize,
-                            amount: newPriceInfo.0,
-                            chain: newPriceInfo.1)
-                    }
-                }
-                
-                for try await result in group {
-                    if result.amount > bestAmountOut.amount {
-                        bestAmountOut = result
-                        bestStepSize = result.step
-                    }
-                }
-            }
-            
-            // If no better step size found, we've reached the peak.
-            if bestStepSize == nil {
-                break
-            }
-            
-            currentPrice += bestStepSize!
-            currentStep = max(BigInt(1), abs(bestStepSize! / 2)) // Half the step size, but keep it at least 1
+        func f(_ x: BN) throws -> BN {
+            let a = try self.price(for: x.cash).0
+            let b = try self.price(for: (x + precision).cash).0
+      
+            let dev = BN(cash: b - a) / precision
+       
+            return dev - 1 // We target dy/dx = 1 for optimal output
         }
         
-        // Return optimal price and associated chain of exchanges.
-        return OptimumResult(optimalPrice: currentPrice, path: bestAmountOut.chain)
+        var (a, b) = interval
+        
+        var fa = try f(a)
+        var fb = try f(b)
+        
+        guard fa * fb < BigDouble.zero else {
+            throw PriceCalculationError.noSolutions
+        }
+        if abs(fa) < abs(fb) {
+            (a, b) = (b, a) // Switch values
+        }
+        
+        var c = a
+        var fc = try f(c)
+        var mflag = true
+        var d = BigDouble.zero
+        
+        func isBetween(x: BigDouble, _ a: BigDouble, _ b: BigDouble) -> Bool {
+            guard x >= a else { return false }
+            guard x <= b else { return false }
+            return true
+        }
+        
+        while fb != 0 && abs(b - a) > precision {
+            var s = BigDouble.zero
+            if fa != fc && fb != fc {
+                let p1 = (a * fb * fc) / ((fa - fb) * (fa - fc))
+                let p2 = (b * fa * fc) / ((fb - fa) * (fb - fc))
+                let p3 = (c * fa * fb) / ((fc - fa) * (fc - fb))
+                s = p1 + p2 + p3
+            } else {
+                s = b - (fb * (b - a)) / (fb - fa)
+            }
+            
+            if (isBetween(x: s, (3*a + b) / 4, b) ||
+                (mflag == true && abs(s - b) >= abs(b - c)  / BigDouble(2)) ||
+                (mflag == false && abs(s - b) >= abs(c - d) / BigDouble(2))) {
+                s = (a + b) / BigDouble(2)
+                
+                mflag = true
+            } else {
+                mflag = false
+            }
+            
+            let fs = try f(s)
+            d = c
+            c = b
+            // Recompute
+            fa = try f(a)
+            fb = try f(b)
+            fc = try f(c)
+            
+            if fa * fs < BigDouble.zero {
+                b = s
+            } else {
+                a = s
+            }
+            
+            if abs(fa) < abs(fb) {
+                (a, b) = (b, a) // Switch values
+            }
+        }
+        
+        var out = try self.price(for: b.cash)
+        out.0.decimals = 18
+        return OptimumResult(amountIn: b.cash, amountOut: out.0, path: out.1)
     }
 }

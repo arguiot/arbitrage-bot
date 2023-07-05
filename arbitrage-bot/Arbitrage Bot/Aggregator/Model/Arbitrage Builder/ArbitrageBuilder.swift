@@ -30,13 +30,13 @@ extension AdjacencyList {
         
         let tokenA = tokens[order[0]]
         let tokenB = tokens[order[1]]
-        var step = await BuilderStep(tokenA: tokenA, tokenB: tokenB, adjacencyList: self)
+        let step = await BuilderStep(tokenA: tokenA, tokenB: tokenB, adjacencyList: self)
         
         if order.count > 2 {
             
             var current = step
             
-            for i in 0..<order.count - 1 {
+            for i in 1..<order.count - 1 {
                 let tokenIndexA = order[i]
                 let tokenIndexB = order[i + 1]
                 

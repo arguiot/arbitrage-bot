@@ -8,15 +8,27 @@
 import Foundation
 
 extension Builder {
-    func process() {
+    func process(systemTime: Int) {
+        guard self.systemTime == systemTime else {
+            return
+        }
         Task {
             // It's okay to do that, because we start from a single node
-            let bestOpportunity = await self.steps.concurrentCompactMap { step in
-                try! await step.optimalPrice()
+            let all = await self.steps.concurrentCompactMap { step in
+                try? step.optimalPrice()
             }
-            .reduce(BuilderStep.OptimumResult(optimalPrice: 0, path: []), { max($0.optimalPrice, $1.optimalPrice) == $0.optimalPrice ? $0 : $1 })
             
-            print(bestOpportunity.optimalPrice)
+            let bestOpportunity = all
+                .reduce(BuilderStep.OptimumResult(amountIn: .zero, amountOut: .zero, path: []), {
+                    max($0.amountOut, $1.amountOut) == $0.amountOut ? $0 : $1
+                })
+            
+            var amountIn = bestOpportunity.amountIn
+            amountIn.decimals = 18
+            
+            print(bestOpportunity.path.map { "\($0.tokenA.name) -> \($0.tokenB.name) " })
+            
+            print("Best: \(amountIn) -> \(bestOpportunity.amountOut)")
         }
     }
 }

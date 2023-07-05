@@ -143,10 +143,11 @@ void upgrade_handler(uws_res_t *response, uws_req_t *request, uws_socket_context
 }
 
 void realtime_msg_forward(const char * _Nonnull message, uint16_t length, uws_websocket_t *ws) {
-    // Do something with the data.
+    struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     
-    // As a simple example, let's just print it. Assume data is a NULL-terminated string for simplicity.
-    uws_ws_send(SSL, ws, message, length, TEXT);
+    if (data) {
+        uws_ws_send(SSL, ws, message, length, TEXT);
+    }
 }
 
 void open_handler(uws_websocket_t *ws)
@@ -179,6 +180,7 @@ void close_handler(uws_websocket_t *ws, int code, const char *message, size_t le
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     if (data)
     {
+        close_realtime_server_controller(data->controller);
         free(data);
     }
 }
@@ -289,6 +291,6 @@ void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTi
     add_opportunity_for_review(order, size, systemTime);
 }
 
-void process_opportunities(void) {
-    review_and_process_opportunities();
+void process_opportunities(size_t systemTime) {
+    review_and_process_opportunities(systemTime);
 }
