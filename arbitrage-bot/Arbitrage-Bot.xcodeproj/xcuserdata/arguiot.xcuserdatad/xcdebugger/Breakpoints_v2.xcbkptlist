@@ -109,8 +109,8 @@
             filePath = "Arbitrage Bot/Aggregator/Controller/Exchanges/UniswapV2.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "152"
-            endingLineNumber = "152"
+            startingLineNumber = "158"
+            endingLineNumber = "158"
             landmarkName = "getAmountOut(amountIn:reserveIn:reserveOut:)"
             landmarkType = "7">
             <Locations>
@@ -158,6 +158,51 @@
                   startingLineNumber = "152"
                   endingLineNumber = "152"
                   offsetFromSymbolStart = "1140">
+               </Location>
+               <Location
+                  uuid = "C6FF8C39-9725-477F-81BC-F21D80E1422F - d626b602dfbcd977"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.UniswapV2.getAmountOut(amountIn: Euler.BigInt, reserveIn: Euler.BigInt, reserveOut: Euler.BigInt) throws -&gt; Euler.BigInt"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "159"
+                  endingLineNumber = "159"
+                  offsetFromSymbolStart = "1224">
+               </Location>
+               <Location
+                  uuid = "C6FF8C39-9725-477F-81BC-F21D80E1422F - d626b602dfbcd977"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.UniswapV2.getAmountOut(amountIn: Euler.BigInt, reserveIn: Euler.BigInt, reserveOut: Euler.BigInt) throws -&gt; Euler.BigInt"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "159"
+                  endingLineNumber = "159"
+                  offsetFromSymbolStart = "1116">
+               </Location>
+               <Location
+                  uuid = "C6FF8C39-9725-477F-81BC-F21D80E1422F - d626b602dfbcd956"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Arbitrage_Bot.UniswapV2.getAmountOut(amountIn: Euler.BigInt, reserveIn: Euler.BigInt, reserveOut: Euler.BigInt) throws -&gt; Euler.BigInt"
+                  moduleName = "Arbitrage_Bot"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage%20Bot/Aggregator/Controller/Exchanges/UniswapV2.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "158"
+                  endingLineNumber = "158"
+                  offsetFromSymbolStart = "1224">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -513,14 +558,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "16731661-8614-4B3B-A075-ADCC155D36FB"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Arbitrage Bot/Aggregator/Model/Arbitrage Builder/Test/VisualGraph.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
             landmarkName = "drawGraph()"
             landmarkType = "7">
          </BreakpointContent>
@@ -539,6 +584,129 @@
             endingLineNumber = "88"
             landmarkName = "closeRealtimeServerController(id:)"
             landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Arbitrage-BotTests/PriceCalculation.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "103"
+            endingLineNumber = "103"
+            landmarkName = "testTransactionBuilder()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - c69ba373256700b3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "101"
+                  endingLineNumber = "101"
+                  offsetFromSymbolStart = "2032">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - dfc156236004c503"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "101"
+                  endingLineNumber = "101"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - 8c65b2f19e49c716"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "96"
+                  endingLineNumber = "96"
+                  offsetFromSymbolStart = "92">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - 8c65b2f19e49c4ad"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "101"
+                  endingLineNumber = "101"
+                  offsetFromSymbolStart = "196">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - a968bab12ddd2915"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "96"
+                  endingLineNumber = "96"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - a968bab12ddd2aae"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "101"
+                  endingLineNumber = "101"
+                  offsetFromSymbolStart = "176">
+               </Location>
+               <Location
+                  uuid = "E32E1273-7D07-478E-8B9C-B0AA7ECC5F13 - a968bab12ddd2aae"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for Arbitrage_BotTests.PriceCalculation.testTransactionBuilder() async throws -&gt; ()"
+                  moduleName = "Arbitrage-BotTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/arguiot/Developer/Pyratz/liquidation-bot/Arbitrage-Bot/Arbitrage-BotTests/PriceCalculation.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "101"
+                  endingLineNumber = "101"
+                  offsetFromSymbolStart = "196">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

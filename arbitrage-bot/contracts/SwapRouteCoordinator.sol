@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.6.6;
-pragma experimental ABIEncoderV2;
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./IntermediaryArbitrageStep.sol";
@@ -12,87 +11,113 @@ import "hardhat/console.sol";
 contract SwapRouteCoordinator {
     event Arbitrage(uint256 amountOut);
 
+    function initiateArbitrage(
+        uint256 startAmount,
+        address lapExchange,
+        address[] memory intermediaries,
+        address[] memory tokens,
+        address[] memory data
+    ) public returns (uint amountOut) {
+        require(
+            intermediaries.length == tokens.length &&
+                tokens.length == data.length,
+            "Input arrays length mismatch"
+        );
+
+        // Call startArbitrage with constructed steps array
+        amountOut = startArbitrage(
+            startAmount,
+            lapExchange,
+            intermediaries,
+            tokens,
+            data
+        );
+    }
+
     function startArbitrage(
         uint256 startAmount,
         address lapExchange,
-        Step[] memory steps
-    ) public returns (uint amountOut) {
-        require(steps.length > 2, "Must have at least 3 steps");
-
-        IERC20 tokenA = steps[0].token;
-        IERC20 tokenB = steps[1].token;
-
-        console.log("tokenA: %s", address(tokenA));
-        console.log("tokenB: %s", address(tokenB));
+        address[] memory intermediaries,
+        address[] memory tokens,
+        address[] memory data
+    ) internal returns (uint amountOut) {
+        require(intermediaries.length > 2, "Must have at least 3 steps");
 
         (address contractToCall, bytes memory callData) = LapExchangeInterface(
             lapExchange
-        ).initialize(address(this), tokenA, tokenB, startAmount, steps);
+        ).initialize(startAmount, intermediaries, tokens, data);
 
         console.log("contractToCall: %s", contractToCall);
 
         // Perform swap
-        tokenA.approve(contractToCall, startAmount);
-        (bool success, bytes memory data) = contractToCall.call(callData);
+        IERC20(tokens[0]).approve(contractToCall, startAmount);
+        (bool success, bytes memory returnData) = contractToCall.call(callData);
 
         require(success, "Swap operation failed");
 
         // Return amount of tokenB received
-        IERC20 lastToken = steps[steps.length - 1].token;
+        IERC20 lastToken = IERC20(tokens[tokens.length - 1]);
         amountOut = lastToken.balanceOf(address(this));
 
         emit Arbitrage(amountOut);
     }
 
-    function performArbitrage(uint256 startAmount, Step[] memory steps) public {
-        for (uint i = 1; i < steps.length - 1; i++) {
-            Step memory step = steps[i + 1];
-
-            uint256 amount = steps[i].token.balanceOf(address(this)); // Get current balance of token, this way we can use any token as input
-            console.log("amount: %s %s", amount, address(steps[i].token));
+    function performArbitrage(
+        address[] memory intermediaries,
+        address[] memory tokens,
+        address[] memory data
+    ) public {
+        for (uint i = 1; i < tokens.length - 1; i++) {
+            uint256 amount = IERC20(tokens[i]).balanceOf(address(this)); // Get current balance of token, this way we can use any token as input
+            console.log("amount: %s %s", amount, tokens[i]);
             // Prepare call data based on current step
-            (address contractToCall, bytes memory callData) = step
-                .intermediary
-                .prepareStep(
+            (
+                address contractToCall,
+                bytes memory callData
+            ) = IntermediaryArbitrageStep(intermediaries[i + 1]).prepareStep(
                     address(this),
-                    steps[i].token,
-                    step.token,
+                    IERC20(tokens[i]),
+                    IERC20(tokens[i + 1]),
                     amount,
-                    step.data
+                    data[i + 1]
                 );
 
             // Perform swap
-            steps[i].token.approve(contractToCall, amount);
+            IERC20(tokens[i]).approve(contractToCall, amount);
             console.log(
                 "Allowance: %s",
-                steps[i].token.allowance(address(this), contractToCall)
+                IERC20(tokens[i]).allowance(address(this), contractToCall)
             );
             console.log("contractToCall: %s", contractToCall);
 
-            // (bool success, bytes memory data) = contractToCall.call(callData);
+            (bool success, bytes memory outdata) = contractToCall.call(
+                callData
+            );
 
-            address[] memory path = new address[](2);
-            path[0] = address(steps[i].token);
-            path[1] = address(step.token);
+            require(success, "Inter-Swap operation failed");
 
-            IUniswapV2Router02 router = IUniswapV2Router02(contractToCall);
-            try
-                router.swapExactTokensForTokens(
-                    amount,
-                    0, // Accept any amount of output tokens
-                    path,
-                    address(this),
-                    block.timestamp + 100
-                )
-            {
-                // Successful execution code here
-            } catch Error(string memory reason) {
-                console.log("Error: %s", reason);
-            }
+            // address[] memory path = new address[](2);
+            // path[0] = tokens[i];
+            // path[1] = tokens[i + 1];
+
+            // IUniswapV2Router02 router = IUniswapV2Router02(contractToCall);
+            // try
+            //     router.swapExactTokensForTokens(
+            //         amount,
+            //         0, // Accept any amount of output tokens
+            //         path,
+            //         address(this),
+            //         block.timestamp + 100
+            //     )
+            // {
+            //     // Successful execution code here
+            // } catch Error(string memory reason) {
+            //     console.log("Error: %s", reason);
+            // }
 
             console.log(
                 "Swapped! New balance: %s",
-                step.token.balanceOf(address(this))
+                IERC20(tokens[i + 1]).balanceOf(address(this))
             );
 
             // console.log("intermediary success: %s", success);

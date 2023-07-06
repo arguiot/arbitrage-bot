@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.6.6;
-pragma experimental ABIEncoderV2;
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "./IntermediaryArbitrageStep.sol";
@@ -11,6 +10,10 @@ import "@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol";
 import "./SwapRouteCoordinator.sol";
 
 import "hardhat/console.sol";
+
+interface IUniswapV2SpecialFactory {
+    function INIT_CODE_PAIR_HASH() external view returns (bytes32);
+}
 
 contract ArbitrageUniswapV2 is
     IntermediaryArbitrageStep,
@@ -25,13 +28,13 @@ contract ArbitrageUniswapV2 is
         IERC20 tokenA,
         IERC20 tokenB,
         uint256 amount,
-        bytes calldata data
+        address data
     )
         external
         override
         returns (address contractToCall, bytes memory callData)
     {
-        address router = abi.decode(data, (address));
+        address router = data;
 
         contractToCall = router;
 
@@ -57,11 +60,10 @@ contract ArbitrageUniswapV2 is
 
     // MARK: - LapExchangeInterface
     function initialize(
-        address coordinator,
-        IERC20 tokenA,
-        IERC20 tokenB,
         uint256 amount,
-        Step[] calldata steps
+        address[] calldata intermediaries,
+        address[] calldata tokens,
+        address[] calldata data
     )
         external
         override
@@ -73,18 +75,16 @@ contract ArbitrageUniswapV2 is
             uint amount0,
             uint amount1,
             uint amountToRepay
-        ) = getAmounts(steps[0].data, amount, tokenA, tokenB);
+        ) = getAmounts(data[0], amount, tokens[0], tokens[1]);
 
-        // Call Swap
         contractToCall = pair;
 
         // Encode Steps[], coordinator and amountToRepay
-        bytes memory data = abi.encode(
-            steps,
-            amount,
-            amountToRepay,
-            tokenA,
-            tokenB
+        bytes memory passdata = abi.encode(
+            intermediaries,
+            tokens,
+            data,
+            amountToRepay
         );
 
         console.log("Amount to repay: %s", amountToRepay);
@@ -94,7 +94,7 @@ contract ArbitrageUniswapV2 is
             amount0,
             amount1,
             address(this), // To this contract, which implements IUniswapV2Callee
-            data
+            passdata
         );
     }
 
@@ -106,24 +106,32 @@ contract ArbitrageUniswapV2 is
         bytes calldata data
     ) external override {
         // Decode data
-        (Step[] memory steps, uint startAmount, uint amountToRepay) = abi
-            .decode(data, (Step[], uint, uint));
+        (
+            address[] memory intermediaries,
+            address[] memory tokens,
+            address[] memory interdata,
+            uint amountToRepay
+        ) = abi.decode(data, (address[], address[], address[], uint));
 
         // Send tokens to SwapRouteCoordinator
         uint amountReceived = amount0 > 0 ? amount0 : amount1; // Whichever is greater, since one will be 0
         console.log(
             "Token 1 balance: %s",
-            IERC20(address(steps[1].token)).balanceOf(address(this))
+            IERC20(tokens[1]).balanceOf(address(this))
         );
-        IERC20(address(steps[1].token)).transfer(sender, amountReceived);
+        IERC20(tokens[1]).transfer(sender, amountReceived);
 
         console.log("Transfered %s to %s", amountReceived, sender);
 
-        SwapRouteCoordinator(sender).performArbitrage(startAmount, steps);
+        SwapRouteCoordinator(sender).performArbitrage(
+            intermediaries,
+            tokens,
+            interdata
+        );
         // Repay the flash loan
         try
             SwapRouteCoordinator(sender).repay(
-                address(steps[0].token),
+                tokens[0],
                 amountToRepay,
                 msg.sender
             )
@@ -140,7 +148,7 @@ contract ArbitrageUniswapV2 is
         address factory,
         address tokenA,
         address tokenB,
-        uint codeHash
+        bytes32 codeHash
     ) internal pure returns (address pair) {
         (address token0, address token1) = UniswapV2Library.sortTokens(
             tokenA,
@@ -161,29 +169,38 @@ contract ArbitrageUniswapV2 is
     }
 
     function getAmounts(
-        bytes memory data,
+        address router,
         uint amount,
-        IERC20 tokenA,
-        IERC20 tokenB
+        address tokenA,
+        address tokenB
     )
         internal
         view
         returns (address pair, uint amount0, uint amount1, uint amountToRepay)
     {
-        (address router, address factory, uint initCodeHash) = abi.decode(
-            data,
-            (address, address, uint)
+        address factory = IUniswapV2Router01(router).factory();
+        // INIT_CODE_PAIR_HASH sometimes exists, sometimes doesn't
+        bytes32 initCodePairHash;
+        // replace IUniswapV2Factory with your actual interface
+        IUniswapV2SpecialFactory factoryContract = IUniswapV2SpecialFactory(
+            factory
         );
 
-        pair = pairFor(factory, address(tokenA), address(tokenB), initCodeHash);
+        try factoryContract.INIT_CODE_PAIR_HASH() returns (bytes32 value) {
+            initCodePairHash = value;
+        } catch {
+            initCodePairHash = hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
+        }
+
+        pair = pairFor(factory, tokenA, tokenB, initCodePairHash);
 
         require(pair != address(0), "LapExchange: PAIR_NOT_FOUND");
 
         (uint reserve0, uint reserve1, ) = IUniswapV2Pair(pair).getReserves();
         require(reserve0 != 0 && reserve1 != 0, "LapExchange: NO_RESERVES"); // ensure that there's liquidity in the pair
 
-        amount0 = address(tokenA) > address(tokenB) ? amount : 0;
-        amount1 = address(tokenA) > address(tokenB) ? 0 : amount;
+        amount0 = tokenA > tokenB ? amount : 0;
+        amount1 = tokenA > tokenB ? 0 : amount;
 
         // Calculate amount to repay
         amountToRepay = UniswapV2Library.getAmountIn(

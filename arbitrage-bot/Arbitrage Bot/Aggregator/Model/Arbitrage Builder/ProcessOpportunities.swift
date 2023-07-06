@@ -26,7 +26,7 @@ extension Builder {
             var amountIn = bestOpportunity.amountIn
             amountIn.decimals = 18
             
-            print(bestOpportunity.path.map { "\($0.tokenA.name) -> \($0.tokenB.name) " })
+            print(bestOpportunity.path.map { "\($0.token) -> " })
             
             print("Best: \(amountIn) -> \(bestOpportunity.amountOut)")
         }

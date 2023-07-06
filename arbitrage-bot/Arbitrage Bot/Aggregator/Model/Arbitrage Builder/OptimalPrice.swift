@@ -23,7 +23,7 @@ extension BuilderStep {
     struct OptimumResult {
         let amountIn: Euler.BigInt
         let amountOut: Euler.BigInt
-        let path: [ReserveFeeInfo]
+        let path: [Step]
     }
     
     func optimalPrice() throws -> OptimumResult {
@@ -104,6 +104,8 @@ extension BuilderStep {
         
         var out = try self.price(for: b.cash)
         out.0.decimals = 18
-        return OptimumResult(amountIn: b.cash, amountOut: out.0, path: out.1)
+        var amountIn = b.cash
+        amountIn.decimals = 18
+        return OptimumResult(amountIn: amountIn, amountOut: out.0, path: out.1)
     }
 }

@@ -34,6 +34,13 @@ const config: HardhatUserConfig = {
                     ? [process.env.PRIVATE_KEY]
                     : [],
         },
+        bsc: {
+            url: process.env.HTTP_JSON_RPC_URL || "",
+            accounts:
+                process.env.WALLET_PRIVATE_KEY !== undefined
+                    ? [process.env.WALLET_PRIVATE_KEY]
+                    : [],
+        },
     },
     gasReporter: {
         enabled: process.env.REPORT_GAS !== undefined,

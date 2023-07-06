@@ -35,7 +35,7 @@ class BuilderStep {
         case arrayTooSmall
     }
     
-    func price(for amount: Euler.BigInt, chain: [ReserveFeeInfo] = []) throws -> (Euler.BigInt, [ReserveFeeInfo])  {
+    func price(for amount: Euler.BigInt, chain: [Step] = []) throws -> (Euler.BigInt, [Step])  {
         guard let reserveFeeInfos = self.reserveFeeInfos else {
             throw BuilderStepError.noReserve
         }
@@ -46,8 +46,19 @@ class BuilderStep {
             .reduce((0, reserveFeeInfos[0]), { max($0.0, $1.0) == $0.0 ? $0 : $1 })
         
         var chain = chain
-        chain.append(info)
-        
+        if let coordinator = info.exchange.coordinator,
+           let intermediaryStepData = info.exchange.intermediaryStepData {
+            let step = Step(intermediary: coordinator,
+                            token: info.tokenA.address,
+                            data: intermediaryStepData)
+            chain.append(step)
+            if next == nil {
+                let step = Step(intermediary: coordinator,
+                                token: info.tokenB.address,
+                                data: intermediaryStepData)
+                chain.append(step)
+            }
+        }
         if let next = next {
             return try next.price(for: currentPrice, chain: chain)
         }

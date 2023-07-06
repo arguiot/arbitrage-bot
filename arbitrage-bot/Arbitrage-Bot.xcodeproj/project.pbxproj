@@ -104,6 +104,7 @@
 		68518F2F2A52B76100E22676 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F2E2A52B76100E22676 /* Collections */; };
 		68518F322A52B7D100E22676 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F312A52B7D100E22676 /* secp256k1 */; };
 		68518F8C2A52BC8000E22676 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F8B2A52BC8000E22676 /* Quick */; };
+		6862A45C2A56A24C002E825B /* SwapRouteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8F92A544B9400CC9779 /* AGGRenderer */; };
 		68A6F8FC2A544B9400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8FB2A544B9400CC9779 /* SwiftPlot */; };
@@ -326,6 +327,7 @@
 		68518EDA2A52A5DA00E22676 /* ABIConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIConvertible.swift; sourceTree = "<group>"; };
 		68518EDC2A52A5DB00E22676 /* Web3+PromiseKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Web3+PromiseKit.swift"; sourceTree = "<group>"; };
 		68518EDF2A52A5DB00E22676 /* ContractPromiseExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractPromiseExtensions.swift; sourceTree = "<group>"; };
+		6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapRouteCoordinator.swift; sourceTree = "<group>"; };
 		68832F352A4752D400607523 /* libusockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libusockets.h; sourceTree = "<group>"; };
 		6894020B2A4C2B6A0089D4AA /* negate_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = negate_log.h; sourceTree = "<group>"; };
 		6894020C2A4C2B6A0089D4AA /* negate_log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = negate_log.c; sourceTree = "<group>"; };
@@ -849,6 +851,7 @@
 			children = (
 				68FCE1EA2A4EDA17009B79ED /* UniswapV2Router.swift */,
 				68FCE1EB2A4EDA17009B79ED /* UniswapV2Pair.swift */,
+				6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */,
 			);
 			path = Contracts;
 			sourceTree = "<group>";
@@ -1280,6 +1283,7 @@
 				68518F1A2A52A5DB00E22676 /* Eth+ABI.swift in Sources */,
 				68518EF12A52A5DB00E22676 /* EthereumQuantity.swift in Sources */,
 				68518F112A52A5DB00E22676 /* Eth+Contract.swift in Sources */,
+				6862A45C2A56A24C002E825B /* SwapRouteCoordinator.swift in Sources */,
 				68FCE2112A4EDA18009B79ED /* AdjacencyList.swift in Sources */,
 				68518F052A52A5DB00E22676 /* Bytes+UInt.swift in Sources */,
 				68518F162A52A5DB00E22676 /* ERC165.swift in Sources */,

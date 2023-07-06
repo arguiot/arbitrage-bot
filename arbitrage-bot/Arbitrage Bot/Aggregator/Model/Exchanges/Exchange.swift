@@ -6,6 +6,7 @@
 //
 
 import Euler
+import Foundation
 
 struct Cost {
     var gas: Euler.BigInt?
@@ -42,6 +43,10 @@ protocol Exchange: Hashable {
     var fee: Euler.BigInt { get }
     
     var delegate: Delegate { get }
+    var coordinator: EthereumAddress? { get }
+    
+    // Info
+    var intermediaryStepData: EthereumAddress? { get }
     
     // Methods
     

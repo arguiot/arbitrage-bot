@@ -5,6 +5,7 @@
 //  Created by Arthur Guiot on 04/07/2023.
 //
 
+#if DEBUG
 #if canImport(SVGRenderer)
 import Foundation
 import Euler
@@ -58,4 +59,5 @@ extension BuilderStep {
     }
 }
 
+#endif
 #endif

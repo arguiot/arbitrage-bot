@@ -9,6 +9,6 @@ interface IntermediaryArbitrageStep {
         IERC20 tokenA,
         IERC20 tokenB,
         uint256 amount,
-        bytes calldata data
+        address data
     ) external returns (address contractToCall, bytes memory callData);
 }

@@ -34,7 +34,7 @@ final class UniswapV2: Exchange {
     
     var delegate: UniswapV2Router
     var factory: EthereumAddress
-    var coordinator: EthereumAddress
+    var coordinator: EthereumAddress?
     
     init(router: EthereumAddress, factory: EthereumAddress, coordinator: EthereumAddress, fee: Euler.BigInt) {
         self.delegate = UniswapV2Router(address: router, eth: Credentials.shared.web3.eth)
@@ -75,6 +75,12 @@ final class UniswapV2: Exchange {
                 return "Insufficient liquidity"
             }
         }
+    }
+    
+    // MARK: - Info
+    
+    var intermediaryStepData: EthereumAddress? {
+        self.delegate.address
     }
     
     // MARK: - Contract Methods
