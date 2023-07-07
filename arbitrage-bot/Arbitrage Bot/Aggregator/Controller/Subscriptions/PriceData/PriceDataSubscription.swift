@@ -12,6 +12,8 @@ class PriceDataSubscription {
     private let callback: (Result<(BotResponse, Int), Error>) -> Void
     internal let subscriptions = PriceDataSubscriptionState()
     
+    internal var decisions = false
+    
     init(callback: @escaping (Result<(BotResponse, Int), Error>) -> Void) {
         self.callback = callback
         subscribeToNewHeads()
@@ -36,7 +38,9 @@ class PriceDataSubscription {
             print("Dispatched prices in \(time.ms)ms")
             
             // Dispatch to front-end
-            PriceDataStoreWrapper.shared?.dispatch(time: systemTime)
+            if decisions {
+                PriceDataStoreWrapper.shared?.dispatch(time: systemTime)
+            }
         }
     }
     
