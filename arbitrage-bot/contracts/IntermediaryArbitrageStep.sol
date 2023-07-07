@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 interface IntermediaryArbitrageStep {
     function prepareStep(
         address coordinator,
-        IERC20 tokenA,
-        IERC20 tokenB,
+        address tokenA,
+        address tokenB,
         uint256 amount,
         address data
     ) external returns (address contractToCall, bytes memory callData);

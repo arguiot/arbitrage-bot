@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */; };
+		68017B442A57101400837B89 /* DecisionDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B432A57101400837B89 /* DecisionDataPublisher.swift */; };
+		68017B472A57117600837B89 /* ArbitrageSwapCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */; };
 		6809AFA72A486FB100A89952 /* uSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68DCBEFF2A45D420007DCB50 /* uSockets.a */; };
 		68137F332A52BCB900E6264A /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 68137F322A52BCB900E6264A /* Nimble */; };
 		68137F4C2A52C7F800E6264A /* Arbitrage_Bot_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */; };
@@ -240,6 +243,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionSubscriber.swift; sourceTree = "<group>"; };
+		68017B432A57101400837B89 /* DecisionDataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionDataPublisher.swift; sourceTree = "<group>"; };
+		68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrageSwapCoordinator.swift; sourceTree = "<group>"; };
 		68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Arbitrage_Bot_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot_Demo.h; sourceTree = "<group>"; };
 		68137F4B2A52C7F700E6264A /* Arbitrage Bot DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Arbitrage Bot DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -444,6 +450,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		68017B3D2A570EBB00837B89 /* PriceData */ = {
+			isa = PBXGroup;
+			children = (
+				68FCE1D42A4EDA17009B79ED /* PriceDataSubscription.swift */,
+				68FCE1D52A4EDA17009B79ED /* PriceDataSubscriptionType.swift */,
+				68FCE1D62A4EDA17009B79ED /* PriceDataSubscriptionState.swift */,
+			);
+			path = PriceData;
+			sourceTree = "<group>";
+		};
+		68017B412A570FF800837B89 /* PriceData */ = {
+			isa = PBXGroup;
+			children = (
+				68FCE1D82A4EDA17009B79ED /* PriceDataPublisher.swift */,
+			);
+			path = PriceData;
+			sourceTree = "<group>";
+		};
+		68017B422A57100600837B89 /* Decision */ = {
+			isa = PBXGroup;
+			children = (
+				68017B432A57101400837B89 /* DecisionDataPublisher.swift */,
+			);
+			path = Decision;
+			sourceTree = "<group>";
+		};
+		68017B452A57116200837B89 /* Arbitrage Executor */ = {
+			isa = PBXGroup;
+			children = (
+				68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */,
+			);
+			path = "Arbitrage Executor";
+			sourceTree = "<group>";
+		};
 		68137F452A52C7F700E6264A /* Arbitrage Bot Demo */ = {
 			isa = PBXGroup;
 			children = (
@@ -779,9 +819,7 @@
 		68FCE1D32A4EDA17009B79ED /* Subscriptions */ = {
 			isa = PBXGroup;
 			children = (
-				68FCE1D42A4EDA17009B79ED /* PriceDataSubscription.swift */,
-				68FCE1D52A4EDA17009B79ED /* PriceDataSubscriptionType.swift */,
-				68FCE1D62A4EDA17009B79ED /* PriceDataSubscriptionState.swift */,
+				68017B3D2A570EBB00837B89 /* PriceData */,
 			);
 			path = Subscriptions;
 			sourceTree = "<group>";
@@ -789,7 +827,8 @@
 		68FCE1D72A4EDA17009B79ED /* Publishers */ = {
 			isa = PBXGroup;
 			children = (
-				68FCE1D82A4EDA17009B79ED /* PriceDataPublisher.swift */,
+				68017B422A57100600837B89 /* Decision */,
+				68017B412A570FF800837B89 /* PriceData */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -797,6 +836,7 @@
 		68FCE1D92A4EDA17009B79ED /* Subscriber */ = {
 			isa = PBXGroup;
 			children = (
+				68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */,
 				68FCE1DA2A4EDA17009B79ED /* PriceDataSubscriber.swift */,
 			);
 			path = Subscriber;
@@ -827,6 +867,7 @@
 		68FCE1E42A4EDA17009B79ED /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				68017B452A57116200837B89 /* Arbitrage Executor */,
 				68137F702A52E9C500E6264A /* Arbitrage Builder */,
 				68FCE1E52A4EDA17009B79ED /* Exchanges */,
 				68FCE1E92A4EDA17009B79ED /* Contracts */,
@@ -1222,6 +1263,7 @@
 			files = (
 				68518EFD2A52A5DB00E22676 /* Bytes+SecureRandom.swift in Sources */,
 				68FCE2172A4EDA18009B79ED /* Exchanges.swift in Sources */,
+				68017B442A57101400837B89 /* DecisionDataPublisher.swift in Sources */,
 				68FCE2042A4EDA18009B79ED /* AnyCodable.swift in Sources */,
 				68FCE20C2A4EDA18009B79ED /* UniswapV2Router.swift in Sources */,
 				68FCE2182A4EDA18009B79ED /* Credentials.swift in Sources */,
@@ -1277,6 +1319,7 @@
 				68518F142A52A5DB00E22676 /* ERC20.swift in Sources */,
 				68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */,
 				68518F1C2A52A5DB00E22676 /* ABIDecoder.swift in Sources */,
+				68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */,
 				68137F742A52F2D900E6264A /* OptimalPrice.swift in Sources */,
 				68518F212A52A5DB00E22676 /* SolidityTuple.swift in Sources */,
 				68518F182A52A5DB00E22676 /* EthereumContract.swift in Sources */,
@@ -1323,6 +1366,7 @@
 				68518F262A52A5DB00E22676 /* ContractPromiseExtensions.swift in Sources */,
 				68518F202A52A5DB00E22676 /* ABI.swift in Sources */,
 				68FCE2062A4EDA18009B79ED /* BigInt+Typealias.swift in Sources */,
+				68017B472A57117600837B89 /* ArbitrageSwapCoordinator.swift in Sources */,
 				68518EE62A52A5DB00E22676 /* RLPItem.swift in Sources */,
 				68FCE1FB2A4EDA18009B79ED /* RealtimeServerController.swift in Sources */,
 				68518EFA2A52A5DB00E22676 /* Bytes+HexString.swift in Sources */,

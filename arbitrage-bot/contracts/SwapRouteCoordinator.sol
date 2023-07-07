@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.6.6;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./IntermediaryArbitrageStep.sol";
 import "./LapExchangeInterface.sol";
@@ -9,7 +11,13 @@ import "./Step.sol";
 import "hardhat/console.sol";
 
 contract SwapRouteCoordinator {
+    using SafeMath for uint256;
+
     event Arbitrage(uint256 amountOut);
+    event SwapPerformed(address indexed intermediary, uint256 amountOut);
+    event TokensRepaid(address indexed destination, uint256 amount);
+
+    uint256 constant MINIMUM_STEPS = 3;
 
     function initiateArbitrage(
         uint256 startAmount,
@@ -17,12 +25,23 @@ contract SwapRouteCoordinator {
         address[] memory intermediaries,
         address[] memory tokens,
         address[] memory data
-    ) public returns (uint amountOut) {
+    ) public returns (uint256 amountOut) {
+        // validate non-zero addresses
+        require(lapExchange != address(0), "Invalid LapExchange address.");
         require(
             intermediaries.length == tokens.length &&
                 tokens.length == data.length,
             "Input arrays length mismatch"
         );
+
+        for (uint i = 0; i < intermediaries.length; i++) {
+            require(
+                intermediaries[i] != address(0),
+                "Invalid intermediary address"
+            );
+            require(tokens[i] != address(0), "Invalid token address");
+            // validate data addresses here as needed
+        }
 
         // Call startArbitrage with constructed steps array
         amountOut = startArbitrage(
@@ -32,6 +51,8 @@ contract SwapRouteCoordinator {
             tokens,
             data
         );
+
+        emit Arbitrage(amountOut);
     }
 
     function startArbitrage(
@@ -40,8 +61,11 @@ contract SwapRouteCoordinator {
         address[] memory intermediaries,
         address[] memory tokens,
         address[] memory data
-    ) internal returns (uint amountOut) {
-        require(intermediaries.length > 2, "Must have at least 3 steps");
+    ) private returns (uint256 amountOut) {
+        require(
+            intermediaries.length >= MINIMUM_STEPS,
+            "Must have at least 3 steps"
+        );
 
         (address contractToCall, bytes memory callData) = LapExchangeInterface(
             lapExchange
@@ -50,8 +74,9 @@ contract SwapRouteCoordinator {
         console.log("contractToCall: %s", contractToCall);
 
         // Perform swap
-        IERC20(tokens[0]).approve(contractToCall, startAmount);
-        (bool success, bytes memory returnData) = contractToCall.call(callData);
+        IERC20 token = IERC20(tokens[0]);
+        token.approve(contractToCall, startAmount);
+        (bool success, ) = contractToCall.call(callData);
 
         require(success, "Swap operation failed");
 
@@ -59,7 +84,7 @@ contract SwapRouteCoordinator {
         IERC20 lastToken = IERC20(tokens[tokens.length - 1]);
         amountOut = lastToken.balanceOf(address(this));
 
-        emit Arbitrage(amountOut);
+        // Perform further operations or throw custom error based on amountOut here as needed
     }
 
     function performArbitrage(
@@ -69,15 +94,15 @@ contract SwapRouteCoordinator {
     ) public {
         for (uint i = 1; i < tokens.length - 1; i++) {
             uint256 amount = IERC20(tokens[i]).balanceOf(address(this)); // Get current balance of token, this way we can use any token as input
-            console.log("amount: %s %s", amount, tokens[i]);
+            console.log("Balance: %s %s", amount, tokens[i]);
             // Prepare call data based on current step
             (
                 address contractToCall,
                 bytes memory callData
             ) = IntermediaryArbitrageStep(intermediaries[i + 1]).prepareStep(
                     address(this),
-                    IERC20(tokens[i]),
-                    IERC20(tokens[i + 1]),
+                    tokens[i],
+                    tokens[i + 1],
                     amount,
                     data[i + 1]
                 );
@@ -90,43 +115,29 @@ contract SwapRouteCoordinator {
             );
             console.log("contractToCall: %s", contractToCall);
 
-            (bool success, bytes memory outdata) = contractToCall.call(
-                callData
-            );
+            (bool success, ) = contractToCall.call(callData);
+
+            address[] memory path = new address[](2);
+            path[0] = tokens[i];
+            path[1] = tokens[i + 1];
 
             require(success, "Inter-Swap operation failed");
 
-            // address[] memory path = new address[](2);
-            // path[0] = tokens[i];
-            // path[1] = tokens[i + 1];
+            IERC20 nextToken = IERC20(tokens[i + 1]);
+            uint256 nextTokenBalance = nextToken.balanceOf(address(this));
+            console.log("Swapped! New balance: %s", nextTokenBalance);
 
-            // IUniswapV2Router02 router = IUniswapV2Router02(contractToCall);
-            // try
-            //     router.swapExactTokensForTokens(
-            //         amount,
-            //         0, // Accept any amount of output tokens
-            //         path,
-            //         address(this),
-            //         block.timestamp + 100
-            //     )
-            // {
-            //     // Successful execution code here
-            // } catch Error(string memory reason) {
-            //     console.log("Error: %s", reason);
-            // }
-
-            console.log(
-                "Swapped! New balance: %s",
-                IERC20(tokens[i + 1]).balanceOf(address(this))
-            );
-
-            // console.log("intermediary success: %s", success);
-
-            // require(success, "Swap operation failed");
+            emit SwapPerformed(intermediaries[i + 1], nextTokenBalance);
         }
     }
 
     function repay(address token, uint256 amount, address destination) public {
-        IERC20(token).transfer(destination, amount);
+        require(token != address(0), "Invalid token address");
+        require(destination != address(0), "Invalid destination address");
+        IERC20 tokenInstance = IERC20(token);
+        // Boolean check for transfer
+        require(tokenInstance.transfer(destination, amount), "Transfer failed");
+
+        emit TokensRepaid(destination, amount);
     }
 }

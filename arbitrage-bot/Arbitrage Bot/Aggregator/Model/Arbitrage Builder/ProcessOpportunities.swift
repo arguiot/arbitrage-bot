@@ -29,6 +29,8 @@ extension Builder {
             print(bestOpportunity.path.map { "\($0.token) -> " })
             
             print("Best: \(amountIn) -> \(bestOpportunity.amountOut)")
+            
+            try await DecisionDataPublisher.shared.coordinator.coordinateFlashSwapArbitrage(with: bestOpportunity)
         }
     }
 }

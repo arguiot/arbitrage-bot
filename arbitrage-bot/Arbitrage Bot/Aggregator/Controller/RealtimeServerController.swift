@@ -10,19 +10,29 @@ import Foundation
 
 actor RealtimeServerController {
     var callback: (String) -> Void
-    var subscriber: PriceDataSubscriber
+    var priceSubscriber: PriceDataSubscriber
     var priceDataStore: PriceDataStoreWrapper? = nil
+    
+    var decisionSubscriber: DecisionDataSubscriber
     
     public init(id: Int, callback: @escaping (String) -> Void) {
         self.callback = callback
-        self.subscriber = PriceDataSubscriber { res in
+        self.priceSubscriber = PriceDataSubscriber { res in
             guard let str = try? res.toJSON() else { return }
             if controllers.keys.contains(id) {
                 callback(str)
             }
         }
+        self.decisionSubscriber = DecisionDataSubscriber { res in
+            guard let str = try? res.toJSON() else { return }
+            if controllers.keys.contains(id) {
+                callback(str)
+            }
+        }
+        
         // Publishers
-        PriceDataPublisher.shared.receive(subscriber: subscriber)
+        PriceDataPublisher.shared.receive(subscriber: priceSubscriber)
+        DecisionDataPublisher.shared.receive(subscriber: decisionSubscriber)
     }
     
     func setPriceDataStore(with store: PriceDataStoreWrapper) {
@@ -60,9 +70,9 @@ actor RealtimeServerController {
                                                     pair: pair)
         
         if request.type == .subscribe {
-            self.subscriber.activeSubscriptions.append(activeSub)
+            self.priceSubscriber.activeSubscriptions.append(activeSub)
         } else {
-            self.subscriber.activeSubscriptions.removeAll { sub in
+            self.priceSubscriber.activeSubscriptions.removeAll { sub in
                 activeSub == sub
             }
         }
@@ -71,6 +81,12 @@ actor RealtimeServerController {
     }
     
     func decision(request: BotRequest) async -> BotResponse {
+        if request.type == .subscribe {
+            PriceDataPublisher.shared.priceDataSubscription.decisions = true
+        } else {
+            PriceDataPublisher.shared.priceDataSubscription.decisions = false
+        }
+        
         return BotResponse(status: .success, topic: .decision)
     }
     

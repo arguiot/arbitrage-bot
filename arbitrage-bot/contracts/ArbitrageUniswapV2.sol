@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.6.6;
 
-import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
+import "./SwapRouteCoordinator.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./IntermediaryArbitrageStep.sol";
 import "./LapExchangeInterface.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Callee.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol";
-import "./SwapRouteCoordinator.sol";
 
 import "hardhat/console.sol";
 
@@ -25,8 +25,8 @@ contract ArbitrageUniswapV2 is
     // MARK: - IntermediaryArbitrageStep
     function prepareStep(
         address coordinator,
-        IERC20 tokenA,
-        IERC20 tokenB,
+        address tokenA,
+        address tokenB,
         uint256 amount,
         address data
     )
@@ -38,14 +38,11 @@ contract ArbitrageUniswapV2 is
 
         contractToCall = router;
 
-        address[2] memory path = [address(tokenA), address(tokenB)];
+        address[] memory path = new address[](2);
+        path[0] = tokenA;
+        path[1] = tokenB;
 
-        console.log(
-            "Swapping %s %s for %s",
-            amount,
-            address(tokenA),
-            address(tokenB)
-        );
+        console.log("Swapping %s %s for %s", amount, tokenA, tokenB);
 
         // Call swapExactTokensForTokens
         callData = abi.encodeWithSelector(
@@ -178,20 +175,10 @@ contract ArbitrageUniswapV2 is
         view
         returns (address pair, uint amount0, uint amount1, uint amountToRepay)
     {
-        address factory = IUniswapV2Router01(router).factory();
+        console.log("Router: %s", router);
+        address factory = IUniswapV2Router02(router).factory();
         // INIT_CODE_PAIR_HASH sometimes exists, sometimes doesn't
-        bytes32 initCodePairHash;
-        // replace IUniswapV2Factory with your actual interface
-        IUniswapV2SpecialFactory factoryContract = IUniswapV2SpecialFactory(
-            factory
-        );
-
-        try factoryContract.INIT_CODE_PAIR_HASH() returns (bytes32 value) {
-            initCodePairHash = value;
-        } catch {
-            initCodePairHash = hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
-        }
-
+        bytes32 initCodePairHash = initCodePairHashDetection(factory);
         pair = pairFor(factory, tokenA, tokenB, initCodePairHash);
 
         require(pair != address(0), "LapExchange: PAIR_NOT_FOUND");
@@ -207,6 +194,38 @@ contract ArbitrageUniswapV2 is
             amount,
             reserve0,
             reserve1
+        );
+    }
+
+    bytes4 private constant FUNC_SELECTOR =
+        bytes4(keccak256(bytes("INIT_CODE_PAIR_HASH()")));
+
+    function initCodePairHashDetection(
+        address factory
+    ) internal view returns (bytes32 initCodePairHash) {
+        bytes memory data = abi.encodeWithSelector(FUNC_SELECTOR);
+        console.log("Factory: %s", factory);
+        bool success;
+        assembly {
+            let resultPtr := add(data, 32)
+            success := staticcall(
+                gas(), // gas remaining
+                factory, // destination address
+                add(data, 32), // input buffer (starts after the first 32 bytes)
+                mload(data), // input length (loaded from the first 32 bytes)
+                resultPtr, // output buffer
+                32 // output length
+            )
+
+            initCodePairHash := mload(resultPtr)
+        }
+
+        initCodePairHash = (
+            success
+                ? initCodePairHash
+                : bytes32(
+                    0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f
+                )
         );
     }
 }

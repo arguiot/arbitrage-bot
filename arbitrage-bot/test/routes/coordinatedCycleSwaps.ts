@@ -1,8 +1,5 @@
-import { expect } from "chai";
 import { ethers } from "hardhat";
 import { deployV2 } from "./deployV2";
-import { interExchangeRoute } from "../../server/model/interExchangeRoute";
-import { hashes } from "../../src/exchanges/UniswapV2";
 
 describe("Coordinate Cycle Swaps", () => {
     // it("should find the best cycle swap", async () => {
@@ -69,53 +66,34 @@ describe("Coordinate Cycle Swaps", () => {
 
         const startAmount = ethers.utils.parseEther("1");
 
-        const route = [
-            {
-                token: await pairs[0].token0(),
-                intermediary: arbitrageUniswapV2.address,
-                data: ethers.utils.defaultAbiCoder.encode(
-                    ["address", "address", "uint256"],
-                    [
-                        uniswapInstances[0].delegate.address,
-                        uniswapInstances[0].source.address,
-                        hashes[uniswapInstances[0].name],
-                    ]
-                ),
-            },
-            {
-                token: await pairs[0].token1(),
-                intermediary: arbitrageUniswapV2.address,
-                data: ethers.utils.defaultAbiCoder.encode(
-                    ["address", "address", "uint256"],
-                    [
-                        uniswapInstances[0].delegate.address,
-                        uniswapInstances[0].source.address,
-                        hashes[uniswapInstances[0].name],
-                    ]
-                ),
-            },
-            {
-                token: await pairs[0].token0(),
-                intermediary: arbitrageUniswapV2.address,
-                data: ethers.utils.defaultAbiCoder.encode(
-                    ["address", "address", "uint256"],
-                    [
-                        uniswapInstances[1].delegate.address,
-                        uniswapInstances[1].source.address,
-                        hashes[uniswapInstances[0].name],
-                    ]
-                ),
-            }
+        const intermediaries = [
+            arbitrageUniswapV2.address,
+            arbitrageUniswapV2.address,
+            arbitrageUniswapV2.address
         ];
 
-        console.log("Route: ", route.map((r) => r.token));
+        const tokens = [
+            await pairs[0].token0(),
+            await pairs[0].token1(),
+            await pairs[0].token0()
+        ];
 
-        const tx = await swapRouteCoordinator.startArbitrage(
+        const routerAddresses = [
+            uniswapInstances[0].delegate.address,
+            uniswapInstances[0].delegate.address,
+            uniswapInstances[1].delegate.address
+        ];
+
+
+        // console.log("Route: ", route.map((r) => r.token));
+
+        const tx = await swapRouteCoordinator.initiateArbitrage(
             startAmount,
             arbitrageUniswapV2.address,
-            route
-        );
-
+            intermediaries,
+            tokens,
+            routerAddresses
+        )
         const receipt = await tx.wait();
         // Amount out is returned from the call
         const event = receipt.events?.find(e => e.event == 'Arbitrage');
