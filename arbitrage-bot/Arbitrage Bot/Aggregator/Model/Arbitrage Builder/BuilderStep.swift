@@ -16,17 +16,23 @@ class BuilderStep {
     
     var reserveFeeInfos: [ReserveFeeInfo]?
     
-    #if canImport(AppKit)
+#if canImport(AppKit)
     var window: NSWindow?
-    #endif
+#endif
     
+    let tokenA: Token
+    let tokenB: Token
     
     init(tokenA: Token, tokenB: Token, adjacencyList: AdjacencyList) async {
+        self.tokenA = tokenA
+        self.tokenB = tokenB
         self.reserveFeeInfos = await adjacencyList
             .getReserves(tokenA: tokenA, tokenB: tokenB)
     }
     
-    init(reserveFeeInfos: [ReserveFeeInfo]) {
+    init(tokenA: Token? = nil, tokenB: Token? = nil, reserveFeeInfos: [ReserveFeeInfo]) {
+        self.tokenA = tokenA ?? reserveFeeInfos.first!.tokenA
+        self.tokenB = tokenB ?? reserveFeeInfos.first!.tokenB
         self.reserveFeeInfos = reserveFeeInfos
     }
     
@@ -41,20 +47,20 @@ class BuilderStep {
         }
         
         let (currentPrice, info) = try reserveFeeInfos.map({ info in
-                (try info.fastQuote(with: amount), info)
-            })
+            (try info.fastQuote(with: amount, tokenA: tokenA, tokenB: tokenB), info)
+        })
             .reduce((0, reserveFeeInfos[0]), { max($0.0, $1.0) == $0.0 ? $0 : $1 })
         
         var chain = chain
         if let coordinator = info.exchange.coordinator,
            let intermediaryStepData = info.exchange.intermediaryStepData {
             let step = Step(intermediary: coordinator,
-                            token: info.tokenA.address,
+                            token: tokenA.address,
                             data: intermediaryStepData)
             chain.append(step)
             if next == nil {
                 let step = Step(intermediary: coordinator,
-                                token: info.tokenB.address,
+                                token: tokenB.address,
                                 data: intermediaryStepData)
                 chain.append(step)
             }
@@ -67,13 +73,18 @@ class BuilderStep {
     }
     
     var description: String {
-        let path = [self.reserveFeeInfos?.first?.tokenA.name,
+        var path = [tokenA.name,
                     " -> ",
-                    self.reserveFeeInfos?.first?.tokenB.name].compactMap { $0 }
+                    tokenB.name].compactMap { $0 }
+        
+        if let meta = reserveFeeInfos?[0].meta as? UniswapV2.RequiredPriceInfo {
+            path.insert("(\((tokenA > tokenB ? meta.reserveA : meta.reserveB) / 1e18))", at: 1)
+            path.insert("(\((tokenA > tokenB ? meta.reserveB : meta.reserveA) / 1e18))", at: 4)
+        }
         
         let nextStr = next?.description
         
-        if path.count == 3 {
+        if path.count == 3 || path.count == 5 {
             return "\(path.joined())" + ((nextStr != nil) ? "-> \(nextStr!)" : "")
         }
         

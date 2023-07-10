@@ -38,14 +38,14 @@ struct ReserveFeeInfo: CustomStringConvertible {
         self.tokenB = tokenA < tokenB ? tokenB : tokenA
     }
     
-    func fastQuote(with amount: Euler.BigInt) throws -> Euler.BigInt {
-        let bnQuote = try ReserveFeeInfo.fastQuote(for: self.exchange, with: amount, using: meta)
+    func fastQuote(with amount: Euler.BigInt, tokenA: Token, tokenB: Token) throws -> Euler.BigInt {
+        let bnQuote = try ReserveFeeInfo.fastQuote(for: self.exchange, with: amount, tokenA: tokenA, tokenB: tokenB, using: meta)
         return bnQuote
     }
     
-    static func fastQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt, using meta: Any) throws -> Euler.BigInt {
+    static func fastQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt, tokenA: Token, tokenB: Token, using meta: Any) throws -> Euler.BigInt {
         guard let meta = meta as? T.Meta else { return .zero }
-        return try exchange.getAmountOut(amountIn: amount, meta: meta)
+        return try exchange.getAmountOut(amountIn: amount, tokenA: tokenA, tokenB: tokenB, meta: meta)
     }
     
     func calculatedQuote(with amount: Euler.BigInt?, aToB: Bool = true) async throws -> Euler.BigInt {
@@ -59,7 +59,7 @@ struct ReserveFeeInfo: CustomStringConvertible {
     static func calculatedQuote<T: Exchange>(for exchange: T, with amount: Euler.BigInt?, tokenA: Token, tokenB: Token, using meta: Any) async throws -> Euler.BigInt {
         if let amount = amount {
             guard let meta = meta as? T.Meta else { return .zero }
-            return try exchange.getAmountOut(amountIn: amount, meta: meta)
+            return try exchange.getAmountOut(amountIn: amount, tokenA: tokenA, tokenB: tokenB, meta: meta)
         }
         return try await exchange.getQuote(maxAvailableAmount: amount,
                                        tokenA: tokenA,

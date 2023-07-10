@@ -164,8 +164,10 @@ final class UniswapV2: Exchange {
         return numerator / denominator
     }
     
-    func getAmountOut(amountIn: Euler.BigInt, meta: RequiredPriceInfo) throws -> Euler.BigInt {
-        return try self.getAmountOut(amountIn: amountIn, reserveIn: meta.reserveA, reserveOut: meta.reserveB)
+    func getAmountOut(amountIn: Euler.BigInt, tokenA: Token, tokenB: Token, meta: RequiredPriceInfo) throws -> Euler.BigInt {
+        let reserveIn = tokenA > tokenB ? meta.reserveA : meta.reserveB
+        let reserveOut = tokenA > tokenB ? meta.reserveB : meta.reserveA
+        return try self.getAmountOut(amountIn: amountIn, reserveIn: reserveIn, reserveOut: reserveOut)
     }
     
     func getAmountIn(

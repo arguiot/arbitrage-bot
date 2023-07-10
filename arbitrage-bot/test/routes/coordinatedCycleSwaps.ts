@@ -85,7 +85,12 @@ describe("Coordinate Cycle Swaps", () => {
         ];
 
 
-        // console.log("Route: ", route.map((r) => r.token));
+        console.log("initiateArbitrage(uint256 startAmount,address lapExchange,address[] intermediaries,address[] tokens,address[] data)");
+        console.log("startAmount: ", startAmount.toString());
+        console.log("lapExchange: ", arbitrageUniswapV2.address);
+        console.log("intermediaries: ", intermediaries);
+        console.log("tokens: ", tokens);
+        console.log("data: ", routerAddresses);
 
         const tx = await swapRouteCoordinator.initiateArbitrage(
             startAmount,

@@ -139,9 +139,15 @@ async function main() {
             }
         }
 
-        const tx1 = await tokenA.approve(routerAddress, adjustedAmountA);
+        const tx1 = await tokenA.approve(routerAddress, adjustedAmountA, {
+            gasLimit: 1000000,
+            gasPrice: 100000000000,
+        });
         await tx1.wait();
-        const tx2 = await tokenB.approve(routerAddress, adjustedAmountB);
+        const tx2 = await tokenB.approve(routerAddress, adjustedAmountB, {
+            gasLimit: 1000000,
+            gasPrice: 100000000000,
+        });
         await tx2.wait();
 
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
@@ -154,7 +160,7 @@ async function main() {
             0,
             await signer.getAddress(),
             deadline,
-            { gasLimit: 1000000 }
+            { gasLimit: 1000000, gasPrice: 100000000000 }
         );
         console.log(`Adding liquidity to DEX ${index + 1}...`);
         await tx.wait();

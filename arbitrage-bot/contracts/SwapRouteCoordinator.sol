@@ -83,7 +83,6 @@ contract SwapRouteCoordinator {
         // Return amount of tokenB received
         IERC20 lastToken = IERC20(tokens[tokens.length - 1]);
         amountOut = lastToken.balanceOf(address(this));
-
         // Perform further operations or throw custom error based on amountOut here as needed
     }
 

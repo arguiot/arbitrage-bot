@@ -39,21 +39,21 @@ struct ExchangesList {
         var uniswap = ExchangeMetadata(name: "uniswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
             factory: try! EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0xC8DF343A7b084F80C84E04E9B167c2EA93eAFC10", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x419443d44eEcB9aC50938c421b5Cdec91D8847dF", eip55: false),
             fee: 3
         ))
         
         var pancakeswap = ExchangeMetadata(name: "pancakeswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", eip55: false),
             factory: try! EthereumAddress(hex: "0x6725F303b657a9451d8BA641348b6761A6CC7a17", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0xC8DF343A7b084F80C84E04E9B167c2EA93eAFC10", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x419443d44eEcB9aC50938c421b5Cdec91D8847dF", eip55: false),
             fee: 2
         ))
         
         var apeswap = ExchangeMetadata(name: "apeswap", exchange: UniswapV2(
             router: try! EthereumAddress(hex: "0x1c6f40e550421D4307f9D5a878a1628c50be0C5B", eip55: false),
             factory: try! EthereumAddress(hex: "0x5722F3b02b9fe2003b3045D73E9230684707B257", eip55: false),
-            coordinator: try! EthereumAddress(hex: "0xC8DF343A7b084F80C84E04E9B167c2EA93eAFC10", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x419443d44eEcB9aC50938c421b5Cdec91D8847dF", eip55: false),
             fee: 3
         ))
         
@@ -122,4 +122,4 @@ struct UniswapV2Exchange {
 
 // MARK: - Grand Swap Coordinator
 
-let swapCoordinatorDevAddress = EthereumAddress(hexString: "0x6484B8738e4446297451878C81b45609844e1739")
+let swapCoordinatorDevAddress = EthereumAddress(hexString: "0x226d377E71188A550B6A4642B47f0C4a39310C42")

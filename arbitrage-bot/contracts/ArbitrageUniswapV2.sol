@@ -183,49 +183,38 @@ contract ArbitrageUniswapV2 is
 
         require(pair != address(0), "LapExchange: PAIR_NOT_FOUND");
 
-        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(pair).getReserves();
-        require(reserve0 != 0 && reserve1 != 0, "LapExchange: NO_RESERVES"); // ensure that there's liquidity in the pair
+        address[] memory path = new address[](2);
+        path[0] = tokenA;
+        path[1] = tokenB; // We're borrowing tokenB
 
-        amount0 = tokenA > tokenB ? amount : 0;
-        amount1 = tokenA > tokenB ? 0 : amount;
+        uint[] memory amounts = UniswapV2Library.getAmountsOut(
+            factory,
+            amount,
+            path
+        );
+
+        amount0 = tokenA > tokenB ? amounts[1] : 0;
+        amount1 = tokenA > tokenB ? 0 : amounts[1];
 
         // Calculate amount to repay
-        amountToRepay = UniswapV2Library.getAmountIn(
-            amount,
-            reserve0,
-            reserve1
-        );
+        amountToRepay = amounts[0];
     }
-
-    bytes4 private constant FUNC_SELECTOR =
-        bytes4(keccak256(bytes("INIT_CODE_PAIR_HASH()")));
 
     function initCodePairHashDetection(
         address factory
     ) internal view returns (bytes32 initCodePairHash) {
-        bytes memory data = abi.encodeWithSelector(FUNC_SELECTOR);
-        console.log("Factory: %s", factory);
-        bool success;
-        assembly {
-            let resultPtr := add(data, 32)
-            success := staticcall(
-                gas(), // gas remaining
-                factory, // destination address
-                add(data, 32), // input buffer (starts after the first 32 bytes)
-                mload(data), // input length (loaded from the first 32 bytes)
-                resultPtr, // output buffer
-                32 // output length
-            )
+        // bytes memory toCall = abi.encodeWithSelector(
+        //     IUniswapV2SpecialFactory.INIT_CODE_PAIR_HASH.selector
+        // );
 
-            initCodePairHash := mload(resultPtr)
-        }
+        // (bool success, bytes memory returndata) = factory.staticcall(toCall);
 
-        initCodePairHash = (
-            success
-                ? initCodePairHash
-                : bytes32(
-                    0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f
-                )
+        // if (success) {
+        //     initCodePairHash = abi.decode(returndata, (bytes32));
+        // } else {
+        initCodePairHash = bytes32(
+            0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f
         );
+        // }
     }
 }

@@ -35,7 +35,8 @@ const config: HardhatUserConfig = {
                     : [],
         },
         bsc: {
-            url: process.env.HTTP_JSON_RPC_URL || "",
+            // url: process.env.HTTP_JSON_RPC_URL || "",
+            url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
             accounts:
                 process.env.WALLET_PRIVATE_KEY !== undefined
                     ? [process.env.WALLET_PRIVATE_KEY]
