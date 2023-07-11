@@ -10,6 +10,7 @@ import Foundation
 extension Builder {
     func process(systemTime: Int) {
         guard self.systemTime == systemTime else {
+            print(self.systemTime, systemTime)
             return
         }
         Task {

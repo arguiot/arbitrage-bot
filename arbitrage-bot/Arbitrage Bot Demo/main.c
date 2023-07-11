@@ -10,12 +10,13 @@
 #include <stdio.h>
 #include <math.h>
 
-#define MAX_EDGES 100
+#define MAX_EDGES 10
 
 // MARK: - Utils
-bool isValueNotInArray(int value, int *print_cycle);
+bool isValueNotInArray(int value, int *print_cycle, int size);
 void reverseArray(int *a, int n);
 void processArbitrage(const CToken* tokens, int *arbitrageOrder, int size, size_t systemTime);
+void BellmanFord(const double *matrix, size_t size, int src, int *cycle, int *cycle_length);
 
 // MARK: - Main
 int arbitrage_main(int argc, const char * argv[]) {
@@ -34,74 +35,102 @@ int arbitrage_main(int argc, const char * argv[]) {
 }
 
 void on_tick(const double* rates, const CToken* tokens, size_t size, size_t systemTime) {
-    int sourceIndex = 0;    // Could start with any source vertex
-    
     size_t rateSize = size * size;
+    
     // Let's get the weights
     double weights[rateSize];
-    double edges[rateSize];
-    int predecessor[rateSize];
+    double edges[size];
+    int predecessor[size];
     
     calculate_neg_log(rates, weights, (int)rateSize);
+    int src = 0;  // Source vertex as 0
+    int cycle[size];
+    int cycle_length;
+    BellmanFord(weights, size, src, cycle, &cycle_length);
     
-    // Step 2: Initialize distances from src to all other vertices as infinite
-    for (int i = 0; i < size; i++) edges[i] = INFINITY;
-    edges[sourceIndex] = 0;
-    
-    // Step 3: Initialize pre with -1 for n records
-    for (int i = 0; i < size; i++) predecessor[i] = -1;
-    
-
-    // Step 4: Relax Edges |vertices-1| times
-    for (int i = 0; i <= (size - 1); i++) {
-        for (int j = 0; j < size; j++) { // current source vertex
-            for (int k = 0; k < size; k++) { // current destination vertex
-                if (edges[k] > edges[j] + weights[j * size + k]) {
-                    edges[k] = edges[j] + weights[j * size + k];
-                    predecessor[k] = j;
-                }
-            }
-        }
+    printf("Cycle: ");
+    for (int i = 0; i < cycle_length; ++i) {
+        printf("%d ", cycle[i]);
     }
+    printf("\n");
     
-    // Step 5: If we can still Relax Edges then we have a negative cycle -> Exploitation possibility
-    for (int i = 0; i < size; i++) {
-        int currentI = i;
-        for (int j = 0; j < size; j++) {
-            // Checks if negative cycle exists, and use the predecessor array to print the arbitrage order
-            if (edges[j] > edges[i] + weights[i * size + j]) {
-                // Allocate arbitrage Order Array
-                int arbitrageOrder[MAX_EDGES];
-                for (int p = 0; p < MAX_EDGES; p++) arbitrageOrder[p] = -1;
-                
-                // Push i & j to arbitrage Order Array
-                int counter = 0;
-                arbitrageOrder[counter] = j; counter++;
-                arbitrageOrder[counter] = i; counter++;
-                
-                // Iterating backwards starting from the source vertex till source vertex is encountered again
-                // or vertex is already in arbitrage Order
-                while ((isValueNotInArray(predecessor[i], arbitrageOrder))) {
-                    arbitrageOrder[counter] = predecessor[i];
-                    i = predecessor[i];
-                    counter++;
-                }
-                
-                // Add the last vertex
-                arbitrageOrder[counter] = predecessor[i];
-                counter++;
-                processArbitrage(tokens, arbitrageOrder, counter, systemTime);
-            }
-        }
-        i = currentI;
-    }
+    processArbitrage(tokens, cycle, cycle_length, systemTime);
     
     process_opportunities(systemTime);
 }
 
 
-bool isValueNotInArray(int value, int *print_cycle) {
-    for (int i = 0; i < 6; i++)
+// MARK: - Bellman Ford
+void convert_matrix_to_edgelist(const double *matrix, size_t size, double (*edge_list)[3]) {
+    int k = 0;
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            edge_list[k][0] = i;
+            edge_list[k][1] = j;
+            double w = matrix[i * size + j];
+            edge_list[k][2] = isinf(w) ? INFINITY : w;
+            k++;
+        }
+    }
+}
+
+
+void BellmanFord(const double *matrix, size_t size, int src, int *cycle, int *cycle_length) {
+    double dis[size];
+    int pred[size];
+    
+    // Step 1: Initialize distances
+    for (int i = 0; i < size; ++i) {
+        dis[i] = DBL_MAX;
+        pred[i] = -1;
+    }
+    dis[src] = 0;
+    
+    // Convert matrix to edge list
+    double graph[size * size][3];
+    convert_matrix_to_edgelist(matrix, size, graph);
+    
+    // Step 2: Relax edges |V|-1 times
+    for (int k = 0; k < size - 1; ++k) {
+        for (int i = 0; i < size * size; ++i) {
+            int u = (int)graph[i][0];
+            int v = (int)graph[i][1];
+            double w = graph[i][2];
+            if (dis[u] != DBL_MAX && dis[u] + w < dis[v]) {
+                dis[v] = dis[u] + w;
+                pred[v] = u;
+            }
+        }
+    }
+    
+    // Step 3: Check for negative weight cycle
+    *cycle_length = 0;
+    for (int i = 0; i < size * size; ++i) {
+        int u = (int)graph[i][0];
+        int v = (int)graph[i][1];
+        double w = graph[i][2];
+        if (dis[u] != DBL_MAX && dis[u] + w < dis[v]) {
+            printf("Graph contains negative weight cycle\n");
+            for (int j = 0; j < size; ++j) {
+                v = pred[v];
+            }
+            
+            int cycle_node = v;
+            while (true) {
+                cycle[(*cycle_length)++] = v;
+                if (v == cycle_node && *cycle_length > 1) {
+                    break;
+                }
+                v = pred[v];
+            }
+            break;
+        }
+    }
+}
+// MARK: - Utils
+
+bool isValueNotInArray(int value, int *print_cycle, int size) {
+    for (int i = 0; i < size; i++)
     {
         if (print_cycle[i] == value)
             return false;

@@ -53,6 +53,10 @@ contract SwapRouteCoordinator {
         );
 
         emit Arbitrage(amountOut);
+
+        // Send back the tokens to the user
+        IERC20 lastToken = IERC20(tokens[tokens.length - 1]);
+        lastToken.transfer(msg.sender, amountOut);
     }
 
     function startArbitrage(
@@ -83,7 +87,6 @@ contract SwapRouteCoordinator {
         // Return amount of tokenB received
         IERC20 lastToken = IERC20(tokens[tokens.length - 1]);
         amountOut = lastToken.balanceOf(address(this));
-        // Perform further operations or throw custom error based on amountOut here as needed
     }
 
     function performArbitrage(

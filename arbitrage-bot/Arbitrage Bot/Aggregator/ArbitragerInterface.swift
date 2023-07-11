@@ -66,6 +66,12 @@ public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, syst
 
 @_cdecl("review_and_process_opportunities")
 public func reviewAndProcessOpportunities(systemTime: Int) {
+    guard PriceDataStoreWrapper
+        .shared?
+        .adjacencyList
+        .builder
+        .steps
+        .count ?? 0 > 0 else { return }
     PriceDataStoreWrapper
         .shared?
         .adjacencyList

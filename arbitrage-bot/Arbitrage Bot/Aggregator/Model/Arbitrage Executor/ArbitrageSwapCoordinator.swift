@@ -26,6 +26,7 @@ class ArbitrageSwapCoordinator {
                                               accessList: .init(),
                                               transactionType: .legacy)
         guard let signed = try tx?.sign(with: Credentials.shared.privateWallet, chainId: 97) else { return }
-        let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
+        
+//        let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
     }
 }
