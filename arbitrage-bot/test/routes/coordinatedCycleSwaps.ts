@@ -80,8 +80,8 @@ describe("Coordinate Cycle Swaps", () => {
 
         const routerAddresses = [
             uniswapInstances[0].delegate.address,
-            uniswapInstances[0].delegate.address,
-            uniswapInstances[1].delegate.address
+            uniswapInstances[1].delegate.address,
+            uniswapInstances[0].delegate.address // Repayment
         ];
 
 

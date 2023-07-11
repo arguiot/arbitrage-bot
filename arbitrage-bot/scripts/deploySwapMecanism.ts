@@ -2,14 +2,14 @@ import { ethers, network } from "hardhat";
 
 async function main() {
     // Define wallet from Hardhat Runtime Environment configuration
-    const provider = new ethers.providers.JsonRpcProvider(network.config.url);
+    const provider = new ethers.providers.JsonRpcProvider(process.env.HTTP_JSON_RPC_URL);
     console.log("Network:", network.name);
-    console.log("URL:", network.config.url);
+    console.log("URL:", process.env.HTTP_JSON_RPC_URL);
     const wallet = new ethers.Wallet(network.config.accounts[0], provider);
     console.log("Deploying contracts with the account:", wallet.address);
 
     // Set the gas price to 50 Gwei
-    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
+    const gasPrice = ethers.utils.parseUnits("20", "gwei");
 
     // Deploy SwapRouteCoordinator
     const SwapRouteCoordinator = await ethers.getContractFactory(
@@ -17,7 +17,10 @@ async function main() {
         wallet
     );
     console.log("Deploying SwapRouteCoordinator...");
-    const swapRouteCoordinator = await SwapRouteCoordinator.deploy({ gasPrice });
+    const swapRouteCoordinator = await SwapRouteCoordinator.deploy({
+        gasPrice,
+        gasLimit: 2000000,
+    });
     console.log("Sent SwapRouteCoordinator to network...");
     await swapRouteCoordinator.deployed();
     console.log(
@@ -30,7 +33,10 @@ async function main() {
         "ArbitrageUniswapV2",
         wallet
     );
-    const arbitrageUniswapV2 = await ArbitrageUniswapV2.deploy({ gasPrice });
+    const arbitrageUniswapV2 = await ArbitrageUniswapV2.deploy({
+        gasPrice,
+        gasLimit: 2500000,
+    });
     await arbitrageUniswapV2.deployed();
     console.log("ArbitrageUniswapV2 deployed to:", arbitrageUniswapV2.address);
 }

@@ -98,12 +98,12 @@ contract SwapRouteCoordinator {
             (
                 address contractToCall,
                 bytes memory callData
-            ) = IntermediaryArbitrageStep(intermediaries[i + 1]).prepareStep(
+            ) = IntermediaryArbitrageStep(intermediaries[i]).prepareStep(
                     address(this),
                     tokens[i],
                     tokens[i + 1],
                     amount,
-                    data[i + 1]
+                    data[i]
                 );
 
             // Perform swap
