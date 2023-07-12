@@ -1,47 +1,32 @@
-import { ConnectKitButton } from "connectkit";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
-import { useAccount } from "wagmi";
 import { Separator } from "@/components/ui/separator";
-import ExchangeCard from "../components/exchange";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import useUniswapStore from "../lib/uniswapStore";
-import Difference from "../components/difference";
 import TradeBook from "../components/tradeBook";
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuTrigger,
-    ContextMenuShortcut,
-} from "@/components/ui/context-menu";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
 import { PairList } from "../lib/pairs";
 import { EstimatedTime } from "../components/ui/estimated-time";
-import Pair from "../components/pair";
-import { Notification, NotificationCenter } from "@arguiot/broadcast.js";
-import { ExchangesList } from "../lib/exchanges";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TokensView } from "../components/tokens";
+import { PairsView } from "../components/pairsview";
 
 export default function Index({ environment }) {
     const { connected, decisions, setDecisions, arbitrage } = useClientState();
-    const [pair, setPair] = useState(1);
-
-    useEffect(() => {
-        Client.shared = new Client();
-    }, []);
 
     const { toast } = useToast();
     const { reset: uniswapReset } = useUniswapStore();
 
-    const deployAllExchanges = () => {
-        setPair(
-            Object.keys(PairList[environment])
-                .length
-        );
-    };
+    useEffect(() => {
+        Client.shared = new Client();
+        if (!connected) {
+            setTimeout(() => {
+                Client.shared.subscribeToAll();
+            }, 1000);
+        }
+    }, []);
 
     return (
         <>
@@ -60,48 +45,34 @@ export default function Index({ environment }) {
                     {/* <ConnectKitButton /> */}
                 </div>
                 <Separator className="mb-8" />
+                <Tabs defaultValue="tokens" className="w-full">
+                    <TabsList>
+                        <TabsTrigger value="tradebook">Tradebook</TabsTrigger>
+                        <TabsTrigger value="pairs">Pairs</TabsTrigger>
+                        <TabsTrigger value="tokens">Tokens</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="tradebook">
+                        <TradeBook />
+                    </TabsContent>
+                    <TabsContent value="tokens">
+                        <TokensView />
+                    </TabsContent>
+                    <TabsContent value="pairs">
+                        <PairsView />
+                    </TabsContent>
+                </Tabs>
 
-                {/* Repeat Pair component `pair` times */}
-                {[...Array(pair)].map((_, i) => (
-                    <Pair
-                        key={i}
-                        index={i}
-                        connected={connected}
-                        environment={environment}
-                    />
-                ))}
-                {Object.keys(PairList[environment]).length > pair && (
-                    <ContextMenu>
-                        <ContextMenuTrigger asChild>
-                            <button
-                                className="flex mt-4 h-[100px] w-full items-center justify-center rounded-md border border-dashed text-sm"
-                                onClick={() => {
-                                    setPair(pair + 1);
-                                }}
-                            >
-                                Add pair
-                            </button>
-                        </ContextMenuTrigger>
-                        <ContextMenuContent>
-                            <ContextMenuItem
-                                onSelect={() => {
-                                    deployAllExchanges();
-                                }}
-                            >
-                                Add all pairs
-                            </ContextMenuItem>
-                        </ContextMenuContent>
-                    </ContextMenu>
-                )}
                 {arbitrage && <EstimatedTime expectedTime={15000} />}
                 <Separator className="mt-8" />
                 <div className="flex justify-between mt-12">
                     <Button
                         variant="outline"
                         onClick={() => {
-                            pairReset();
-                            uniswapReset();
-                            Client.shared.reset();
+                            // reset storage
+                            localStorage.clear();
+
+                            {/* uniswapReset();
+                            Client.shared.reset(); */}
                             toast({
                                 title: "Reset",
                                 description: "Reset all data",
@@ -134,7 +105,6 @@ export default function Index({ environment }) {
                     )}
                 </div>
             </div>
-            <TradeBook />
         </>
     );
 }

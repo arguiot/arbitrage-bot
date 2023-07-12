@@ -36,6 +36,7 @@ import {
     ChevronDown,
     Trash,
     Trash2,
+    ArrowRight,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { set } from "zod";
@@ -46,15 +47,22 @@ import {
     ContextMenuTrigger,
     ContextMenuShortcut,
 } from "@/components/ui/context-menu";
-
+import { TokenList } from "../lib/pairs";
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ExchangesList } from "../lib/exchanges";
+import { useEnvironment } from "../lib/environment";
 export type Trade = {
     timestamp: number;
     pair: string;
-    exchange1: string;
-    exchange2: string;
-    price1: number;
-    price2: number;
+    startAmount: number;
+    route: { exchange: string; token: string }[];
     profit: number;
+    fees: number;
 };
 
 interface DataTableProps<TData> {
@@ -253,6 +261,15 @@ function formatDate(timestamp: number) {
     return new Date(timestamp).toLocaleString();
 }
 
+function getToken(ticker: String) {
+    const result = (
+        TokenList[ticker as keyof typeof TokenList] ||
+        TokenList[Object.keys(TokenList).find((key) => key.includes(ticker)) ?? ""] ||
+        {}
+    );
+    return result;
+}
+
 export const columns: ColumnDef<Trade>[] = [
     {
         accessorKey: "timestamp",
@@ -279,24 +296,64 @@ export const columns: ColumnDef<Trade>[] = [
         },
     },
     {
-        accessorKey: "pair",
-        header: "Pair",
+        accessorKey: "startAmount",
+        header: "Start Amount",
     },
     {
-        accessorKey: "exchange1",
-        header: "Exchange 1",
-    },
-    {
-        accessorKey: "exchange2",
-        header: "Exchange 2",
-    },
-    {
-        accessorKey: "price1",
-        header: "Price 1",
-    },
-    {
-        accessorKey: "price2",
-        header: "Price 2",
+        header: "Route",
+        cell: ({ row }) => {
+            const { route } = row.original;
+            const { environment } = useEnvironment();
+            const exchanges =
+                ExchangesList[environment as "development" | "production"];
+            return (
+                <div className="flex items-center space-x-2">
+                    {route.map((step, index) => {
+                        const exchange = exchanges[step.exchange] ?? {};
+                        return (
+                            <div
+                                key={index}
+                                className="flex items-center space-x-2"
+                            >
+                                {getToken(step.token).icon}
+                                {index < route.length - 1 && (
+                                    <HoverCard>
+                                        <HoverCardTrigger asChild>
+                                            <ArrowRight className="h-4 w-4" />
+                                        </HoverCardTrigger>
+                                        <HoverCardContent className="w-80 mt-0">
+                                            <div className="flex justify-between items-center space-x-4 mt-0">
+                                                <Avatar>
+                                                    <AvatarImage
+                                                        src={exchange.icon}
+                                                        className="mt-0"
+                                                    />
+                                                </Avatar>
+                                                <div className="space-y-1">
+                                                    <h4 className="text-sm font-semibold">
+                                                        {exchange.name}
+                                                    </h4>
+                                                    <div className="flex items-center space-x-2">
+                                                        {getToken(step.token).icon}
+                                                        <ArrowRight className="h-4 w-4" />
+                                                        {getToken(route[index + 1].token).icon}
+                                                    </div>
+                                                    <div className="flex items-center pt-2">
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {exchange.routerAddress}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </HoverCardContent>
+                                    </HoverCard>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        },
     },
     {
         accessorKey: "profit",
@@ -320,40 +377,8 @@ export const columns: ColumnDef<Trade>[] = [
         },
     },
     {
-        accessorKey: "token1",
-        header: "Token 1",
-        cell: ({ cell }) => {
-            const token = cell.getValue();
-            if (!token || typeof token !== "object") return "Unknown";
-            if ("name" in token) return token.name;
-            return "Unknown";
-        },
-    },
-    {
-        accessorKey: "token2",
-        header: "Token 2",
-        cell: ({ cell }) => {
-            const token = cell.getValue();
-            if (!token || typeof token !== "object") return "Unknown";
-            if ("name" in token) return token.name;
-            return "Unknown";
-        },
-    },
-    {
-        accessorKey: "amountIn1",
-        header: "Amount In 1",
-    },
-    {
-        accessorKey: "amountOut1",
-        header: "Amount Out 1",
-    },
-    {
-        accessorKey: "amountIn2",
-        header: "Amount In 2",
-    },
-    {
-        accessorKey: "amountOut2",
-        header: "Amount Out 2",
+        accessorKey: "fees",
+        header: "Fees",
     },
 ];
 
@@ -366,9 +391,5 @@ export default function TradeBook() {
         setHydratedTrades(trades);
     }, [trades]);
 
-    return (
-        <div className="w-full py-10 px-8">
-            <DataTable columns={columns} data={hydratedTrades} />
-        </div>
-    );
+    return <DataTable columns={columns} data={hydratedTrades} />;
 }

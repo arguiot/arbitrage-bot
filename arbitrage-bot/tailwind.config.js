@@ -1,12 +1,11 @@
 /** @type {import('tailwindcss').Config} */
-const plugin = require("tailwindcss/plugin");
-
 module.exports = {
     darkMode: ["class"],
     content: [
-        "./pages/**/*.{js,ts,jsx,tsx}",
-        "./components/**/*.{js,ts,jsx,tsx}",
-        "./app/**/*.{ts,tsx}",
+        './pages/**/*.{js,jsx,ts,tsx}',
+        './components/**/*.{js,jsx,ts,tsx}',
+        './app/**/*.{js,jsx,ts,tsx}',
+        './src/**/*.{js,jsx,ts,tsx}',
     ],
     safelist: ["prose"],
     theme: {
@@ -78,6 +77,6 @@ module.exports = {
         require("tailwindcss-animate"),
         require("@tailwindcss/forms"),
         require("@tailwindcss/typography"),
-        require("@tailwindcss/line-clamp"),
+        require("@tailwindcss/line-clamp")
     ],
 };

@@ -24,17 +24,17 @@ export default function Pair({ connected, environment, index: key }) {
 
         const initialPair =
             nthPair &&
-                !pairs.includes(`${nthPair.tokenA?.name}/${nthPair.tokenB?.name}`)
+            !pairs.includes(`${nthPair.tokenA?.name}/${nthPair.tokenB?.name}`)
                 ? nthPair
                 : allPairs.find((pair) => {
-                    const name = `${pair.tokenA?.name}/${pair.tokenB?.name}`;
-                    return !pairs.includes(name);
-                });
+                      const name = `${pair.tokenA?.name}/${pair.tokenB?.name}`;
+                      return !pairs.includes(name);
+                  });
 
         return {
             tokenA: initialPair.tokenA,
             tokenB: initialPair.tokenB,
-            followings: []
+            followings: [],
         };
     };
 
@@ -42,7 +42,9 @@ export default function Pair({ connected, environment, index: key }) {
 
     const [pair, dispatch] = useReducer(pairReducer, initial);
 
-    const [currentPair, setCurrentPair] = useState(`${initial.tokenA?.name}/${initial.tokenB?.name}`);
+    const [currentPair, setCurrentPair] = useState(
+        `${initial.tokenA?.name}/${initial.tokenB?.name}`
+    );
 
     const selectedPair = async (pair) => {
         setPairs([...pairs.filter((name) => name !== currentPair), pair]);

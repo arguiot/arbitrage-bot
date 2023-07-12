@@ -18,6 +18,7 @@ public struct BotResponse: Sendable, Codable {
     public var error: String? = nil
     public var queryTime: Duration? = nil
     var quote: Quote? = nil
+    var executedTrade: Trade? = nil
     
     public init(status: Status, topic: BotTopic, error: String? = nil) {
         self.status = status
@@ -49,6 +50,7 @@ public struct BotResponse: Sendable, Codable {
         try container.encodeIfPresent(self.error, forKey: .error)
         try container.encodeIfPresent(self.queryTime?.ms, forKey: .queryTime)
         try container.encodeIfPresent(self.quote, forKey: .quote)
+        try container.encodeIfPresent(self.executedTrade, forKey: .executedTrade)
     }
 
     public func toJSON() throws -> String {

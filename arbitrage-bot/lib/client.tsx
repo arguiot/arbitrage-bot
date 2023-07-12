@@ -6,6 +6,7 @@ import { ExchangesList } from "./exchanges";
 import usePriceStore from "./priceDataStore";
 import { create } from "zustand";
 import useTradeBookStore from "./tradesStore";
+import { usePairsStore } from "./pairs";
 interface WebSocket {
     onclose: ((event: CloseEvent) => void) | null;
     onerror: ((event: Event) => void) | null;
@@ -87,11 +88,14 @@ export class Client {
             case "priceData":
                 if (typeof message.quote !== "undefined") {
                     const pair = `${message.quote.tokenA.name}/${message.quote.tokenB.name}`;
-                    usePriceStore.getState().addQuote(message.quote.exchangeName, pair, {
-                        ...message.quote,
-                        balanceA: message.balanceA,
-                        balanceB: message.balanceB,
-                    });
+                    usePriceStore
+                        .getState()
+                        .addQuote(message.quote.exchangeName, pair, {
+                            ...message.quote,
+                            balanceA: message.balanceA,
+                            balanceB: message.balanceB,
+                            timestamp: Date.now(),
+                        });
                 }
                 break;
             case "buy":
@@ -117,53 +121,19 @@ export class Client {
                 }
                 break;
             case "decision":
-                if (!message.tx1 && !message.tx2) {
+                if (!message.executedTrade) {
                     break;
                 }
-                const tx1 = message.tx1;
-                const tx2 = message.tx2;
                 toast({
                     title: "Decision",
                     description: (
                         <>
-                            {`Bought ${tx1.amountOut} ${tx1.tokenB.name} for ${tx1.amountIn} ${tx1.tokenA.name}`}
-                            <br />
-                            <a
-                                href={`https://etherscan.io/tx/${tx1.transactionHash}`}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                View on Etherscan
-                            </a>
-                            <br />
-                            {`Bought ${tx2.amountOut} ${tx2.tokenB.name} for ${tx2.amountIn} ${tx2.tokenA.name}`}
-                            <br />
-                            <a
-                                href={`https://etherscan.io/tx/${tx2.transactionHash}`}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                View on Etherscan
-                            </a>
+                            {JSON.stringify(message)}
                         </>
                     ),
                 });
 
-                useTradeBookStore.getState().addTrade({
-                    timestamp: Date.now(),
-                    pair: `${tx1.tokenA.name}/${tx1.tokenB.name}`,
-                    exchange1: tx1.exchange,
-                    exchange2: tx2.exchange,
-                    price1: tx1.price,
-                    price2: tx2.price,
-                    profit: tx2.amountOut - tx1.amountIn,
-                    token1: tx1.tokenA,
-                    token2: tx1.tokenB,
-                    amountIn1: tx1.amountIn,
-                    amountOut1: tx1.amountOut,
-                    amountIn2: tx2.amountIn,
-                    amountOut2: tx2.amountOut,
-                });
+                useTradeBookStore.getState().addTrade(message.executedTrade);
 
                 useClientState.getState().setArbitrage(false);
                 break;
@@ -173,7 +143,10 @@ export class Client {
     }
 
     send(message: string) {
-        if (this.ws.readyState === WebSocket.OPEN && useClientState.getState().connected) {
+        if (
+            this.ws.readyState === WebSocket.OPEN &&
+            useClientState.getState().connected
+        ) {
             return this.ws.send(message);
         }
         console.log("Websocket not open, not sending message", message);
@@ -197,7 +170,9 @@ export class Client {
         ) {
             return;
         }
-        if (this.subscriptions.has(`${exchange}-${tokenA.name}-${tokenB.name}`)) {
+        if (
+            this.subscriptions.has(`${exchange}-${tokenA.name}-${tokenB.name}`)
+        ) {
             return;
         }
 
@@ -218,6 +193,19 @@ export class Client {
             })
         );
         this.subscriptions.add(`${exchange}-${tokenA.name}-${tokenB.name}`);
+    }
+
+    subscribeToAll() {
+        Object.keys(ExchangesList.development).forEach((exchange) => {
+            usePairsStore.getState().pairs.forEach((pair) => {
+                this.subscribeToPriceData(
+                    exchange,
+                    "development",
+                    pair.tokenA,
+                    pair.tokenB
+                );
+            });
+        });
     }
 
     unsubscribeFromPriceData(

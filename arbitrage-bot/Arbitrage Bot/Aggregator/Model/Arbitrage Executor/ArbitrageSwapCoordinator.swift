@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Euler
 
 class ArbitrageSwapCoordinator {
     func coordinateFlashSwapArbitrage(with optimum: BuilderStep.OptimumResult) async throws {
@@ -27,6 +28,20 @@ class ArbitrageSwapCoordinator {
                                               transactionType: .legacy)
         guard let signed = try tx?.sign(with: Credentials.shared.privateWallet, chainId: 97) else { return }
         
-//        let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
+        // MARK: - Dispatch Decision
+        var response = BotResponse(status: .success, topic: .decision)
+        guard let first = optimum.path.first?.token else { return }
+        guard let token = TokenList.values.first(where: { $0.address == first }) else { return }
+        response.executedTrade = Trade(timestamp: .now,
+                                       token: token.name,
+                                       startAmount: (BN(optimum.amountIn) / 1e18).asDouble() ?? 0,
+                                       route: optimum.path.map { step in
+                                            Trade.Route(exchange: step.exchangeName, token: step.tokenName)
+                                       },
+                                       profit: (BN(optimum.amountOut - optimum.amountIn) / 1e18).asDouble() ?? 0,
+                                       fees: 0.03)
+        
+        DecisionDataPublisher.shared.publishDecision(decision: response)
+        //        let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
     }
 }

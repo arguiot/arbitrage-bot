@@ -5,10 +5,15 @@
 //  Created by Arthur Guiot on 23/06/2023.
 //
 
+
 #include "Arbitrage_Bot_Demo.h"
 #include "negate_log.h"
 #include <stdio.h>
 #include <math.h>
+
+//#if !XCODEBUILD
+//@import Arbitrage_Bot;
+//#endif
 
 #define MAX_EDGES 10
 
@@ -33,6 +38,14 @@ int arbitrage_main(int argc, const char * argv[]) {
     
     return 0;
 }
+
+#if XCODEBUILD
+#else
+int main(int argc, const char * argv[]) {
+    arbitrage_main(argc, argv);
+}
+#endif
+
 
 void on_tick(const double* rates, const CToken* tokens, size_t size, size_t systemTime) {
     size_t rateSize = size * size;

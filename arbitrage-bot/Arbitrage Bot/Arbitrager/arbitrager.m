@@ -10,8 +10,10 @@
 #import <Arbitrage_Bot/Arbitrage_Bot-Swift.h>
 #import <FastSockets/FastSockets.h>
 #else
+#import <Foundation/Foundation.h>
 @import Aggregator;
 @import FastSockets;
+
 #endif
 
 #include <stdio.h>

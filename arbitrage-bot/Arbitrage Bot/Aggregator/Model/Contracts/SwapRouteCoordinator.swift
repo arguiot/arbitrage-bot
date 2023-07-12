@@ -11,7 +11,9 @@ import BigInt
 struct Step {
     let intermediary: EthereumAddress;
     let token: EthereumAddress;
+    let tokenName: String;
     let data: EthereumAddress;
+    let exchangeName: String;
 }
 
 

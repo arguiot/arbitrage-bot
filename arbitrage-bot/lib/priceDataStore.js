@@ -16,6 +16,33 @@ const usePriceStore = create((set, get) => ({
         return get().quotes.get(`${exchange}-${pair}`);
     },
 
+    getAverageQuote: (pair) => {
+        const { quotes } = get();
+        let total = 0;
+        let count = 0;
+        for (const [key, quote] of quotes.entries()) {
+            if (key.includes(pair)) {
+                total = total + quote.price;
+                if (quote.price > 0) {
+                    count++;
+                }
+            }
+        }
+        if (count === 0) return 0;
+        return { average: total / count, count };
+    },
+
+    getAllQuotes: (pair) => {
+        const { quotes } = get();
+        let out = [];
+        for (const [key, quote] of quotes.entries()) {
+            if (key.includes(pair)) {
+                out.push(quote);
+            }
+        }
+        return out;
+    },
+
     getArbitrage: () => {
         const { quotes } = get();
         // Look at all the quotes and find the two with the highest price difference

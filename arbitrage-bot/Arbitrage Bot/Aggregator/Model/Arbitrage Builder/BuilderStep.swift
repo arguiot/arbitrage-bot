@@ -52,16 +52,22 @@ class BuilderStep {
             .reduce((0, reserveFeeInfos[0]), { max($0.0, $1.0) == $0.0 ? $0 : $1 })
         
         var chain = chain
+        let metadata = ExchangesList.shared[keyPath: info.exchange.path]
         if let coordinator = info.exchange.coordinator,
            let intermediaryStepData = info.exchange.intermediaryStepData {
+            
             let step = Step(intermediary: coordinator,
                             token: tokenA.address,
-                            data: intermediaryStepData)
+                            tokenName: tokenA.name,
+                            data: intermediaryStepData,
+                            exchangeName: metadata.name)
             chain.append(step)
             if next == nil {
                 let step = Step(intermediary: coordinator,
                                 token: tokenB.address,
-                                data: intermediaryStepData)
+                                tokenName: tokenB.name,
+                                data: intermediaryStepData,
+                                exchangeName: metadata.name)
                 chain.append(step)
             }
         }

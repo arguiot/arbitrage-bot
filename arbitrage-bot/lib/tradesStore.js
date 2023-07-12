@@ -4,48 +4,52 @@ import { persist, createJSONStorage } from "zustand/middleware";
 const useTradeBookStore = create(
     persist(
         (set, get) => ({
-            trades: [],
+            trades: [{
+                timestamp: 0,
+                token: "ETH",
+                startAmount: 61.54,
+                route: [{
+                    exchange: "uniswap",
+                    token: "ETH",
+                }, {
+                    exchange: "pancakeswap",
+                    token: "USDC",
+                }, {
+                    exchange: "uniswap",
+                    token: "ETH",
+                }],
+                profit: 2.5,
+                fees: 0.03,
+            }],
             addTrade: ({
                 timestamp,
-                pair,
-                exchange1,
-                exchange2,
-                price1,
-                price2,
+                token,
+                startAmount,
+                route,
                 profit,
-                token1,
-                token2,
-                amountIn1,
-                amountOut1,
-                amountIn2,
-                amountOut2,
+                fees
             }) =>
                 set((state) => ({
                     trades: [
                         ...state.trades,
                         {
                             timestamp,
-                            pair,
-                            exchange1,
-                            exchange2,
-                            price1,
-                            price2,
+                            token,
+                            startAmount,
+                            route,
                             profit,
-                            token1,
-                            token2,
-                            amountIn1,
-                            amountOut1,
-                            amountIn2,
-                            amountOut2,
+                            fees
                         },
                     ],
                 })),
             removeTrade: (date) => {
-                set((state) => ({
-                    trades: state.trades.filter(
-                        (trade) => trade.timestamp !== date
-                    ),
-                }));
+                set((state) => {
+                    const index = state.trades.findIndex((trade) => trade.timestamp === date);
+                    if (index === -1) return state;
+                    const trades = [...state.trades];
+                    trades.splice(index, 1);
+                    return { trades };
+                });
             },
         }),
         {

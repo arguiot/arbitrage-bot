@@ -114,6 +114,7 @@
 		68A6F8FE2A545FC900CC9779 /* VisualGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */; };
 		68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9012A547D4400CC9779 /* SwiftPlot */; };
 		68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9072A54880B00CC9779 /* SVGRenderer */; };
+		68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A8BB692A5EE9BA00FCB139 /* Trade.swift */; };
 		68DCBF032A45DEC3007DCB50 /* libuwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842922E2A45AAE40043EF2F /* libuwebsockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; };
 		68DCBF102A45E710007DCB50 /* FastSockets.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -338,6 +339,7 @@
 		6894020B2A4C2B6A0089D4AA /* negate_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = negate_log.h; sourceTree = "<group>"; };
 		6894020C2A4C2B6A0089D4AA /* negate_log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = negate_log.c; sourceTree = "<group>"; };
 		68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualGraph.swift; sourceTree = "<group>"; };
+		68A8BB692A5EE9BA00FCB139 /* Trade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trade.swift; sourceTree = "<group>"; };
 		68DCBEFF2A45D420007DCB50 /* uSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = uSockets.a; path = FastSockets/uWebSockets/uSockets/uSockets.a; sourceTree = "<group>"; };
 		68DCBF0A2A45E0B8007DCB50 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Arbitrage Demo.entitlements"; sourceTree = "<group>"; };
@@ -480,6 +482,7 @@
 			isa = PBXGroup;
 			children = (
 				68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */,
+				68A8BB692A5EE9BA00FCB139 /* Trade.swift */,
 			);
 			path = "Arbitrage Executor";
 			sourceTree = "<group>";
@@ -487,10 +490,10 @@
 		68137F452A52C7F700E6264A /* Arbitrage Bot Demo */ = {
 			isa = PBXGroup;
 			children = (
+				68A8BB6B2A5F438E00FCB139 /* include */,
 				68DCBF0A2A45E0B8007DCB50 /* main.c */,
 				6894020B2A4C2B6A0089D4AA /* negate_log.h */,
 				6894020C2A4C2B6A0089D4AA /* negate_log.c */,
-				68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */,
 			);
 			path = "Arbitrage Bot Demo";
 			sourceTree = "<group>";
@@ -714,6 +717,14 @@
 				68518EDF2A52A5DB00E22676 /* ContractPromiseExtensions.swift */,
 			);
 			path = PromiseKit;
+			sourceTree = "<group>";
+		};
+		68A8BB6B2A5F438E00FCB139 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */,
+			);
+			path = include;
 			sourceTree = "<group>";
 		};
 		68DCBEFE2A45D420007DCB50 /* Frameworks */ = {
@@ -1311,6 +1322,7 @@
 				68518EF42A52A5DB00E22676 /* RPCResponse.swift in Sources */,
 				68518EF82A52A5DB00E22676 /* EthereumLogObject.swift in Sources */,
 				68FCE2022A4EDA18009B79ED /* Array+Uint8.swift in Sources */,
+				68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */,
 				68518F122A52A5DB00E22676 /* SolidityEvent.swift in Sources */,
 				68518EF62A52A5DB00E22676 /* EthereumQuantityTag.swift in Sources */,
 				68FCE2142A4EDA18009B79ED /* CycleArbtirage.swift in Sources */,
@@ -1428,6 +1440,10 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"XCODEBUILD=1",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1466,6 +1482,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "XCODEBUILD=1";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1539,6 +1556,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 73CCF549YB;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"XCODEBUILD=1",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1551,6 +1572,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 73CCF549YB;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "XCODEBUILD=1";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
