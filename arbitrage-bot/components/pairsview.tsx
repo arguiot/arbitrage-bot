@@ -40,7 +40,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { EyeIcon, Plus, Trash2 } from "lucide-react";
-import { Pair, usePairsStore, useTokensStore } from "../lib/pairs";
+import { Pair, TokenList, usePairsStore, useTokensStore } from "../lib/pairs";
 import {
     Dialog,
     DialogContent,
@@ -53,6 +53,15 @@ import {
 import { Label } from "@/components/ui/label";
 import usePriceStore from "../lib/priceDataStore";
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export const columns: ColumnDef<Pair>[] = [
     {
@@ -211,6 +220,7 @@ export function PairsView() {
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const { tokens } = useTokensStore();
     const { pairs, addPair } = usePairsStore();
 
     // New states for the form inputs
@@ -302,18 +312,60 @@ export function PairsView() {
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
-                            {/* <div className="grid grid-cols-4 items-center gap-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="name" className="text-right">
-                                    Name
+                                    Token A
                                 </Label>
-                                <Input id="name" value={name} onChange={e => setP(e.target.value)} className="col-span-3" />
+                                <Select onValueChange={setTokenA}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Select a token" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Tokens</SelectLabel>
+                                            {
+                                                tokens.map((token) => {
+                                                    return (
+                                                        <SelectItem value={token} key={token.address || token.name}>
+                                                            <div className="flex items-center space-x-2">
+                                                                {(TokenList[token.ticker] ?? {}).icon}
+                                                                {token.name}
+                                                            </div>
+                                                        </SelectItem>
+                                                    );
+                                                })
+                                            }
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="address" className="text-right">
-                                    Address
+                                <Label htmlFor="name" className="text-right">
+                                    Token B
                                 </Label>
-                                <Input id="address" value={address} onChange={e => setAddress(e.target.value)} className="col-span-3" />
-                            </div> */}
+                                <Select onValueChange={setTokenB}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Select a token" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Tokens</SelectLabel>
+                                            {
+                                                tokens.map((token) => {
+                                                    return (
+                                                        <SelectItem value={token} key={token.address || token.name}>
+                                                            <div className="flex items-center space-x-2">
+                                                                {(TokenList[token.ticker] ?? {}).icon}
+                                                                {token.name}
+                                                            </div>
+                                                        </SelectItem>
+                                                    );
+                                                })
+                                            }
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <DialogFooter>
                             <Button type="submit" onClick={handleAddPair}>
@@ -334,10 +386,10 @@ export function PairsView() {
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
+                                                    header.column.columnDef
+                                                        .header,
+                                                    header.getContext()
+                                                )}
                                         </TableHead>
                                     );
                                 })}

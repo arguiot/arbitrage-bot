@@ -129,5 +129,22 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3B203CA1-81AE-4BEE-8215-4A7EA4072574"
+            shouldBeEnabled = "No"
+            condition = "query.tokenA.address == .zero"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Arbitrage Bot/Aggregator/Controller/RealtimeServerController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "priceData(request:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

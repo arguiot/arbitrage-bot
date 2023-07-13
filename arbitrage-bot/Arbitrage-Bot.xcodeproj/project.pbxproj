@@ -14,7 +14,6 @@
 		68137F332A52BCB900E6264A /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 68137F322A52BCB900E6264A /* Nimble */; };
 		68137F4C2A52C7F800E6264A /* Arbitrage_Bot_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */; };
 		68137F512A52C7F800E6264A /* Arbitrage_Bot_DemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F502A52C7F800E6264A /* Arbitrage_Bot_DemoTests.swift */; };
-		68137F522A52C7F800E6264A /* Arbitrage_Bot_Demo.h in Headers */ = {isa = PBXBuildFile; fileRef = 68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68137F592A52C80A00E6264A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DCBF0A2A45E0B8007DCB50 /* main.c */; };
 		68137F5A2A52C80A00E6264A /* negate_log.c in Sources */ = {isa = PBXBuildFile; fileRef = 6894020C2A4C2B6A0089D4AA /* negate_log.c */; };
 		68137F5B2A52C89400E6264A /* Arbitrage_Bot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; };
@@ -115,6 +114,7 @@
 		68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9012A547D4400CC9779 /* SwiftPlot */; };
 		68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9072A54880B00CC9779 /* SVGRenderer */; };
 		68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A8BB692A5EE9BA00FCB139 /* Trade.swift */; };
+		68A8BB6D2A5FF42200FCB139 /* Arbitrage_Bot_Demo.h in Headers */ = {isa = PBXBuildFile; fileRef = 68A8BB6C2A5FF3EE00FCB139 /* Arbitrage_Bot_Demo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF032A45DEC3007DCB50 /* libuwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842922E2A45AAE40043EF2F /* libuwebsockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; };
 		68DCBF102A45E710007DCB50 /* FastSockets.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -248,7 +248,7 @@
 		68017B432A57101400837B89 /* DecisionDataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionDataPublisher.swift; sourceTree = "<group>"; };
 		68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrageSwapCoordinator.swift; sourceTree = "<group>"; };
 		68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Arbitrage_Bot_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot_Demo.h; sourceTree = "<group>"; };
+		68137F462A52C7F700E6264A /* Arbitrage_Bot_Main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot_Main.h; sourceTree = "<group>"; };
 		68137F4B2A52C7F700E6264A /* Arbitrage Bot DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Arbitrage Bot DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68137F502A52C7F800E6264A /* Arbitrage_Bot_DemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arbitrage_Bot_DemoTests.swift; sourceTree = "<group>"; };
 		68137F642A52C8C400E6264A /* Arbitrage-Bot-Main */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Arbitrage-Bot-Main"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -340,6 +340,7 @@
 		6894020C2A4C2B6A0089D4AA /* negate_log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = negate_log.c; sourceTree = "<group>"; };
 		68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualGraph.swift; sourceTree = "<group>"; };
 		68A8BB692A5EE9BA00FCB139 /* Trade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trade.swift; sourceTree = "<group>"; };
+		68A8BB6C2A5FF3EE00FCB139 /* Arbitrage_Bot_Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot_Demo.h; sourceTree = "<group>"; };
 		68DCBEFF2A45D420007DCB50 /* uSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = uSockets.a; path = FastSockets/uWebSockets/uSockets/uSockets.a; sourceTree = "<group>"; };
 		68DCBF0A2A45E0B8007DCB50 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Arbitrage Demo.entitlements"; sourceTree = "<group>"; };
@@ -494,6 +495,7 @@
 				68DCBF0A2A45E0B8007DCB50 /* main.c */,
 				6894020B2A4C2B6A0089D4AA /* negate_log.h */,
 				6894020C2A4C2B6A0089D4AA /* negate_log.c */,
+				68A8BB6C2A5FF3EE00FCB139 /* Arbitrage_Bot_Demo.h */,
 			);
 			path = "Arbitrage Bot Demo";
 			sourceTree = "<group>";
@@ -722,7 +724,7 @@
 		68A8BB6B2A5F438E00FCB139 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				68137F462A52C7F700E6264A /* Arbitrage_Bot_Demo.h */,
+				68137F462A52C7F700E6264A /* Arbitrage_Bot_Main.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -972,7 +974,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68137F522A52C7F800E6264A /* Arbitrage_Bot_Demo.h in Headers */,
+				68A8BB6D2A5FF42200FCB139 /* Arbitrage_Bot_Demo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

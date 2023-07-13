@@ -130,6 +130,10 @@ extension EthereumContract {
             switch response.status {
             case .success(let data):
                 do {
+                    guard data.bytes.count > 0 else {
+                        completion(nil, EthereumValueRepresentableError.notRepresentable)
+                        return
+                    }
                     let dictionary = try ABI.decodeParameters(outputs, from: data.hex())
                     completion(dictionary, nil)
                 } catch {

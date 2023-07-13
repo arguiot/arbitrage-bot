@@ -5,8 +5,12 @@
 //  Created by Arthur Guiot on 23/06/2023.
 //
 
-
+#if XCODEBUILD
 #include "Arbitrage_Bot_Demo.h"
+#else
+#include "include/Arbitrage_Bot_Main.h"
+#endif
+
 #include "negate_log.h"
 #include <stdio.h>
 #include <math.h>
