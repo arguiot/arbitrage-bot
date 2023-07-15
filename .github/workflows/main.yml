@@ -15,9 +15,8 @@ jobs:
 
     # - name: Install dependencies
       # run: brew install
-    - name: Setup
-      run: |
-        cd Arbitrage-Bot
 
     - name: Run Make
-      run: make
+      run: |
+          cd arbitrage-bot
+          make
