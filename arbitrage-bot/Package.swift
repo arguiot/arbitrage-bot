@@ -22,7 +22,8 @@ let package = Package(
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.1.0"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.4"),
         .package(url: "https://github.com/Boilertalk/secp256k1.swift.git", from: "0.1.7"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.7.1")
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.7.1"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
         .systemLibrary(

@@ -8,7 +8,9 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt install -y \
       make \
-      build-essential
+      build-essential \
+    && apt install --fix-missing -y \
+    	liblapack-dev
 
 
 
@@ -19,7 +21,7 @@ WORKDIR /build
 COPY . .
 
 # Build everything, with optimizations
-RUN make && swift build -c release
+RUN make
 
 
 # # Switch to the staging area

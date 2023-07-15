@@ -1,0 +1,23 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Xcode
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+    # - name: Install dependencies
+      # run: brew install
+    - name: Setup
+      run: |
+        cd Arbitrage-Bot
+
+    - name: Run Make
+      run: make
