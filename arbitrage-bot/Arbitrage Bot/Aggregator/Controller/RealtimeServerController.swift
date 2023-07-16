@@ -43,17 +43,19 @@ actor RealtimeServerController {
     func handleRequest(request: String) async throws {
         let botRequest = try BotRequest.fromJSON(jsonString: request)
         
-        let response = switch botRequest.topic {
+        let response: BotResponse
+        
+        switch botRequest.topic {
         case .priceData:
-            await priceData(request: botRequest)
+            response = await priceData(request: botRequest)
         case .decision:
-            await decision(request: botRequest)
+            response = await decision(request: botRequest)
         case .reset:
-            await reset(request: botRequest)
+            response = await reset(request: botRequest)
         case .buy:
-            await buy(request: botRequest)
+            response = await buy(request: botRequest)
         case .none:
-            BotResponse(status: .success, topic: .none)
+            response = BotResponse(status: .success, topic: .none)
         }
         
         self.callback(try response.toJSON())
