@@ -93,6 +93,14 @@ actor RealtimeServerController {
     }
     
     func reset(request: BotRequest) async -> BotResponse {
+        // Restart the server
+        self.priceSubscriber.activeSubscriptions.removeAll()
+        PriceDataPublisher.shared
+            .priceDataSubscription
+            .subscriptions
+            .activeSubscriptions
+            .removeAll()
+        
         return BotResponse(status: .success, topic: .reset)
     }
     
@@ -105,7 +113,7 @@ actor RealtimeServerController {
 class RealtimeServerControllerWrapper {
     // For simplicity in this example, I will assume that
     // the callback takes a C string.
-    private var serverController: RealtimeServerController
+    internal var serverController: RealtimeServerController
     
     init(id: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
         self.serverController = RealtimeServerController(id: id, callback: { message in
@@ -126,6 +134,7 @@ class RealtimeServerControllerWrapper {
         }
     }
 }
+
 
 // To mimic a reference to the class we can use a Dictionary
 var controllers: [Int: RealtimeServerControllerWrapper] = [:]

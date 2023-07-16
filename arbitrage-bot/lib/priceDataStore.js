@@ -34,7 +34,7 @@ const usePriceStore = create((set, get) => ({
 
     getAllQuotes: (pair) => {
         const { quotes } = get();
-        let out = [];
+        const out = [];
         for (const [key, quote] of quotes.entries()) {
             if (key.includes(pair)) {
                 out.push(quote);

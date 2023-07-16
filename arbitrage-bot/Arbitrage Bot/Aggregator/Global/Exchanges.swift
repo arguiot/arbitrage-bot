@@ -76,6 +76,18 @@ struct ExchangesList {
     }
 
     struct Production {
+        var uniswap = ExchangeMetadata(name: "uniswap", exchange: UniswapV2(
+            router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
+            factory: try! EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
+            coordinator: try! EthereumAddress(hex: "0x69FBa73a3D24A538f7E10eE0190B7Dc8Bb332fdF", eip55: false),
+            fee: 3
+        ))
+        
+        
+        init() {
+            uniswap.path = \.production.uniswap
+        }
+        
         subscript(key: String) -> (any Exchange)? {
             let mirror = Mirror(reflecting: self)
             for child in mirror.children {

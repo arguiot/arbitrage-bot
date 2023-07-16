@@ -249,23 +249,21 @@ export default function ExchangeCard({ environment, index }) {
                                                                 </Label>
                                                                 <Input
                                                                     id="name"
-                                                                    value={`${
-                                                                        buy.token ==
-                                                                        tokenB
+                                                                    value={`${buy.token ==
+                                                                            tokenB
                                                                             ? buy.amount /
-                                                                              priceData.price
+                                                                            priceData.price
                                                                             : buy.amount *
-                                                                              priceData.price
-                                                                    } ${
-                                                                        buy.token ==
-                                                                        tokenB
+                                                                            priceData.price
+                                                                        } ${buy.token ==
+                                                                            tokenB
                                                                             ? priceData
-                                                                                  .tokenA
-                                                                                  .name
+                                                                                .tokenA
+                                                                                .name
                                                                             : priceData
-                                                                                  .tokenB
-                                                                                  .name
-                                                                    }`}
+                                                                                .tokenB
+                                                                                .name
+                                                                        }`}
                                                                     className="col-span-3"
                                                                     disabled
                                                                 />

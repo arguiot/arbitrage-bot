@@ -237,7 +237,7 @@ export function PairsView() {
     };
 
     const table = useReactTable({
-        data: pairs as Pair[],
+        data: pairs() as Pair[],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,

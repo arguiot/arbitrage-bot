@@ -4,21 +4,23 @@ import { WagmiConfig, createClient } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import { Toaster } from "@/components/ui/toaster";
 
-const client = createClient(
-    getDefaultClient({
-        appName: "Arbitrage Bot",
-        // alchemyId,
-    })
-);
+// const client = createClient(
+//     getDefaultClient({
+//         appName: "Arbitrage Bot",
+//         // alchemyId,
+//     })
+// );
 
 function MyApp({ Component, pageProps }) {
     return (
-        <WagmiConfig client={client}>
-            <ConnectKitProvider>
-                <Component {...pageProps} />
-                <Toaster />
-            </ConnectKitProvider>
-        </WagmiConfig>
+        // <WagmiConfig client={client}>
+        //     <ConnectKitProvider>
+        <>
+            <Component {...pageProps} />
+            <Toaster />
+        </>
+        //     </ConnectKitProvider>
+        // </WagmiConfig>
     );
 }
 

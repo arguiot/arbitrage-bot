@@ -7,6 +7,7 @@ import usePriceStore from "./priceDataStore";
 import { create } from "zustand";
 import useTradeBookStore from "./tradesStore";
 import { usePairsStore } from "./pairs";
+import { useEnvironment } from "./environment";
 interface WebSocket {
     onclose: ((event: CloseEvent) => void) | null;
     onerror: ((event: Event) => void) | null;
@@ -40,15 +41,14 @@ export class Client {
     ws: WebSocket;
     reconnectTimer: any;
 
-    static shared: Client;
+    static shared: Client = new Client();
 
     subscriptions: Set<string> = new Set(); // exchange:pair
 
-    constructor() {
-        this.connect();
-    }
-
     connect() {
+        if (this.ws) {
+            this.ws.close();
+        }
         this.ws = new WebSocket(this.url);
         this.ws.onopen = this.onOpen.bind(this);
         this.ws.onmessage = this.onMessage.bind(this);
@@ -59,6 +59,7 @@ export class Client {
         console.log("Connected to server");
         useClientState.getState().setConnnected(true);
         clearTimeout(this.reconnectTimer);
+        this.reset();
     }
 
     onClose() {
@@ -126,16 +127,15 @@ export class Client {
                 }
                 toast({
                     title: "Decision",
-                    description: (
-                        <>
-                            {JSON.stringify(message)}
-                        </>
-                    ),
+                    description: <>{JSON.stringify(message)}</>,
                 });
 
                 useTradeBookStore.getState().addTrade(message.executedTrade);
 
                 useClientState.getState().setArbitrage(false);
+                break;
+            case "reset":
+                this.reset();
                 break;
             default:
                 console.log("Unknown message", message);
@@ -196,11 +196,16 @@ export class Client {
     }
 
     subscribeToAll() {
-        Object.keys(ExchangesList.development).forEach((exchange) => {
-            usePairsStore.getState().pairs.forEach((pair) => {
+        const env = useEnvironment.getState().environment;
+        const list =
+            env === "production"
+                ? ExchangesList.production
+                : ExchangesList.development;
+        Object.keys(list).forEach((exchange) => {
+            usePairsStore.getState().pairs().forEach((pair) => {
                 this.subscribeToPriceData(
                     exchange,
-                    "development",
+                    env,
                     pair.tokenA,
                     pair.tokenB
                 );
@@ -278,11 +283,7 @@ export class Client {
     }
 
     reset() {
-        this.send(
-            JSON.stringify({
-                type: "reset",
-                topic: "reset",
-            })
-        );
+        this.subscriptions.clear();
+        this.subscribeToAll();
     }
 }

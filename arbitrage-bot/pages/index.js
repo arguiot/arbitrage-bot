@@ -12,20 +12,25 @@ import { EstimatedTime } from "../components/ui/estimated-time";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TokensView } from "../components/tokens";
 import { PairsView } from "../components/pairsview";
+import { useEnvironment } from "../lib/environment";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
-export default function Index({ environment }) {
+export default function Index() {
     const { connected, decisions, setDecisions, arbitrage } = useClientState();
 
     const { toast } = useToast();
     const { reset: uniswapReset } = useUniswapStore();
 
+    const { environment, setEnvironment } = useEnvironment();
+
     useEffect(() => {
-        Client.shared = new Client();
-        if (!connected) {
-            setTimeout(() => {
-                Client.shared.subscribeToAll();
-            }, 1000);
-        }
+        Client.shared.connect();
     }, []);
 
     return (
@@ -42,6 +47,15 @@ export default function Index({ environment }) {
                             ·
                         </span>
                     </h1>
+                    <Select value={environment} onValueChange={(env) => setEnvironment(env)}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Environment" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="development">🛠️ Development</SelectItem>
+                            <SelectItem value="production">🌐 Production</SelectItem>
+                        </SelectContent>
+                    </Select>
                     {/* <ConnectKitButton /> */}
                 </div>
                 <Separator className="mb-8" />
@@ -107,13 +121,4 @@ export default function Index({ environment }) {
             </div>
         </>
     );
-}
-
-export async function getStaticProps() {
-    const env = process.env.USE_TESTNET ? "development" : "production";
-    return {
-        props: {
-            environment: env,
-        },
-    };
 }

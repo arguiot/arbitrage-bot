@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { ETH, USDC, USDT, BTC } from "@ledgerhq/crypto-icons-ui/react";
 import { Badge } from "@/components/ui/Badge";
+import { useEnvironment } from "./environment";
 export const TokenList = {
     ETH: {
         address: "0x0000000000000000000000000000000000000000",
@@ -43,13 +44,13 @@ export const TokenList = {
         address: "0x3c3aA68bc795e72833218229b0e53eFB4143A152",
         name: "USD Coin",
         ticker: "USDC",
-        icon: <USDC />
+        icon: <USDC />,
     },
     BTC: {
         address: null,
         name: "Bitcoin",
         ticker: "BTC",
-        icon: <BTC />
+        icon: <BTC />,
     },
     AAVE: {
         address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
@@ -69,7 +70,9 @@ export const useTokensStore = create(
                 })),
             removeToken: (address: string) =>
                 set((state) => ({
-                    tokens: state.tokens.filter((token) => token.address !== address),
+                    tokens: state.tokens.filter(
+                        (token) => token.address !== address
+                    ),
                 })),
         }),
         {
@@ -125,13 +128,26 @@ export type Pair = {
 
 export const usePairsStore = create(
     persist(
-        (set) => ({
-            environment: "development",
-            pairs: Object.values(PairList.development),
+        (set, get) => ({
+            prodPairs: Object.values(PairList.production),
+            devPairs: Object.values(PairList.development),
+            pairs: () => {
+                return useEnvironment.getState().environment == "production"
+                    ? get().prodPairs
+                    : get().devPairs;
+            },
             addPair: (pair: Pair) =>
-                set((state) => ({
-                    pairs: [...state.pairs, pair],
-                })),
+                set((state) => {
+                    return useEnvironment.getState().environment == "production"
+                        ? {
+                            devPairs: state.devPairs,
+                            prodPairs: [...state.prodPairs, pair],
+                        }
+                        : {
+                            devPairs: [...state.devPairs, pair],
+                            prodPairs: state.prodPairs,
+                        };
+                }),
             removePair: (pair: Pair) =>
                 set((state) => ({
                     pairs: state.pairs.filter(
@@ -143,7 +159,7 @@ export const usePairsStore = create(
         }),
         {
             name: "pairs-store",
-            storage: createJSONStorage(() => localStorage)
+            storage: createJSONStorage(() => localStorage),
         }
     )
 );

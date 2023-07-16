@@ -56,6 +56,7 @@ public struct BotResponse: Sendable, Codable {
     public func toJSON() throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
+        encoder.dateEncodingStrategy = .millisecondsSince1970
         let data = try encoder.encode(self)
         guard let json = String(data: data, encoding: .utf8) else {
             throw EncodingError.unknown
