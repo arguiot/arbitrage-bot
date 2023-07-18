@@ -812,6 +812,7 @@
 		68FCE1CF2A4EDA17009B79ED /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				68017B452A57116200837B89 /* Arbitrage Executor */,
 				68FCE1D02A4EDA17009B79ED /* RealtimeServerController.swift */,
 				68FCE1D12A4EDA17009B79ED /* Exchanges */,
 				68FCE1D32A4EDA17009B79ED /* Subscriptions */,
@@ -880,7 +881,6 @@
 		68FCE1E42A4EDA17009B79ED /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				68017B452A57116200837B89 /* Arbitrage Executor */,
 				68137F702A52E9C500E6264A /* Arbitrage Builder */,
 				68FCE1E52A4EDA17009B79ED /* Exchanges */,
 				68FCE1E92A4EDA17009B79ED /* Contracts */,
