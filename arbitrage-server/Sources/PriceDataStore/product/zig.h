@@ -1,1 +1,0 @@
-/opt/homebrew/Cellar/zig/0.10.1/lib/zig.h

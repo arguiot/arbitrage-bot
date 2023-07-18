@@ -1,5 +1,0 @@
-module FastSockets [system] {
-    umbrella header "FastSocketsPM.h"
-    link "FastSockets"
-    export *
-}

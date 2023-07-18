@@ -17,5 +17,4 @@ jobs:
 
     - name: Run Make
       run: |
-          cd arbitrage-bot
           make

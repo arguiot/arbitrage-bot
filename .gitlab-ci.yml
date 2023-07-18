@@ -6,7 +6,6 @@ stages:
 Test Arbitrage Server:
   stage: test
   script:
-    - cd arbitrage-bot
     - apt-get -q update && apt install -y make build-essential libssl-dev zlib1g-dev
     - make
     - swift test
