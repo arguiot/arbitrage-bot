@@ -49,11 +49,10 @@ class ArbitrageSwapCoordinator {
         
         DecisionDataPublisher.shared.publishDecision(decision: response)
         
-//        let txHash = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
+        let txHash = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
         
         // Let's wait for the transaction to be mined
-        try await Task.sleep(nanoseconds: 10_000_000_000) // 10 second
-        let txHash = try EthereumData(ethereumValue: "0x242138414da92a83c5d29a2f65a8c1421262b4af413f616ac70583eafa0dab08")
+        try await Task.sleep(nanoseconds: 10_000_000_000) // 10 second should be enough
         
         // Get the transaction fees
         let receipt = try await Credentials.shared.web3.eth.getTransactionReceipt(transactionHash: txHash)
