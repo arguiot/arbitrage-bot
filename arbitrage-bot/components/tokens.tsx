@@ -144,7 +144,7 @@ export function TokensView() {
     };
 
     const table = useReactTable({
-        data: tokens as Token[],
+        data: (tokens ?? []) as Token[],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,

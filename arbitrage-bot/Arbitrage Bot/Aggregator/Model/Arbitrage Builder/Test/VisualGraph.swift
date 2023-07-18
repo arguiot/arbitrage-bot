@@ -32,13 +32,13 @@ extension BuilderStep {
         return u
     }
     
-    func drawGraph() {
-        print(self.description)
+    func drawGraph(maxX: Double = 200) {
+        print(self.printPath)
         let renderer = SVGRenderer()
         var lineGraph = LineGraph<Double, Double>(enablePrimaryAxisGrid: true)
-        lineGraph.addFunction(dev1, minX: 0.1, maxX: 200.0, numberOfSamples: 1000, label: "Dev1", color: .orange, axisType: .secondaryAxis)
+        lineGraph.addFunction(dev1, minX: 0.1, maxX: maxX, numberOfSamples: 1000, label: "Dev1", color: .orange, axisType: .secondaryAxis)
 //        lineGraph.addFunction(dev2, minX: 10.0, maxX: 200.0, numberOfSamples: 1000, label: "Dev2", color: .red, axisType: .secondaryAxis)
-        lineGraph.addFunction(price, minX: 0.1, maxX: 200.0, numberOfSamples: 1000, label: "Price", color: .blue)
+        lineGraph.addFunction(price, minX: 0.1, maxX: maxX, numberOfSamples: 1000, label: "Price", color: .blue)
         lineGraph.plotTitle.title = "FUNCTION"
         lineGraph.plotLabel.xLabel = "X-AXIS"
         lineGraph.plotLabel.yLabel = "Y-AXIS"

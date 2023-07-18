@@ -11,7 +11,7 @@ import Euler
 import AppKit
 #endif
 
-class BuilderStep {
+class BuilderStep: CustomStringConvertible, CustomDebugStringConvertible {
     var next: BuilderStep? = nil
     
     var reserveFeeInfos: [ReserveFeeInfo]?
@@ -46,10 +46,11 @@ class BuilderStep {
             throw BuilderStepError.noReserve
         }
         
-        let (currentPrice, info) = try reserveFeeInfos.map({ info in
+        let prices = try reserveFeeInfos.map({ info in
             (try info.fastQuote(with: amount, tokenA: tokenA, tokenB: tokenB), info)
         })
-            .reduce((0, reserveFeeInfos[0]), { max($0.0, $1.0) == $0.0 ? $0 : $1 })
+        
+        let (currentPrice, info) = prices.reduce((0, reserveFeeInfos[0]), { max($0.0, $1.0) == $0.0 ? $0 : $1 })
         
         var chain = chain
         let metadata = ExchangesList.shared[keyPath: info.exchange.path]
@@ -95,5 +96,39 @@ class BuilderStep {
         }
         
         return nextStr ?? ""
+    }
+    
+    func printPath(for amount: Euler.BigInt) -> String {
+        guard let reserveFeeInfos = self.reserveFeeInfos else {
+            return "Error: No Reserve"
+        }
+        
+        let pricesAndPaths = try? reserveFeeInfos.map { info -> (Euler.BigInt, String) in
+            let price = try info.fastQuote(with: amount, tokenA: tokenA, tokenB: tokenB)
+            var path = "\(tokenA.name) -> \(tokenB.name)"
+            
+            if let meta = info.meta as? UniswapV2.RequiredPriceInfo {
+                let reserveAB = (tokenA > tokenB ? meta.reserveA : meta.reserveB) / 1e18
+                let reserveBA = (tokenA > tokenB ? meta.reserveB : meta.reserveA) / 1e18
+                path += " (Reserves: \(reserveAB) , \(reserveBA) - \(info.description))"
+            }
+            
+            return (price, path)
+        }
+        
+        
+        
+        
+        let (bestPrice, bestPath) = pricesAndPaths?.reduce((0, "")) { (currentBest, new) -> (Euler.BigInt, String) in
+            return max(currentBest.0, new.0) == currentBest.0 ? currentBest : new
+        } ?? (0, "")
+        
+        let chainDescription = next == nil ? "" : next?.printPath(for: bestPrice)
+        
+        return "{ Path: \(bestPath), Best Price: \(bestPrice / 1e18) }\n" + (chainDescription != nil ? "->\n\(chainDescription!)" : "")
+    }
+    
+    var debugDescription: String {
+        description
     }
 }

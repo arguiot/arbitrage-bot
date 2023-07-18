@@ -9,6 +9,12 @@ import Foundation
 import Euler
 
 class ArbitrageSwapCoordinator {
+    
+    enum CoordinationError: LocalizedError {
+        case noPathFound
+        case logSubscriptionFailed(String)
+    }
+    
     func coordinateFlashSwapArbitrage(with optimum: BuilderStep.OptimumResult) async throws {
         let contract = Credentials.shared.web3.eth.Contract(type: SwapRouteCoordinator.self)
         let invocation = contract.startArbitrage(startAmount: optimum.amountIn.asBigUInt,
@@ -21,7 +27,7 @@ class ArbitrageSwapCoordinator {
                                               gasPrice: gasPrice,
                                               maxFeePerGas: EthereumQuantity(quantity: 20.gwei),
                                               maxPriorityFeePerGas: nil,
-                                              gasLimit: 100000,
+                                              gasLimit: 1000000,
                                               from: from,
                                               value: 0,
                                               accessList: .init(),
@@ -38,10 +44,41 @@ class ArbitrageSwapCoordinator {
                                        route: optimum.path.map { step in
                                             Trade.Route(exchange: step.exchangeName, token: step.tokenName)
                                        },
-                                       profit: (BN(optimum.amountOut - optimum.amountIn) / 1e18).asDouble() ?? 0,
-                                       fees: 0.03)
+                                       profit: (BN(optimum.amountOut - optimum.amountIn) / 1e18).asDouble() ?? 0
+                                       )
         
         DecisionDataPublisher.shared.publishDecision(decision: response)
-        //        let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
+        let txHash = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
+        
+        // Let's wait for the transaction to be mined
+        try await Task.sleep(nanoseconds: 10_000_000_000) // 10 second
+//        let txHash = try EthereumData(ethereumValue: "0x242138414da92a83c5d29a2f65a8c1421262b4af413f616ac70583eafa0dab08")
+        
+        // Get the transaction fees
+        let receipt = try await Credentials.shared.web3.eth.getTransactionReceipt(transactionHash: txHash)
+        
+        let events = contract.events.compactMap { try! EthereumData(ethereumValue: $0.signature.sha3(.keccak256) )}
+        
+        let logs: [EthereumLogObject] = receipt?
+            .logs
+            .filter { events.contains($0.topics) } ?? []
+        
+        guard let amountOut = logs
+            .first?
+            .data
+            .ethereumValue()
+            .ethereumQuantity?
+            .quantity else { return }
+        
+        
+        if let profit = (BigDouble(amountOut.euler) / 1e18).asDouble() {
+            response.executedTrade?.profit = profit
+        }
+        response.executedTrade?.txHash = txHash.hex()
+        if let gasUsed = receipt?.cumulativeGasUsed {
+            response.executedTrade?.fees = (BN((gasUsed.quantity * gasPrice.quantity).euler) / 1e18).asDouble()
+        }
+        
+        DecisionDataPublisher.shared.publishDecision(decision: response)
     }
 }

@@ -182,6 +182,36 @@ final class PriceCalculation: XCTestCase {
         let res = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
         
         XCTAssertEqual(res.hex(), "")
+        
+        try Credentials.shared.web3.eth
+            .subscribeToLogs(addresses: [contract.address!],
+                             topics: [
+                                contract.events.compactMap { try! EthereumData(ethereumValue: $0.signature.sha3(.keccak256) )}
+                             ]) { resp in
+                                 XCTAssertNotNil(resp.result)
+                             } onEvent: { log in
+                                 guard let topicValue = log.result else {
+                                     return
+                                 }
+                                 let amountOut = topicValue.data.ethereumValue().ethereumQuantity?.quantity
+                                 print(amountOut)
+                             }
+
+        
         XCTAssertGreaterThan(price.amountOut, price.amountIn)
+    }
+    
+    func testLogs() async throws {
+        let contract = Credentials.shared.web3.eth.Contract(type: SwapRouteCoordinator.self)
+        let events = contract.events.compactMap { try! EthereumData(ethereumValue: $0.signature.sha3(.keccak256) )}
+        let logs = try await Credentials.shared.web3.eth
+            .getTransactionReceipt(transactionHash: .init(ethereumValue: "0x242138414da92a83c5d29a2f65a8c1421262b4af413f616ac70583eafa0dab08"))?
+            .logs
+            .filter { events.contains($0.topics) } ?? []
+        print("Found \(logs.count) logs!")
+        for topicValue in logs {
+            let amountOut = topicValue.data.ethereumValue().ethereumQuantity?.quantity
+            print(amountOut)
+        }
     }
 }

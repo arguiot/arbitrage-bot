@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import useUniswapStore from "../lib/uniswapStore";
 import TradeBook from "../components/tradeBook";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { Client, useClientState } from "../lib/client";
-import { PairList } from "../lib/pairs";
 import { EstimatedTime } from "../components/ui/estimated-time";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TokensView } from "../components/tokens";
@@ -25,7 +22,6 @@ export default function Index() {
     const { connected, decisions, setDecisions, arbitrage } = useClientState();
 
     const { toast } = useToast();
-    const { reset: uniswapReset } = useUniswapStore();
 
     const { environment, setEnvironment } = useEnvironment();
 

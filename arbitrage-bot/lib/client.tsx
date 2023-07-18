@@ -202,14 +202,17 @@ export class Client {
                 ? ExchangesList.production
                 : ExchangesList.development;
         Object.keys(list).forEach((exchange) => {
-            usePairsStore.getState().pairs().forEach((pair) => {
-                this.subscribeToPriceData(
-                    exchange,
-                    env,
-                    pair.tokenA,
-                    pair.tokenB
-                );
-            });
+            usePairsStore
+                .getState()
+                .pairs()
+                .forEach((pair) => {
+                    this.subscribeToPriceData(
+                        exchange,
+                        env,
+                        pair.tokenA,
+                        pair.tokenB
+                    );
+                });
         });
     }
 

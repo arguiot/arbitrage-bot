@@ -37,6 +37,7 @@ import {
     Trash,
     Trash2,
     ArrowRight,
+    ExternalLink,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { set } from "zod";
@@ -56,6 +57,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExchangesList } from "../lib/exchanges";
 import { useEnvironment } from "../lib/environment";
+import { Skeleton } from "@/components/ui/skeleton";
+
 export type Trade = {
     timestamp: number;
     pair: string;
@@ -293,6 +296,33 @@ export const columns: ColumnDef<Trade>[] = [
         },
         cell: ({ cell }) => {
             return <div>{formatDate(cell.getValue())}</div>;
+        },
+    },
+    {
+        accessorKey: "txHash",
+        header: "Tx Hash",
+        cell: ({ cell }) => {
+            const baseURL = useEnvironment.getState().environment === "production"
+                ? "https://etherscan.io/tx/"
+                : "https://testnet.bscscan.com/tx/"
+            return (
+                <div className="flex items-center space-x-2">
+                    {cell.getValue()
+                        ? <a
+                            href={`${baseURL}${cell.getValue()}`}
+                            target="_blank"
+                            className="flex items-center space-x-2"
+                        >
+                            <div className="text-sm flex">
+                                {/* Last few letters */}
+                                <ExternalLink className="h-4 w-4" />
+                                {`...${cell.getValue().slice(-8)}`}
+                            </div>
+                        </a>
+                        : <Skeleton className="w-[100px] h-[20px] rounded-full" />
+                    }
+                </div>
+            );
         },
     },
     {

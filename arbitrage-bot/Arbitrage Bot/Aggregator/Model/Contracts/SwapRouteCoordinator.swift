@@ -28,7 +28,11 @@ open class SwapRouteCoordinator: StaticContract, SwapRouteCoordinatorContract {
     open var constructor: SolidityConstructor?
     
     open var events: [SolidityEvent] {
-        return []
+        return [
+            SolidityEvent(name: "Arbitrage", anonymous: false, inputs: [
+                .init(name: "amountOut", type: .uint256, indexed: false)
+            ])
+        ]
     }
     
     public required init(address: EthereumAddress?, eth: Web3.Eth) {

@@ -9,10 +9,12 @@ import Foundation
 
 extension Builder {
     func process(systemTime: Int) {
+        guard self.lock == false else { return }
         guard self.systemTime == systemTime else {
             print(self.systemTime, systemTime)
             return
         }
+        self.lock = true
         Task {
             // It's okay to do that, because we start from a single node
             let all = await self.steps.concurrentCompactMap { step in
@@ -32,6 +34,7 @@ extension Builder {
             print("Best: \(amountIn) -> \(bestOpportunity.amountOut)")
             
             try await DecisionDataPublisher.shared.coordinator.coordinateFlashSwapArbitrage(with: bestOpportunity)
+            self.lock = false
         }
     }
 }

@@ -1,7 +1,8 @@
+import Hydrations from "../lib/hydration";
 import "../styles/globals.css";
 
-import { WagmiConfig, createClient } from "wagmi";
-import { ConnectKitProvider, getDefaultClient } from "connectkit";
+// import { WagmiConfig, createClient } from "wagmi";
+// import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import { Toaster } from "@/components/ui/toaster";
 
 // const client = createClient(
@@ -18,6 +19,7 @@ function MyApp({ Component, pageProps }) {
         <>
             <Component {...pageProps} />
             <Toaster />
+            <Hydrations />
         </>
         //     </ConnectKitProvider>
         // </WagmiConfig>

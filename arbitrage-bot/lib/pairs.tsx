@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { ETH, USDC, USDT, BTC } from "@ledgerhq/crypto-icons-ui/react";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { useEnvironment } from "./environment";
+
 export const TokenList = {
     ETH: {
         address: "0x0000000000000000000000000000000000000000",
@@ -77,7 +78,8 @@ export const useTokensStore = create(
         }),
         {
             name: "tokens-store",
-            storage: createJSONStorage(() => localStorage),
+            skipHydration: true,
+            storage: createJSONStorage(() => window.localStorage),
         }
     )
 );
@@ -149,17 +151,32 @@ export const usePairsStore = create(
                         };
                 }),
             removePair: (pair: Pair) =>
-                set((state) => ({
-                    pairs: state.pairs.filter(
-                        (p: Pair) =>
-                            p.tokenA.address !== pair.tokenA.address &&
-                            p.tokenB.address !== pair.tokenB.address
-                    ),
-                })),
+                set((state) => {
+                    return useEnvironment.getState().environment == "production"
+                        ? {
+                            devPairs: state.devPairs,
+                            prodPairs: state.prodPairs.filter(
+                                (p: Pair) =>
+                                    p.tokenA.address !==
+                                    pair.tokenA.address &&
+                                    p.tokenB.address !== pair.tokenB.address
+                            ),
+                        }
+                        : {
+                            devPairs: state.devPairs.filter(
+                                (p: Pair) =>
+                                    p.tokenA.address !==
+                                    pair.tokenA.address &&
+                                    p.tokenB.address !== pair.tokenB.address
+                            ),
+                            prodPairs: state.prodPairs,
+                        };
+                }),
         }),
         {
             name: "pairs-store",
-            storage: createJSONStorage(() => localStorage),
+            skipHydration: true,
+            storage: createJSONStorage(() => window.localStorage),
         }
     )
 );

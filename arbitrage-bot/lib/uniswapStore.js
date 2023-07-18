@@ -8,7 +8,7 @@ const useUniswapStore = create(
             router: null,
             weth: null,
             isDeployed: false,
-            deploy: async function () {
+            deploy: async function() {
                 // Call the `/api/deploy` endpoint
                 const response = await fetch("/api/deploy");
                 const { factory, router, weth } = await response.json();
@@ -26,7 +26,8 @@ const useUniswapStore = create(
         }),
         {
             name: "uniswap-store",
-            storage: createJSONStorage(() => sessionStorage),
+            skipHydration: true,
+            storage: createJSONStorage(() => window.localStorage),
         }
     )
 );

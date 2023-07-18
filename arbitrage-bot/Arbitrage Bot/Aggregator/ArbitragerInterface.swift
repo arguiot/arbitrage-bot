@@ -66,6 +66,7 @@ public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, syst
 
 @_cdecl("review_and_process_opportunities")
 public func reviewAndProcessOpportunities(systemTime: Int) {
+    print("Reviewing process: \(systemTime)")
     guard PriceDataStoreWrapper
         .shared?
         .adjacencyList
@@ -101,6 +102,7 @@ public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size
         return
     }
     let requestString = String(cString: request).prefix(size)
+    
     controller.handleRequest(request: String(requestString), completion: { error in
         print("Request failed: \(error)")
     })

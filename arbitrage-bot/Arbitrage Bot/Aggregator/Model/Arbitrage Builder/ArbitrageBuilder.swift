@@ -10,6 +10,7 @@ import Foundation
 class Builder {
     var systemTime: Int = 0
     var steps: [BuilderStep] = []
+    var lock = false
     
     func reset() {
         self.steps = []

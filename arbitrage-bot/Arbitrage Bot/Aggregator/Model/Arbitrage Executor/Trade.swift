@@ -19,5 +19,6 @@ struct Trade: Codable, Sendable {
     }
     
     var profit: Double
-    var fees: Double
+    var fees: Double?
+    var txHash: String?
 }

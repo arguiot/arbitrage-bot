@@ -27,27 +27,17 @@ const useTradeBookStore = create(
                     fees: 0.03,
                 },
             ],
-            addTrade: ({
-                timestamp,
-                token,
-                startAmount,
-                route,
-                profit,
-                fees,
-            }) =>
-                set((state) => ({
-                    trades: [
-                        ...state.trades,
-                        {
-                            timestamp,
-                            token,
-                            startAmount,
-                            route,
-                            profit,
-                            fees,
-                        },
-                    ],
-                })),
+            addTrade: (obj) =>
+                // If a trade with the same timestamp already exists, replace it
+                set((state) => {
+                    const index = state.trades.findIndex(
+                        (trade) => trade.timestamp === obj.timestamp
+                    );
+                    if (index === -1) return { trades: [...state.trades, obj] };
+                    const trades = [...state.trades];
+                    trades[index] = obj;
+                    return { trades };
+                }),
             removeTrade: (date) => {
                 set((state) => {
                     const index = state.trades.findIndex(
@@ -62,7 +52,8 @@ const useTradeBookStore = create(
         }),
         {
             name: "trade-store",
-            storage: createJSONStorage(() => localStorage),
+            skipHydration: true,
+            storage: createJSONStorage(() => window.localStorage),
         }
     )
 );

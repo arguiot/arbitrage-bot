@@ -8,7 +8,7 @@
 import Foundation
 
 
-actor RealtimeServerController {
+class RealtimeServerController {
     var callback: (String) -> Void
     var priceSubscriber: PriceDataSubscriber
     var priceDataStore: PriceDataStoreWrapper? = nil
@@ -40,20 +40,20 @@ actor RealtimeServerController {
     }
     
     // MARK: - Request
-    func handleRequest(request: String) async throws {
+    func handleRequest(request: String) throws {
         let botRequest = try BotRequest.fromJSON(jsonString: request)
         
         let response: BotResponse
         
         switch botRequest.topic {
         case .priceData:
-            response = await priceData(request: botRequest)
+            response = priceData(request: botRequest)
         case .decision:
-            response = await decision(request: botRequest)
+            response = decision(request: botRequest)
         case .reset:
-            response = await reset(request: botRequest)
+            response = reset(request: botRequest)
         case .buy:
-            response = await buy(request: botRequest)
+            response = buy(request: botRequest)
         case .none:
             response = BotResponse(status: .success, topic: .none)
         }
@@ -61,7 +61,7 @@ actor RealtimeServerController {
         self.callback(try response.toJSON())
     }
     
-    func priceData(request: BotRequest) async -> BotResponse {
+    func priceData(request: BotRequest) -> BotResponse {
         guard let query = request.query else {
             return BotResponse(status: .error, topic: .priceData)
         }
@@ -82,7 +82,7 @@ actor RealtimeServerController {
         return BotResponse(status: .success, topic: .priceData)
     }
     
-    func decision(request: BotRequest) async -> BotResponse {
+    func decision(request: BotRequest) -> BotResponse {
         if request.type == .subscribe {
             PriceDataPublisher.shared.priceDataSubscription.decisions = true
         } else {
@@ -92,7 +92,7 @@ actor RealtimeServerController {
         return BotResponse(status: .success, topic: .decision)
     }
     
-    func reset(request: BotRequest) async -> BotResponse {
+    func reset(request: BotRequest) -> BotResponse {
         // Restart the server
         self.priceSubscriber.activeSubscriptions.removeAll()
         PriceDataPublisher.shared
@@ -104,11 +104,10 @@ actor RealtimeServerController {
         return BotResponse(status: .success, topic: .reset)
     }
     
-    func buy(request: BotRequest) async -> BotResponse {
+    func buy(request: BotRequest) -> BotResponse {
         return BotResponse(status: .success, topic: .buy)
     }
 }
-
 
 class RealtimeServerControllerWrapper {
     // For simplicity in this example, I will assume that
@@ -125,12 +124,10 @@ class RealtimeServerControllerWrapper {
     }
     
     public func handleRequest(request: String, completion: @escaping (Error) -> Void) {
-        Task {
-            do {
-                try await serverController.handleRequest(request: request)
-            } catch {
-                completion(error)
-            }
+        do {
+            try serverController.handleRequest(request: request)
+        } catch {
+            completion(error)
         }
     }
 }

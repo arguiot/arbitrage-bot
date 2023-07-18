@@ -52,29 +52,33 @@ int main(int argc, const char *argv[]) { arbitrage_main(argc, argv); }
 
 void on_tick(const double *rates, const CToken *tokens, size_t size,
              size_t systemTime) {
-  size_t rateSize = size * size;
-
-  // Let's get the weights
-  double weights[rateSize];
-  double edges[size];
-  int predecessor[size];
-
-  calculate_neg_log(rates, weights, (int)rateSize);
-  int src = 0; // Source vertex as 0
-  int cycle[size];
-  int cycle_length;
-  BellmanFord(weights, size, src, cycle, &cycle_length);
-
-  printf("Cycle: ");
-  for (int i = 0; i < cycle_length; ++i) {
-    printf("%d ", cycle[i]);
-  }
-  printf("\n");
-
-  processArbitrage(tokens, cycle, cycle_length, systemTime);
-
-  process_opportunities(systemTime);
+    size_t rateSize = size * size;
+    
+    // Let's get the weights
+    double weights[rateSize];
+    
+    calculate_neg_log(rates, weights, (int)rateSize);
+    int src = 0; // Source vertex as 0
+    int cycle[size + 2]; // Adjust the size to accommodate the two extra elements.
+    int cycle_length;
+    BellmanFord(weights, size, src, cycle + 1, &cycle_length); // Start from the second index
+    
+    // Insert src at the beginning and the end of the cycle.
+    cycle[0] = src;
+    cycle[cycle_length + 1] = src;
+    cycle_length += 2;
+    
+    printf("Cycle: ");
+    for (int i = 0; i < cycle_length; ++i) {
+        printf("%d ", cycle[i]);
+    }
+    printf("\n");
+    
+    processArbitrage(tokens, cycle, cycle_length, systemTime);
+    
+    process_opportunities(systemTime);
 }
+
 
 // MARK: - Bellman Ford
 void convert_matrix_to_edgelist(const double *matrix, size_t size,

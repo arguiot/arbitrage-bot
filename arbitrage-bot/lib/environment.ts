@@ -12,7 +12,8 @@ export const useEnvironment = create(
         }),
         {
             name: "environment",
-            storage: createJSONStorage(() => localStorage),
+            skipHydration: true,
+            storage: createJSONStorage(() => window.localStorage),
         }
     )
 );
