@@ -1,0 +1,20 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: swift-actions/setup-swift@v1
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    # - name: Install dependencies
+      # run: brew install
+
+    - name: Run Make
+      run: |
+          make

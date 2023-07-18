@@ -1,0 +1,11 @@
+image: swift:latest
+
+stages:
+  - test
+
+Test Arbitrage Server:
+  stage: test
+  script:
+    - apt-get -q update && apt install -y make build-essential libssl-dev zlib1g-dev
+    - make
+    - swift test
