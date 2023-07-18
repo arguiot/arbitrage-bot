@@ -8,14 +8,14 @@
 import Euler
 import Foundation
 
-struct Cost {
+public struct Cost {
     var gas: Euler.BigInt?
     var costInDollars: Double
 }
 
 extension EthereumAddress: @unchecked Sendable {}
 
-struct Receipt {
+public struct Receipt {
     var transactionHash: String?
     var amountIn: Euler.BigInt
     var amountOut: Euler.BigInt
@@ -32,7 +32,7 @@ struct ExchangeAdapter {
     static let uniswap = UniswapV2.self
 }
 
-protocol Exchange: Hashable {
+public protocol Exchange: Hashable {
     
     associatedtype Delegate
     associatedtype Meta
