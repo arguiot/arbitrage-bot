@@ -17,7 +17,7 @@ struct ExchangeInfo: Codable {
     var testnet: Bool? = nil
 }
 
-struct ExchangeMetadata {
+public struct ExchangeMetadata {
     let name: String
     var exchange: any Exchange
     var path: KeyPath<ExchangesList, Self>! = nil {
@@ -32,7 +32,7 @@ struct ExchangeMetadata {
     }
 }
 
-struct ExchangesList {
+public struct ExchangesList {
     static let shared = ExchangesList()
     
     struct Development {

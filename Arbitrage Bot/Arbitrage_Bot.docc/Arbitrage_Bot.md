@@ -1,4 +1,4 @@
-# Arbitrage Bot Framework
+# ``Arbitrage_Bot``
 
 This is a high-level, efficient, and streamlined library designed to facilitate development of cryptocurrency bots. The primary goal of this framework is to automate and simplify typical tasks like monitoring market prices, identifying profitable arbitrage opportunities and executing trades accordingly.
 
@@ -22,7 +22,7 @@ This is a high-level, efficient, and streamlined library designed to facilitate 
 
 Here's a simple script demonstrating the library:
 ```c
-#include "Arbitrage_Bot_Demo.h"
+#include <Arbitrage_Bot/Arbitrage_Bot.h> // If this doesn't work, try #include "arbitrager.h"
 
 #define MAX_EDGES 100
 // MARK: - Main
@@ -43,3 +43,24 @@ int arbitrage_main(int argc, const char * argv[]) {
 
 void on_tick(const double* rates, const CToken* tokens, size_t size, size_t systemTime) { ... }
 ```
+
+### Example
+As we aim to provide a simple and easy-to-use library, we have also included a sample bot that demonstrates the use of this library. This bot is designed to identify cycle arbitrage opportunities within the Ethereum network. It relies on the Uniswap V2 decentralized exchange to perform trades. The bot is designed to be run with a web-app for monitoring. Here's how you can run the bot:
+
+1. Clone the repository, including the submodules.
+2. Navigate to the `Arbitrage-Bot` directory.
+3. Run `yarn install` to install the required dependencies.
+4. Run `make` to build the bot. This will give you a path to the executable.
+5. Run `yarn dev` to start the UI.
+6. Run `.build/<ARCH>/release/Arbitrage_Bot-Main` to start the bot in a separate terminal window.
+
+> Another way is to build the bot using Xcode. Open the `Arbitrage-Bot.xcodeproj` file in Xcode and build the project with target `Arbitrage-Bot-Main`. This will build and run the bot in a single step. You will still need to run `yarn dev` to start the UI!
+
+> One thing that you may want to add, is the `.env` file. Here's an example of what it should look like:
+> ```
+> USE_TESTNET=TRUE
+> JSON_RPC_URL=wss://...
+> HTTP_JSON_RPC_URL=https://...
+> WETH_CONTRACT_ADDRESS=0xd1f55F0C1b1ae589b9bad543bab96e841AF2b2d1
+> WALLET_PRIVATE_KEY="..."
+> ```
