@@ -1,5 +1,9 @@
 # ``Arbitrage_Bot``
 
+@Metadata {
+    @DisplayName("Arbitrage Bot")
+}
+
 This is a high-level, efficient, and streamlined library designed to facilitate development of cryptocurrency bots. The primary goal of this framework is to automate and simplify typical tasks like monitoring market prices, identifying profitable arbitrage opportunities and executing trades accordingly.
 
 ## Features
@@ -64,3 +68,88 @@ As we aim to provide a simple and easy-to-use library, we have also included a s
 > WETH_CONTRACT_ADDRESS=0xd1f55F0C1b1ae589b9bad543bab96e841AF2b2d1
 > WALLET_PRIVATE_KEY="..."
 > ```
+
+
+## Topics
+
+### Web3
+- ``ABI``
+- ``ABIConvertible``
+- ``ABIDecodable``
+- ``ABIDecoder``
+- ``ABIEncodable``
+- ``ABIEncoder``
+- ``ABIObject``
+- ``AnnotatedERC20``
+- ``AnnotatedERC721``
+- ``BasicRPCRequest``
+- ``BasicRPCResponse``
+- ``DynamicContract``
+- ``ERC165Contract``
+- ``ERC20Contract``
+- ``ERC721Contract``
+- ``EnumeratedERC721``
+- ``EthereumAddress``
+- ``EthereumBlockObject``
+- ``EthereumCall``
+- ``EthereumCallParams``
+- ``EthereumContract``
+- ``EthereumData``
+- ``EthereumLogObject``
+- ``EthereumPrivateKey``
+- ``EthereumPublicKey``
+- ``EthereumQuantity``
+- ``EthereumQuantityTag``
+- ``EthereumSignedTransaction``
+- ``EthereumSyncStatusObject``
+- ``EthereumTransaction``
+- ``EthereumTransactionobject``
+- ``EthereumTransactionReceiptObject``
+- ``EthereumUtils``
+- ``EthereumValue``
+- ``EthereumValueConvertible``
+- ``EthereumValueInitializable``
+- ``EthereumValueInitializableError``
+- ``EthereumValueRepresentable``
+- ``EthereumValueRepresentableError``
+- ``GenericERC20Contract``
+- ``GenericERC721Contract``
+- ``InvocationError``
+- ``RLPDecoder``
+- ``RLPEncoder``
+- ``RLPItem``
+- ``RLPItemConvertible``
+- ``RLPItemInitializable``
+- ``RLPItemInitializableError``
+- ``RLPItemRepresentable``
+- ``RLPItemRepresentableError``
+- ``RPCEventResponse``
+- ``RPCRequest``
+- ``RPCResponse``
+- ``SolidityConstantFunction``
+- ``SolidityConstructor``
+- ``SolidityConstructorInvocation``
+- ``SolidityEmittedEvent``
+- ``SolidityEvent``
+- ``SolidityFunction``
+- ``SolidityFunctionHandler``
+- ``SolidityFunctionParameter``
+- ``SolidityInvocation``
+- ``SolidityNonPayableFunction``
+- ``SolidityNonPayableInvocation``
+- ``SolidityParameter``
+- ``SolidityPayableFunction``
+- ``SolidityPayableInvocation``
+- ``SolidityReadInvocation``
+- ``SolidityTuple``
+- ``SolidityType``
+- ``SolidityTypeRepresentable``
+- ``SolidityWrappedValue``
+- ``StaticContract``
+- ``StringHexBytesError``
+- ``Web3``
+- ``WebBidirectionalProvider``
+- ``Web3HttpProvider``
+- ``Web3Provider``
+- ``Web3Response``
+- ``Web3WebSocketProvider``

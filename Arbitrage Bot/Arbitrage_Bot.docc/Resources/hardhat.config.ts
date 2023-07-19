@@ -25,16 +25,8 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 const config: HardhatUserConfig = {
     solidity: "0.6.6",
     networks: {
-        ropsten: {
-            url: process.env.ROPSTEN_URL || "",
-            accounts:
-                process.env.PRIVATE_KEY !== undefined
-                    ? [process.env.PRIVATE_KEY]
-                    : [],
-        },
-        bsc: {
-            // url: process.env.HTTP_JSON_RPC_URL || "",
-            url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+        eth: {
+            url: process.env.HTTP_JSON_RPC_URL || "",
             accounts:
                 process.env.WALLET_PRIVATE_KEY !== undefined
                     ? [process.env.WALLET_PRIVATE_KEY]
