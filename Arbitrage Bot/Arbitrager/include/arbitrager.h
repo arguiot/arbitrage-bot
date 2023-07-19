@@ -17,7 +17,11 @@
 /// @field index An integer acting as an unique identifier for the token.
 /// @field address Unsigned character pointer representing the token's address.
 typedef struct {
-    const int index;
+    /// An integer acting as an unique identifier for the token.
+    const int _index;
+    /// Unsigned character pointer representing the token's address, or name. It's an array of `UInt8` representing the hex address as a number.
+    ///
+    /// You can use ``get_name_for_token(tokenAddress, result)`` to get the string name from this address.
     const unsigned char * _Nonnull address;
 } CToken;
 
@@ -32,7 +36,35 @@ void get_name_for_token(const uint8_t * _Nonnull tokenAddress, char * _Nonnull r
 /// The function must include the rates, tokens, size of tokens and system time as parameters.
 /// @seealso CToken
 typedef struct {
-    void * _Nonnull wrapper;
+    /// Price Data Store Wrapper reference in Swift.
+    ///
+    /// This is an internal property, you don't need to touch this.
+    void * _Nonnull _wrapper;
+    /// Everytime prices changes, this function is called.
+    ///
+    /// @param rates (_Nonnull const double*) Pointer to the array of current rates. This is a single array, of size `size * size`. You can see this as a matrix, containing all the bidirectional prices for the pairs. For example:
+    /// |       | USDT  | ETH                 | TKA              | TKB              |
+    /// |-------|-------|---------------------|------------------|------------------|
+    /// | USDT  | 1.0   | 0.0005563177237620392 | inf | 1.8897988335995675 |
+    /// | ETH   | 1825.9812561052 | 1.0               | 446.3807633676      | inf   |
+    /// | TKA   | inf   | 0.0025              | 1.0              | 2.0596399804    |
+    /// | TKB   | 0.6375577545 | inf               | 2.3109486084916444 | 1.0  |
+    /// > Would be represented as:
+    /// > ```swift
+    /// > [1.0, 0.0005563177237620392, inf, 1.8897988335995675, 1825.9812561052, 1.0, 446.3807633676, inf, inf, 0.0025, 1.0, 2.0596399804, 0.6375577545, inf, 2.3109486084916444, 1.0]
+    /// > ```
+    /// @param tokens (_Nonnull const CToken*) Array of tokens for which rates are provided.
+    /// > So the case above, we would have:
+    /// > ```swift
+    /// > ["USDT", "ETH", "TKA", "TKB"]
+    /// > ```
+    /// @param size (size_t) Number of tokens in the array.
+    /// > In this case, 4
+    /// @param systemTime (size_t) Current system time.
+    ///
+    /// This is where you want to define your strategy.
+    ///
+    /// You will want to call ``add_opportunity_in_queue(order, size, systemTime)`` for each detected opportunity and ``process_opportunities(systemTime)`` at the end.
     void (* _Nonnull on_tick)(const double* _Nonnull rates,
                               const CToken* _Nonnull tokens,
                               size_t size,
@@ -55,12 +87,15 @@ void process_opportunities(size_t systemTime);
 /// @field pipe (_Nonnull function) A function pointer executed to pipe the PriceDataStore.
 /// @seealso PriceDataStore
 typedef struct {
+    /// The data structure for representing a system containing different token rates.
     PriceDataStore * _Nonnull dataStore;
+    /// The uWebSockets app reference
     void * _Nonnull app;
+    /// Connecting the data store to the server.
     void (* _Nonnull pipe)(PriceDataStore * _Nonnull dataStore);
 } Server;
 
-/// Creates the server.
+/// Creates the web socket server.
 /// @discussion Allocates memory and sets up basic server parameters.
 /// @return (_Nonnull Server*) Pointer to the created server.
 Server * _Nonnull new_server(void);

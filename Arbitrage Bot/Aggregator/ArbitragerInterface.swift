@@ -17,7 +17,7 @@ import Foundation
 //}
 
 // MARK: - Store
-@_cdecl("attach_tick_price_data_store")
+@_cdecl("_attach_tick_price_data_store")
 public func attachTick(callback: @escaping (UnsafePointer<Double>, UnsafePointer<UInt8>, UInt32, UInt32) -> Void) {
     PriceDataStoreWrapper.shared?.callback = { array, tokens, time in
         guard let addresses = tokens.map(\.address.rawAddress).flatten() as? [UInt8] else { return }
@@ -34,7 +34,7 @@ public func attachTick(callback: @escaping (UnsafePointer<Double>, UnsafePointer
     }
 }
 
-@_cdecl("name_for_token")
+@_cdecl("_name_for_token")
 public func name(for tokenAddress: UnsafePointer<UInt8>, result: UnsafeMutablePointer<UnsafeMutablePointer<CChar>>) {
     let byteCount = 20 // The length of the address
     let tokenAddressData = Data(bytes: tokenAddress, count: byteCount)
@@ -46,7 +46,7 @@ public func name(for tokenAddress: UnsafePointer<UInt8>, result: UnsafeMutablePo
     }
 }
 
-@_cdecl("add_opportunity_for_review")
+@_cdecl("_add_opportunity_for_review")
 public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, systemTime: Int) {
     let list = UnsafeBufferPointer(start: order, count: size)
     let arbitrageOrder = Array(list)
@@ -64,7 +64,7 @@ public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, syst
     }
 }
 
-@_cdecl("review_and_process_opportunities")
+@_cdecl("_review_and_process_opportunities")
 public func reviewAndProcessOpportunities(systemTime: Int) {
     print("Reviewing process: \(systemTime)")
     guard PriceDataStoreWrapper
@@ -82,7 +82,7 @@ public func reviewAndProcessOpportunities(systemTime: Int) {
 
 // MARK: - Realtime Server
 
-@_cdecl("create_realtime_server_controller")
+@_cdecl("_create_realtime_server_controller")
 public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
     let id = controllers.count
     let controller = RealtimeServerControllerWrapper(id: id, userData: userData, callback: callback)
@@ -90,12 +90,12 @@ public func createRealtimeServerController(callback: @escaping (@convention(c) (
     return id
 }
 
-@_cdecl("close_realtime_server_controller")
+@_cdecl("_close_realtime_server_controller")
 public func closeRealtimeServerController(id: Int) {
     controllers.removeValue(forKey: id)
 }
 
-@_cdecl("realtime_server_handle_request")
+@_cdecl("_realtime_server_handle_request")
 public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size: Int) {
     guard let controller = controllers[controllerId] else {
         print("No controller found with this ID")

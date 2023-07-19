@@ -161,7 +161,7 @@ void open_handler(uws_websocket_t *ws)
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     
     // Create an instance of RealtimeServerController
-    int controller = create_realtime_server_controller(realtime_msg_forward, ws);
+    int controller = _create_realtime_server_controller(realtime_msg_forward, ws);
 
     data->controller = controller;
 }
@@ -171,7 +171,7 @@ void message_handler(uws_websocket_t *ws, const char *message, size_t length, uw
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     int controller = data->controller;
 
-    realtime_server_handle_request(controller, message, length);
+    _realtime_server_handle_request(controller, message, length);
 }
 
 void close_handler(uws_websocket_t *ws, int code, const char *message, size_t length)
@@ -182,7 +182,7 @@ void close_handler(uws_websocket_t *ws, int code, const char *message, size_t le
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     if (data)
     {
-        close_realtime_server_controller(data->controller);
+        _close_realtime_server_controller(data->controller);
         free(data);
     }
 }
@@ -212,20 +212,20 @@ PriceDataStore *create_store(void) {
     
     PriceDataStoreWrapper *sharedWrapper = PriceDataStoreWrapper.shared;
     
-    store->wrapper = (__bridge void *)(sharedWrapper);
+    store->_wrapper = (__bridge void *)(sharedWrapper);
     return store;
 }
 // Define the pipe function implementation
 void pipe_function(PriceDataStore *dataStore) {
     socket_data_base->server->dataStore = dataStore;
     // Bind the on_tick callback to the data store
-    attach_tick_price_data_store(^(const double * _Nonnull array, const uint8_t * _Nonnull tokens, uint32_t size, uint32_t systemTime) {
+    _attach_tick_price_data_store(^(const double * _Nonnull array, const uint8_t * _Nonnull tokens, uint32_t size, uint32_t systemTime) {
         CToken *cTokens = malloc(sizeof(CToken) * size);
         
         // Assign each cToken. Remember, each address is 20 long.
         for (uint32_t i = 0; i < size; i++) {
             CToken temp = {
-                .index = i,
+                ._index = i,
                 .address = tokens + i*20
             };
             memcpy(cTokens + i, &temp, sizeof(CToken));
@@ -245,10 +245,6 @@ Server *new_server(void) {
         (unsigned long)[Environment shared].count);
 
     uws_app_t *app = uws_create_app(SSL, (struct us_socket_context_options_t){
-        /* There are example certificates in uWebSockets.js repo */
-//        .key_file_name = "../misc/key.pem",
-//        .cert_file_name = "../misc/cert.pem",
-//        .passphrase = "1234"
     });
     
     // Create and initialize the Server struct
@@ -286,13 +282,13 @@ void start_server(Server *server, int port) {
 
 
 void get_name_for_token(const uint8_t * _Nonnull tokenAddress, char * _Nonnull result) {
-    name_for_token(tokenAddress, result);
+    _name_for_token(tokenAddress, result);
 }
 
 void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTime) {
-    add_opportunity_for_review(order, size, systemTime);
+    _add_opportunity_for_review(order, size, systemTime);
 }
 
 void process_opportunities(size_t systemTime) {
-    review_and_process_opportunities(systemTime);
+    _review_and_process_opportunities(systemTime);
 }

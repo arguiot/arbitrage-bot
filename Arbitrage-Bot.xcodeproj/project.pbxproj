@@ -555,7 +555,7 @@
 				68518EC62A52A5DA00E22676 /* ContractABI */,
 				68518E8D2A52A5D700E22676 /* Core */,
 				68518EC12A52A5D800E22676 /* FoundationHTTP */,
-				68518EDB2A52A5DB00E22676 /* PromiseKit */,
+				68518EDB2A52A5DB00E22676 /* Concurrency */,
 			);
 			path = Web3;
 			sourceTree = "<group>";
@@ -712,13 +712,13 @@
 			path = ABI;
 			sourceTree = "<group>";
 		};
-		68518EDB2A52A5DB00E22676 /* PromiseKit */ = {
+		68518EDB2A52A5DB00E22676 /* Concurrency */ = {
 			isa = PBXGroup;
 			children = (
 				68518EDC2A52A5DB00E22676 /* Web3+PromiseKit.swift */,
 				68518EDF2A52A5DB00E22676 /* ContractPromiseExtensions.swift */,
 			);
-			path = PromiseKit;
+			path = Concurrency;
 			sourceTree = "<group>";
 		};
 		68A8BB6B2A5F438E00FCB139 /* include */ = {
@@ -777,10 +777,10 @@
 		68F6FC6B2A459DA500E828DB /* Arbitrage Bot */ = {
 			isa = PBXGroup;
 			children = (
+				68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */,
 				68FCE21A2A4EF624009B79ED /* Arbitrager */,
 				68F6FC832A459DDE00E828DB /* Aggregator */,
 				68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */,
-				68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */,
 			);
 			path = "Arbitrage Bot";
 			sourceTree = "<group>";
