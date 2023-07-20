@@ -8,6 +8,9 @@
 import Foundation
 import secp256k1
 
+let SECP256K1_CONTEXT_SIGN = 513
+let SECP256K1_CONTEXT_VERIFY = 257
+
 public func secp256k1_default_ctx_create(errorThrowable: Error) throws -> OpaquePointer {
     let c = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN) | UInt32(SECP256K1_CONTEXT_VERIFY))
     guard let ctx = c else {

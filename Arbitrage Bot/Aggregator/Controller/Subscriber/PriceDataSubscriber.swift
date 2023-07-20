@@ -15,10 +15,14 @@ public class PriceDataSubscriber: Subscriber {
     public var callback: (BotResponse) -> Void
     
     internal var subscriptions = Set<Int>()
-    
+    internal var storeId: Int
     public var activeSubscriptions: [PriceDataActiveSubscription] {
         get {
-            PriceDataPublisher.shared.priceDataSubscription.subscriptions.activeSubscriptions.filter { subscription in
+            guard let store = priceDataStores[storeId] else { return [] }
+            
+            return store
+                .publisher
+                .priceDataSubscription.subscriptions.activeSubscriptions.filter { subscription in
                 subscriptions.contains(subscription.hashValue)
             }
         }
@@ -27,19 +31,24 @@ public class PriceDataSubscriber: Subscriber {
             subscriptions.removeAll(keepingCapacity: true)
             newValue.forEach { subscription in
                 subscriptions.insert(subscription.hashValue)
-                PriceDataPublisher.shared
+                priceDataStores[storeId]?
+                    .publisher
                     .priceDataSubscription
                     .subscriptions
                     .activeSubscriptions
                     .insert(subscription)
             }
             let all = controllers.values.reduce(Set<Int>(), { partialResult, wrapper in
-                partialResult.union(wrapper.serverController.priceSubscriber.subscriptions)
+                let sub = wrapper.serverController.priceSubscriber?.subscriptions
+                return partialResult.union(sub ?? .init())
             })
-            PriceDataPublisher.shared
+            guard let store = priceDataStores[storeId] else { return }
+            store
+                .publisher
                 .priceDataSubscription
                 .subscriptions
-                .activeSubscriptions = PriceDataPublisher.shared
+                .activeSubscriptions = store
+                .publisher
                 .priceDataSubscription
                 .subscriptions
                 .activeSubscriptions
@@ -49,7 +58,8 @@ public class PriceDataSubscriber: Subscriber {
         }
     }
     
-    public init(callback: @escaping (BotResponse) -> Void) {
+    public init(storeId: Int, callback: @escaping (BotResponse) -> Void) {
+        self.storeId = storeId
         self.callback = callback
     }
     

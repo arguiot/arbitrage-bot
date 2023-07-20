@@ -18,8 +18,8 @@ import Foundation
 
 // MARK: - Store
 @_cdecl("_attach_tick_price_data_store")
-public func attachTick(callback: @escaping (UnsafePointer<Double>, UnsafePointer<UInt8>, UInt32, UInt32) -> Void) {
-    PriceDataStoreWrapper.shared?.callback = { array, tokens, time in
+public func attachTick(storeId: Int, callback: @escaping (UnsafePointer<Double>, UnsafePointer<UInt8>, UInt32, UInt32) -> Void) {
+    priceDataStores[storeId]?.callback = { array, tokens, time in
         guard let addresses = tokens.map(\.address.rawAddress).flatten() as? [UInt8] else { return }
         
         addresses.withUnsafeBufferPointer { cAddresses in
@@ -47,17 +47,15 @@ public func name(for tokenAddress: UnsafePointer<UInt8>, result: UnsafeMutablePo
 }
 
 @_cdecl("_add_opportunity_for_review")
-public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, systemTime: Int) {
+public func addOpportunityForReview(storeId: Int32, order: UnsafePointer<Int32>, size: Int, systemTime: Int) {
     let list = UnsafeBufferPointer(start: order, count: size)
     let arbitrageOrder = Array(list)
     Task {
-        guard let step = try await PriceDataStoreWrapper
-            .shared?
+        guard let step = try await priceDataStores[Int(storeId)]?
             .adjacencyList
             .buildSteps(from: arbitrageOrder.map { Int($0) }) else { return }
         
-        PriceDataStoreWrapper
-            .shared?
+        priceDataStores[Int(storeId)]?
             .adjacencyList
             .builder
             .add(step: step, with: systemTime)
@@ -65,22 +63,25 @@ public func addOpportunityForReview(order: UnsafePointer<Int32>, size: Int, syst
 }
 
 @_cdecl("_review_and_process_opportunities")
-public func reviewAndProcessOpportunities(systemTime: Int) {
+public func reviewAndProcessOpportunities(storeId: Int, systemTime: Int) {
     print("Reviewing process: \(systemTime)")
-    guard PriceDataStoreWrapper
-        .shared?
+    guard priceDataStores[storeId]?
         .adjacencyList
         .builder
         .steps
         .count ?? 0 > 0 else { return }
-    PriceDataStoreWrapper
-        .shared?
+    priceDataStores[storeId]?
         .adjacencyList
         .builder
         .process(systemTime: systemTime)
 }
 
 // MARK: - Realtime Server
+
+@_cdecl("_create_store")
+public func createStore() -> Int32 {
+    return Int32(PriceDataStoreWrapper.createStore())
+}
 
 @_cdecl("_create_realtime_server_controller")
 public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
@@ -106,4 +107,10 @@ public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size
     controller.handleRequest(request: String(requestString), completion: { error in
         print("Request failed: \(error)")
     })
+}
+
+@_cdecl("_loadEnvironmentFromFile")
+public func loadEnvironmentFromFile(cName: UnsafePointer<CChar>) {
+    let fileName = String(cString: cName)
+    Environment.load(from: fileName)
 }

@@ -88,7 +88,7 @@ public protocol Exchange: Hashable {
         meta: Meta
     ) -> Euler.BigInt
     
-    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote
+    func meanPrice(storeId: Int, tokenA: Token, tokenB: Token) async throws -> Quote
 }
 
 extension Exchange {
@@ -101,11 +101,11 @@ extension Exchange {
         hasher.combine(self.path.hashValue)
     }
     
-    func meanPrice(tokenA: Token, tokenB: Token) async throws -> Quote {
+    func meanPrice(storeId: Int, tokenA: Token, tokenB: Token) async throws -> Quote {
         let (quote, meta) = try await self.getQuote(maxAvailableAmount: nil, tokenA: tokenA, tokenB: tokenB, maximizeB: true, meta: nil)
         
         // Store in PriceDataStore
-        if let store = PriceDataStoreWrapper.shared {
+        if let store = priceDataStores[storeId] {
             let key: PartialKeyPath = self.path.appending(path: \.exchange)
             guard let tP = quote.transactionPrice.asDouble() else { throw EvaluationError.ImpossibleOperation }
             var reserveFee = ReserveFeeInfo(exchangeKey: key as! KeyPath<ExchangesList, any Exchange>,

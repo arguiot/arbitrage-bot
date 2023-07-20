@@ -1,23 +1,19 @@
 //
-//  File.swift
-//  
+//  Environment.swift
+//
 //
 //  Created by Arthur Guiot on 21/06/2023.
 //
 
 import Foundation
 
-@objc
-public class Environment: NSObject {
-    @objc
+public class Environment {
     public static var shared = [String: String]()
     
-    @objc
     public static func get(_ key: String) -> String? {
         return Self.shared[key]
     }
     
-    @objc
     public static func load(from file: String = ".env") {
         let fileManager = FileManager.default
         let currentDirectory = fileManager.currentDirectoryPath

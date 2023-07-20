@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/arguiot/Euler.git",
       "state" : {
-        "revision" : "5b6484626d9d1b57f9124b24da6d76e4b14caa5a",
-        "version" : "0.3.10"
+        "revision" : "50826f9af8c7500ad815928da4f61e36ba062f42",
+        "version" : "0.3.11"
       }
     },
     {

@@ -26,7 +26,7 @@ final class PriceDataSubscriptionState {
         }
     }
     
-    func meanPrice(for type: PriceDataSubscriptionType) async -> [(BotResponse, Int)] {
+    func meanPrice(for type: PriceDataSubscriptionType, storeId: Int) async -> [(BotResponse, Int)] {
         return await withTaskGroup(of: Optional<(BotResponse, Int)>.self, returning: [(BotResponse, Int)].self) { taskGroup in
             let subs: [(any Exchange, PairInfo, Int)] = activeSubscriptions.compactMap { activeSubscription in
                 guard let adapter = ExchangesList.shared[activeSubscription.environment, activeSubscription.exchangeKey] else { return nil }
@@ -37,7 +37,7 @@ final class PriceDataSubscriptionState {
             for (exchange, pair, hash) in subs {
                 taskGroup.addTask {
                     do {
-                        let price = try await self.meanPrice(for: exchange, with: pair)
+                        let price = try await self.meanPrice(for: exchange, with: pair, storeId: storeId)
                         // Return
                         return (price, hash)
                     } catch {
@@ -55,8 +55,8 @@ final class PriceDataSubscriptionState {
         }
     }
     
-    func meanPrice<T: Exchange>(for exchange: T, with pair: PairInfo) async throws -> BotResponse {
-        let meanPrice = try await exchange.meanPrice(tokenA: pair.tokenA, tokenB: pair.tokenB)
+    func meanPrice<T: Exchange>(for exchange: T, with pair: PairInfo, storeId: Int) async throws -> BotResponse {
+        let meanPrice = try await exchange.meanPrice(storeId: storeId, tokenA: pair.tokenA, tokenB: pair.tokenB)
 
         var response = BotResponse(status: .success, topic: .priceData)
         response.quote = meanPrice

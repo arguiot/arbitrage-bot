@@ -10,9 +10,11 @@
 #import <Arbitrage_Bot/Arbitrage_Bot-Swift.h>
 #import <FastSockets/FastSockets.h>
 #else
-#import <Foundation/Foundation.h>
-@import Aggregator;
-@import FastSockets;
+#import <string.h>
+#import <FastSocketsPM.h>
+#import "Aggregator-Swift.h"
+//@import Aggregator;
+
 
 #endif
 
@@ -208,18 +210,16 @@ void pong_handler(uws_websocket_t *ws, const char *message, size_t length)
 PriceDataStore *create_store(void) {
     PriceDataStore *store = (PriceDataStore *)malloc(sizeof(PriceDataStore));
     
-    [PriceDataStoreWrapper createStore];
+    int sharedWrapper = _create_store();
     
-    PriceDataStoreWrapper *sharedWrapper = PriceDataStoreWrapper.shared;
-    
-    store->_wrapper = (__bridge void *)(sharedWrapper);
+    store->_wrapper = sharedWrapper;
     return store;
 }
 // Define the pipe function implementation
 void pipe_function(PriceDataStore *dataStore) {
     socket_data_base->server->dataStore = dataStore;
     // Bind the on_tick callback to the data store
-    _attach_tick_price_data_store(^(const double * _Nonnull array, const uint8_t * _Nonnull tokens, uint32_t size, uint32_t systemTime) {
+    _attach_tick_price_data_store(dataStore->_wrapper, ^(const double * _Nonnull array, const uint8_t * _Nonnull tokens, uint32_t size, uint32_t systemTime) {
         CToken *cTokens = malloc(sizeof(CToken) * size);
         
         // Assign each cToken. Remember, each address is 20 long.
@@ -231,7 +231,7 @@ void pipe_function(PriceDataStore *dataStore) {
             memcpy(cTokens + i, &temp, sizeof(CToken));
         }
         
-        dataStore->on_tick(array, cTokens, size, systemTime);
+        dataStore->on_tick(dataStore, array, cTokens, size, systemTime);
         
         // Free the dynamically allocated memory
         free(cTokens);
@@ -239,10 +239,7 @@ void pipe_function(PriceDataStore *dataStore) {
 }
 
 Server *new_server(void) {
-    [Environment loadFrom:@".env"];
-    // Log how many environments are loaded
-    NSLog(@"Loaded %lu environments from .env",
-        (unsigned long)[Environment shared].count);
+    _loadEnvironmentFromFile(".env");
 
     uws_app_t *app = uws_create_app(SSL, (struct us_socket_context_options_t){
     });
@@ -285,10 +282,12 @@ void get_name_for_token(const uint8_t * _Nonnull tokenAddress, char * _Nonnull r
     _name_for_token(tokenAddress, result);
 }
 
-void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTime) {
-    _add_opportunity_for_review(order, size, systemTime);
+void add_opportunity_in_queue(void * _Nonnull dataStore, int * _Nonnull order, size_t size, size_t systemTime) {
+    PriceDataStore *store = (PriceDataStore *)dataStore;
+    _add_opportunity_for_review(store->_wrapper, order, size, systemTime);
 }
 
-void process_opportunities(size_t systemTime) {
-    _review_and_process_opportunities(systemTime);
+void process_opportunities(void * _Nonnull dataStore, size_t systemTime) {
+    PriceDataStore *store = (PriceDataStore *)dataStore;
+    _review_and_process_opportunities(store->_wrapper, systemTime);
 }

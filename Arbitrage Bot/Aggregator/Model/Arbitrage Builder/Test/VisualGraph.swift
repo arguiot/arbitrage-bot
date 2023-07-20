@@ -5,9 +5,10 @@
 //  Created by Arthur Guiot on 04/07/2023.
 //
 
+import Foundation
+
 #if DEBUG
 #if canImport(SVGRenderer)
-import Foundation
 import Euler
 @testable import SwiftPlot
 import SVGRenderer

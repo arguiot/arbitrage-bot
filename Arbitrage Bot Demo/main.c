@@ -24,7 +24,7 @@
 // MARK: - Utils
 bool isValueNotInArray(int value, int *print_cycle, int size);
 void reverseArray(int *a, int n);
-void processArbitrage(const CToken *tokens, int *arbitrageOrder, int size,
+void processArbitrage(void *dataStore, const CToken *tokens, int *arbitrageOrder, int size,
                       size_t systemTime);
 void BellmanFord(const double *matrix, size_t size, int src, int *cycle,
                  int *cycle_length);
@@ -50,7 +50,7 @@ int arbitrage_main(int argc, const char *argv[]) {
 int main(int argc, const char *argv[]) { arbitrage_main(argc, argv); }
 #endif
 
-void on_tick(const double *rates, const CToken *tokens, size_t size,
+void on_tick(void *dataStore, const double *rates, const CToken *tokens, size_t size,
              size_t systemTime) {
     size_t rateSize = size * size;
     
@@ -74,9 +74,9 @@ void on_tick(const double *rates, const CToken *tokens, size_t size,
     }
     printf("\n");
     
-    processArbitrage(tokens, cycle, cycle_length, systemTime);
+    processArbitrage(dataStore, tokens, cycle, cycle_length, systemTime);
     
-    process_opportunities(systemTime);
+    process_opportunities(dataStore, systemTime);
 }
 
 
@@ -166,12 +166,12 @@ void reverseArray(int *a, int n) {
   }
 }
 
-void processArbitrage(const CToken *tokens, int *arbitrageOrder, int size,
+void processArbitrage(void *dataStore, const CToken *tokens, int *arbitrageOrder, int size,
                       size_t systemTime) {
   int i;
   reverseArray(arbitrageOrder, size);
 
-  add_opportunity_in_queue(arbitrageOrder, size, systemTime);
+  add_opportunity_in_queue(dataStore, arbitrageOrder, size, systemTime);
 
   printf("Arbitrage Opportunity detected: \n\n");
   for (i = 0; i < size; i++) {

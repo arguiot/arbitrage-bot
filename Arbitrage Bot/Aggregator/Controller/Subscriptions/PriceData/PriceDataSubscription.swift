@@ -13,8 +13,9 @@ class PriceDataSubscription {
     internal let subscriptions = PriceDataSubscriptionState()
     
     internal var decisions = false
-    
-    init(callback: @escaping (Result<(BotResponse, Int), Error>) -> Void) {
+    internal var storeID: Int
+    init(storeId: Int, callback: @escaping (Result<(BotResponse, Int), Error>) -> Void) {
+        self.storeID = storeId
         self.callback = callback
         subscribeToNewHeads()
     }
@@ -27,7 +28,7 @@ class PriceDataSubscription {
             var responses = [(BotResponse, Int)]()
             
             let time = await clock.measure {
-                responses = await self.subscriptions.meanPrice(for: .ethereumBlock)
+                responses = await self.subscriptions.meanPrice(for: .ethereumBlock, storeId: storeID)
             }
             
             for var response in responses {
@@ -39,7 +40,7 @@ class PriceDataSubscription {
             
             // Dispatch to front-end
             if decisions {
-                PriceDataStoreWrapper.shared?.dispatch(time: systemTime)
+                priceDataStores[storeID]?.dispatch(time: systemTime)
             }
         }
     }

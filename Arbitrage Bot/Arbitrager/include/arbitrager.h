@@ -39,9 +39,10 @@ typedef struct {
     /// Price Data Store Wrapper reference in Swift.
     ///
     /// This is an internal property, you don't need to touch this.
-    void * _Nonnull _wrapper;
+    int _wrapper;
     /// Everytime prices changes, this function is called.
     ///
+    /// @param dataStore Pointer to the associated price data store.
     /// @param rates (_Nonnull const double*) Pointer to the array of current rates. This is a single array, of size `size * size`. You can see this as a matrix, containing all the bidirectional prices for the pairs. For example:
     /// |       | USDT  | ETH                 | TKA              | TKB              |
     /// |-------|-------|---------------------|------------------|------------------|
@@ -65,21 +66,24 @@ typedef struct {
     /// This is where you want to define your strategy.
     ///
     /// You will want to call ``add_opportunity_in_queue(order, size, systemTime)`` for each detected opportunity and ``process_opportunities(systemTime)`` at the end.
-    void (* _Nonnull on_tick)(const double* _Nonnull rates,
+    void (* _Nonnull on_tick)(void * _Nonnull dataStore,
+                              const double* _Nonnull rates,
                               const CToken* _Nonnull tokens,
                               size_t size,
                               size_t systemTime);
 } PriceDataStore;
 
 /// Enqueue a detected arbitrage opportunity order for further processing.
+/// @param dataStore Pointer to price data store.
 /// @param order (_Nonnull int*) Order to be added in the queue.
 /// @param size (size_t) Size of the order.
 /// @param systemTime (size_t) System time when the opportunity was detected.
-void add_opportunity_in_queue(int * _Nonnull order, size_t size, size_t systemTime);
+void add_opportunity_in_queue(void * _Nonnull dataStore, int * _Nonnull order, size_t size, size_t systemTime);
 
 /// Process the current opportunities in the queue.
+/// @param dataStore Pointer to price data store.
 /// @param systemTime (size_t) System time when this function is executed.
-void process_opportunities(size_t systemTime);
+void process_opportunities(void * _Nonnull dataStore, size_t systemTime);
 
 /// Server is a structure representing the arbitrage bot server.
 /// @field dataStore (_Nonnull PriceDataStore*) Instance of the PriceDataStore.

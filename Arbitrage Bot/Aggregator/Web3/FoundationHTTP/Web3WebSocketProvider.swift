@@ -165,18 +165,18 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
         self.pendingRequests[replacedIdRequest.id] = (timeoutItem: timeoutItem, responseCompletion: responseCompletion)
         
         // Send Request through WebSocket once the responseCompletion was set
-        self.webSocketTask.send(requestMessage) { error in
-            if let error = error {
+        Task {
+            do {
+                try await self.webSocketTask.send(requestMessage)
+                // Start reading messages once we have successfully sent the request
+                self.readMessage()
+            } catch {
                 let err = Web3Response<Result>(error: .requestFailed(error))
                 response(err)
-                return
             }
-            
-            // Start reading messages once we have successfully sent the request
-            self.readMessage()
         }
     }
-
+    
     
     // MARK: - Web3BidirectionalProvider
     
@@ -264,50 +264,47 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
     // Maintain the similar to WebSocketKit handler for the URLSessionWebSocketTask
     
     private func readMessage() {
-        webSocketTask.receive { [weak self] (result) in
-            guard let self = self else { return }
-            
-            switch result {
-            case .failure(let error): break
-                // Handle received error
-            case .success(let message):
-                self.receiveQueue.async {
-                    // Similar to WebSocketOnTextTmpCodable part with the received message
-                    var data: Data!;
-                    if case .data(let messageData) = message {
-                        // Try to decode the returned data and process it further
-                        data = messageData
-                        
-                    } else if case .string(let messageString) = message {
-                        guard let stringData = messageString.data(using: .utf8) else { return }
-                        data = stringData
-                    }
+        Task {
+            let message = try await webSocketTask.receive()
+            self.receiveQueue.async {
+                // Similar to WebSocketOnTextTmpCodable part with the received message
+                var data: Data!;
+                if case .data(let messageData) = message {
+                    // Try to decode the returned data and process it further
+                    data = messageData
                     
-                    if let tmpCodable = try? self.decoder.decode(WebSocketOnTextTmpCodable.self, from: data) {
-                        if let id = tmpCodable.id {
-                            self.pendingRequests.getValueAsync(key: id) { value in
-                                self.receiveQueue.async {
-                                    guard let string = String(data: data, encoding: .utf8) else { return }
-                                    value?.responseCompletion(string)
-                                }
+                } else if case .string(let messageString) = message {
+                    guard let stringData = messageString.data(using: .utf8) else { return }
+                    data = stringData
+                }
+                
+                guard let data = data else { return }
+                
+                if let tmpCodable = try? self.decoder.decode(WebSocketOnTextTmpCodable.self, from: data) {
+                    if let id = tmpCodable.id {
+                        self.pendingRequests.getValueAsync(key: id) { value in
+                            self.receiveQueue.async {
+                                guard let string = String(data: data, encoding: .utf8) else { return }
+                                value?.responseCompletion(string)
                             }
-                        } else if let params = tmpCodable.params {
-                            self.currentSubscriptions.getValueAsync(key: params.subscription) { value in
-                                self.receiveQueue.async {
-                                    guard let string = String(data: data, encoding: .utf8) else { return }
-                                    value?.onNotification(string)
-                                }
+                        }
+                    } else if let params = tmpCodable.params {
+                        self.currentSubscriptions.getValueAsync(key: params.subscription) { value in
+                            self.receiveQueue.async {
+                                guard let string = String(data: data, encoding: .utf8) else { return }
+                                value?.onNotification(string)
                             }
                         }
                     }
                 }
             }
-            // Keep receiving new messages
-            if !self.closed {
-                self.readMessage()
-            }
+        }
+        // Keep receiving new messages
+        if !self.closed {
+            self.readMessage()
         }
     }
+    
     
     private func reconnect(firstTime: Bool = false) throws {
         if !firstTime {

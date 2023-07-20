@@ -15,8 +15,8 @@ public class PriceDataPublisher: Publisher {
     private let subject = PassthroughSubject<Output, Failure>()
     internal var priceDataSubscription: PriceDataSubscription!
     
-    init() {
-        priceDataSubscription = PriceDataSubscription { [weak self] result in
+    init(storeId: Int) {
+        priceDataSubscription = PriceDataSubscription(storeId: storeId) { [weak self] result in
             switch result {
             case .success(let response):
                 self?.subject.send(response)
@@ -29,6 +29,4 @@ public class PriceDataPublisher: Publisher {
     public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         subject.receive(subscriber: subscriber)
     }
-    
-    public static let shared = PriceDataPublisher()
 }

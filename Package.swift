@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
-        .package(url: "https://github.com/arguiot/Euler.git", .upToNextMajor(from: "0.3.10")),
+        .package(url: "https://github.com/arguiot/Euler.git", .upToNextMajor(from: "0.3.11")),
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", from: "0.2.0"),
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.1.0"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.4"),
@@ -42,7 +42,7 @@ let package = Package(
                 "CryptoSwift",
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "secp256k1", package: "secp256k1.swift")
-                
+
             ],
             path: "Arbitrage Bot/Aggregator/"
         ),
@@ -53,6 +53,10 @@ let package = Package(
                 "FastSockets"
             ],
             path: "Arbitrage Bot/Arbitrager/",
+            cSettings: [
+                .unsafeFlags(["-I", "FastSockets/"]),
+//                .headerSearchPath("FastSockets/")
+            ],
             linkerSettings: [
                 .unsafeFlags(["-L", "FastSockets/", "-lFastSockets", "-luSockets",
                               "-lz",

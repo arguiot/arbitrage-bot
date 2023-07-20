@@ -10,19 +10,16 @@ import Foundation
 
 class RealtimeServerController {
     var callback: (String) -> Void
-    var priceSubscriber: PriceDataSubscriber
-    var priceDataStore: PriceDataStoreWrapper? = nil
+    var priceSubscriber: PriceDataSubscriber? = nil
     
     var decisionSubscriber: DecisionDataSubscriber
+    var storeId: Int? = nil
+    var id: Int
     
     public init(id: Int, callback: @escaping (String) -> Void) {
+        self.id = id
         self.callback = callback
-        self.priceSubscriber = PriceDataSubscriber { res in
-            guard let str = try? res.toJSON() else { return }
-            if controllers.keys.contains(id) {
-                callback(str)
-            }
-        }
+        
         self.decisionSubscriber = DecisionDataSubscriber { res in
             guard let str = try? res.toJSON() else { return }
             if controllers.keys.contains(id) {
@@ -31,12 +28,17 @@ class RealtimeServerController {
         }
         
         // Publishers
-        PriceDataPublisher.shared.receive(subscriber: priceSubscriber)
         DecisionDataPublisher.shared.receive(subscriber: decisionSubscriber)
     }
     
-    func setPriceDataStore(with store: PriceDataStoreWrapper) {
-        self.priceDataStore = store;
+    func setPriceDataStore(with storeId: Int) {
+        self.priceSubscriber = PriceDataSubscriber(storeId: storeId) { res in
+            guard let str = try? res.toJSON() else { return }
+            if controllers.keys.contains(self.id) {
+                self.callback(str)
+            }
+        }
+        priceDataStores[storeId]?.publisher.receive(subscriber: priceSubscriber!)
     }
     
     // MARK: - Request
@@ -72,15 +74,15 @@ class RealtimeServerController {
                                                     pair: pair)
         
         if request.type == .subscribe {
-            self.priceSubscriber.activeSubscriptions.append(activeSub)
+            self.priceSubscriber?.activeSubscriptions.append(activeSub)
         } else {
-            self.priceSubscriber.activeSubscriptions.removeAll { sub in
+            self.priceSubscriber?.activeSubscriptions.removeAll { sub in
                 activeSub == sub
             }
             Task {
                 // Clear the pair price
-                await PriceDataStoreWrapper
-                    .shared?
+                guard let storeId = storeId else { return }
+                await priceDataStores[storeId]?
                     .adjacencyList
                     .remove(pair: .init(query.tokenA, query.tokenB))
             }
@@ -90,19 +92,26 @@ class RealtimeServerController {
     }
     
     func decision(request: BotRequest) -> BotResponse {
+        guard let storeId = storeId else {
+            return BotResponse(status: .error, topic: .decision)
+        }
         if request.type == .subscribe {
-            PriceDataPublisher.shared.priceDataSubscription.decisions = true
+            priceDataStores[storeId]?.publisher.priceDataSubscription.decisions = true
         } else {
-            PriceDataPublisher.shared.priceDataSubscription.decisions = false
+            priceDataStores[storeId]?.publisher.priceDataSubscription.decisions = false
         }
         
         return BotResponse(status: .success, topic: .decision)
     }
     
     func reset(request: BotRequest) -> BotResponse {
+        guard let storeId = storeId else {
+            return BotResponse(status: .error, topic: .reset)
+        }
         // Restart the server
-        self.priceSubscriber.activeSubscriptions.removeAll()
-        PriceDataPublisher.shared
+        self.priceSubscriber?.activeSubscriptions.removeAll()
+        priceDataStores[storeId]?
+            .publisher
             .priceDataSubscription
             .subscriptions
             .activeSubscriptions

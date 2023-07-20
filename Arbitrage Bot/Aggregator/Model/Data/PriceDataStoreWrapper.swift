@@ -7,15 +7,22 @@
 
 import Foundation
 
-@objc public class PriceDataStoreWrapper: NSObject {
+class PriceDataStoreWrapper {
     internal var adjacencyList = AdjacencyList()
-    
-    @objc public static var shared: PriceDataStoreWrapper? = nil
     
     var callback: (([Double], [Token], UInt32) -> Void)? = nil
     
-    @objc static public func createStore() {
-        self.shared = PriceDataStoreWrapper()
+    var publisher: PriceDataPublisher
+    
+    init(storeId: Int) {
+        self.publisher = PriceDataPublisher(storeId: storeId)
+    }
+    
+    static func createStore() -> Int {
+        let id = priceDataStores.count
+        let store = PriceDataStoreWrapper(storeId: id)
+        priceDataStores[id] = store
+        return id
     }
     
     func dispatch(time: UInt32) {
@@ -26,3 +33,5 @@ import Foundation
         }
     }
 }
+
+var priceDataStores = [Int: PriceDataStoreWrapper]()

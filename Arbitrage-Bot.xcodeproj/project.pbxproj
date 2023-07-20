@@ -28,7 +28,6 @@
 		68137F7D2A53347600E6264A /* PriceCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F7C2A53347600E6264A /* PriceCalculation.swift */; };
 		6842921C2A45A1120043EF2F /* Euler in Frameworks */ = {isa = PBXBuildFile; productRef = 6842921B2A45A1120043EF2F /* Euler */; };
 		6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */; };
-		684292202A45A9180043EF2F /* arbitrager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842921F2A45A9180043EF2F /* arbitrager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		684292292A45AAA70043EF2F /* FastSockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 684292282A45AAA70043EF2F /* FastSockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6842922F2A45AAE40043EF2F /* libuwebsockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */; };
 		684EE4AF2A5438E2001E793F /* Cash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684EE4AE2A5438E2001E793F /* Cash.swift */; };
@@ -104,13 +103,11 @@
 		68518F292A52B6A800E22676 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F282A52B6A800E22676 /* CryptoSwift */; };
 		68518F2C2A52B6E400E22676 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F2B2A52B6E400E22676 /* BigInt */; };
 		68518F2F2A52B76100E22676 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F2E2A52B76100E22676 /* Collections */; };
-		68518F322A52B7D100E22676 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F312A52B7D100E22676 /* secp256k1 */; };
 		68518F8C2A52BC8000E22676 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F8B2A52BC8000E22676 /* Quick */; };
 		6862A45C2A56A24C002E825B /* SwapRouteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8F92A544B9400CC9779 /* AGGRenderer */; };
 		68A6F8FC2A544B9400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8FB2A544B9400CC9779 /* SwiftPlot */; };
-		68A6F8FE2A545FC900CC9779 /* VisualGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */; };
 		68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9012A547D4400CC9779 /* SwiftPlot */; };
 		68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F9072A54880B00CC9779 /* SVGRenderer */; };
 		68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A8BB692A5EE9BA00FCB139 /* Trade.swift */; };
@@ -118,12 +115,14 @@
 		68DCBF032A45DEC3007DCB50 /* libuwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842922E2A45AAE40043EF2F /* libuwebsockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; };
 		68DCBF102A45E710007DCB50 /* FastSockets.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684292262A45AAA60043EF2F /* FastSockets.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		68ED7B0C2A692C4300A656FC /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 68ED7B0B2A692C4300A656FC /* secp256k1 */; };
+		68ED7B112A6952ED00A656FC /* arbitrager.m in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FCC32A459E8800E828DB /* arbitrager.m */; };
+		68ED7B122A6952EF00A656FC /* arbitrager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6842921F2A45A9180043EF2F /* arbitrager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68F342382A4D8DCF002AC4B8 /* XCTest+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */; };
 		68F6FC6E2A459DA500E828DB /* Arbitrage_Bot.docc in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC6D2A459DA500E828DB /* Arbitrage_Bot.docc */; };
 		68F6FC742A459DA500E828DB /* Arbitrage_Bot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */; };
 		68F6FC792A459DA500E828DB /* CycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FC782A459DA500E828DB /* CycleTests.swift */; };
 		68F6FC7A2A459DA500E828DB /* Arbitrage_Bot.h in Headers */ = {isa = PBXBuildFile; fileRef = 68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		68F6FCC42A459E8800E828DB /* arbitrager.m in Sources */ = {isa = PBXBuildFile; fileRef = 68F6FCC32A459E8800E828DB /* arbitrager.m */; };
 		68F6FCD02A45A0C100E828DB /* OpenCombine in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCCF2A45A0C100E828DB /* OpenCombine */; };
 		68F6FCD22A45A0C100E828DB /* OpenCombineDispatch in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCD12A45A0C100E828DB /* OpenCombineDispatch */; };
 		68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 68F6FCD32A45A0C100E828DB /* OpenCombineFoundation */; };
@@ -344,6 +343,8 @@
 		68DCBEFF2A45D420007DCB50 /* uSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = uSockets.a; path = FastSockets/uWebSockets/uSockets/uSockets.a; sourceTree = "<group>"; };
 		68DCBF0A2A45E0B8007DCB50 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		68DCBF192A45EAF6007DCB50 /* Arbitrage Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Arbitrage Demo.entitlements"; sourceTree = "<group>"; };
+		68ED7B0D2A6931ED00A656FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		68ED7B132A6976E400A656FC /* Aggregator-Swift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Aggregator-Swift.h"; sourceTree = "<group>"; };
 		68F342372A4D8DCF002AC4B8 /* XCTest+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Utils.swift"; sourceTree = "<group>"; };
 		68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Arbitrage_Bot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68F6FC6C2A459DA500E828DB /* Arbitrage_Bot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot.h; sourceTree = "<group>"; };
@@ -424,7 +425,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6842921C2A45A1120043EF2F /* Euler in Frameworks */,
-				68518F322A52B7D100E22676 /* secp256k1 in Frameworks */,
+				68ED7B0C2A692C4300A656FC /* secp256k1 in Frameworks */,
 				68A6F9082A54880B00CC9779 /* SVGRenderer in Frameworks */,
 				68A6F9022A547D4400CC9779 /* SwiftPlot in Frameworks */,
 				68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */,
@@ -732,6 +733,7 @@
 		68DCBEFE2A45D420007DCB50 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				68ED7B0D2A6931ED00A656FC /* Foundation.framework */,
 				68DCBEFF2A45D420007DCB50 /* uSockets.a */,
 			);
 			name = Frameworks;
@@ -955,6 +957,7 @@
 			children = (
 				68FCE21B2A4EF83D009B79ED /* include */,
 				68F6FCC32A459E8800E828DB /* arbitrager.m */,
+				68ED7B132A6976E400A656FC /* Aggregator-Swift.h */,
 			);
 			path = Arbitrager;
 			sourceTree = "<group>";
@@ -992,8 +995,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				684292202A45A9180043EF2F /* arbitrager.h in Headers */,
 				68F6FC7A2A459DA500E828DB /* Arbitrage_Bot.h in Headers */,
+				68ED7B122A6952EF00A656FC /* arbitrager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1100,9 +1103,9 @@
 				68518F282A52B6A800E22676 /* CryptoSwift */,
 				68518F2B2A52B6E400E22676 /* BigInt */,
 				68518F2E2A52B76100E22676 /* Collections */,
-				68518F312A52B7D100E22676 /* secp256k1 */,
 				68A6F9012A547D4400CC9779 /* SwiftPlot */,
 				68A6F9072A54880B00CC9779 /* SVGRenderer */,
+				68ED7B0B2A692C4300A656FC /* secp256k1 */,
 			);
 			productName = "Arbitrage-Bot";
 			productReference = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */;
@@ -1179,10 +1182,10 @@
 				68518F272A52B6A800E22676 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				68518F2A2A52B6E400E22676 /* XCRemoteSwiftPackageReference "BigInt" */,
 				68518F2D2A52B76100E22676 /* XCRemoteSwiftPackageReference "swift-collections" */,
-				68518F302A52B7D100E22676 /* XCRemoteSwiftPackageReference "secp256k1" */,
 				68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */,
 				68137F312A52BCB900E6264A /* XCRemoteSwiftPackageReference "Nimble" */,
 				68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */,
+				68ED7B0A2A692C4300A656FC /* XCRemoteSwiftPackageReference "secp256k1" */,
 			);
 			productRefGroup = 68F6FC6A2A459DA500E828DB /* Products */;
 			projectDirPath = "";
@@ -1281,7 +1284,6 @@
 				68FCE20C2A4EDA18009B79ED /* UniswapV2Router.swift in Sources */,
 				68FCE2182A4EDA18009B79ED /* Credentials.swift in Sources */,
 				68137F782A53106400E6264A /* ProcessOpportunities.swift in Sources */,
-				68A6F8FE2A545FC900CC9779 /* VisualGraph.swift in Sources */,
 				68518EFF2A52A5DB00E22676 /* String+HexBytes.swift in Sources */,
 				68FCE2032A4EDA18009B79ED /* AnyDecodable.swift in Sources */,
 				68FCE2162A4EDA18009B79ED /* Pairs.swift in Sources */,
@@ -1313,7 +1315,6 @@
 				68137F762A52FC7100E6264A /* ArbitrageBuilder.swift in Sources */,
 				68518EEF2A52A5DB00E22676 /* EthereumSyncStatusObject.swift in Sources */,
 				68518EE92A52A5DB00E22676 /* RLPDecoder.swift in Sources */,
-				68F6FCC42A459E8800E828DB /* arbitrager.m in Sources */,
 				68FCE2102A4EDA18009B79ED /* BotTopics.swift in Sources */,
 				68FCE2082A4EDA18009B79ED /* BigUInt+Euler.swift in Sources */,
 				68518F0E2A52A5DB00E22676 /* Web3+WebSocketInitializer.swift in Sources */,
@@ -1334,6 +1335,7 @@
 				68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */,
 				68518F1C2A52A5DB00E22676 /* ABIDecoder.swift in Sources */,
 				68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */,
+				68ED7B112A6952ED00A656FC /* arbitrager.m in Sources */,
 				68137F742A52F2D900E6264A /* OptimalPrice.swift in Sources */,
 				68518F212A52A5DB00E22676 /* SolidityTuple.swift in Sources */,
 				68518F182A52A5DB00E22676 /* EthereumContract.swift in Sources */,
@@ -2059,14 +2061,6 @@
 				minimumVersion = 1.0.4;
 			};
 		};
-		68518F302A52B7D100E22676 /* XCRemoteSwiftPackageReference "secp256k1" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.7;
-			};
-		};
 		68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Quick/Quick";
@@ -2081,6 +2075,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
+			};
+		};
+		68ED7B0A2A692C4300A656FC /* XCRemoteSwiftPackageReference "secp256k1" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.7;
 			};
 		};
 		68F6FCCE2A45A0C100E828DB /* XCRemoteSwiftPackageReference "OpenCombine" */ = {
@@ -2127,11 +2129,6 @@
 			package = 68518F2D2A52B76100E22676 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = Collections;
 		};
-		68518F312A52B7D100E22676 /* secp256k1 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 68518F302A52B7D100E22676 /* XCRemoteSwiftPackageReference "secp256k1" */;
-			productName = secp256k1;
-		};
 		68518F8B2A52BC8000E22676 /* Quick */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */;
@@ -2156,6 +2153,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */;
 			productName = SVGRenderer;
+		};
+		68ED7B0B2A692C4300A656FC /* secp256k1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68ED7B0A2A692C4300A656FC /* XCRemoteSwiftPackageReference "secp256k1" */;
+			productName = secp256k1;
 		};
 		68F6FCCF2A45A0C100E828DB /* OpenCombine */ = {
 			isa = XCSwiftPackageProductDependency;
