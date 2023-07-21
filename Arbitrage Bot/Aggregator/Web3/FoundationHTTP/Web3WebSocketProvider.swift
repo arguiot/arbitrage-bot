@@ -168,6 +168,10 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
         Task {
             do {
                 try await self.webSocketTask.send(requestMessage)
+#if DEBUG
+                print("Request: ")
+                print(String(data: requestData, encoding: .utf8) ?? "Sent request")
+#endif
                 // Start reading messages once we have successfully sent the request
                 self.readMessage()
             } catch {
@@ -266,6 +270,9 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
     private func readMessage() {
         Task {
             let message = try await webSocketTask.receive()
+#if DEBUG
+            print("Receive: ")
+#endif
             self.receiveQueue.async {
                 // Similar to WebSocketOnTextTmpCodable part with the received message
                 var data: Data!;
@@ -275,6 +282,9 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
                     
                 } else if case .string(let messageString) = message {
                     guard let stringData = messageString.data(using: .utf8) else { return }
+#if DEBUG
+                    print(stringData)
+#endif
                     data = stringData
                 }
                 
@@ -298,10 +308,10 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
                     }
                 }
             }
-        }
-        // Keep receiving new messages
-        if !self.closed {
-            self.readMessage()
+            // Keep receiving new messages
+            if !self.closed {
+                self.readMessage()
+            }
         }
     }
     

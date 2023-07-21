@@ -1,19 +1,26 @@
-# Start from the latest Swift docker image
-FROM swift:latest
+FROM swift:latest as builder
 
-# Set work directory
+ARG DEBUG
+
 WORKDIR /app
 
-# Copy current directory (your project) to the container
+# Copy your entire project, including .env, into the container
 COPY . .
 
-# apt-get update and install dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     binutils \
     libssl-dev \
     openssl \
-    zlib1g-dev
+    zlib1g-dev \
+    && WITH_LTO=0 make
 
-# Set WITH_LTO to 0 and Run make
-RUN WITH_LTO=0 make
+# Get the binary path using swift build --show-bin-path
+RUN if [ "$DEBUG" = "1" ]; then \
+    BIN_PATH=$(swift build --show-bin-path); \
+else \
+    BIN_PATH=$(swift build -c release --show-bin-path); \
+fi \
+    && cp "${BIN_PATH}/Arbitrage_Bot-Main" /app/
+
+CMD [ "./Arbitrage_Bot-Main" ]

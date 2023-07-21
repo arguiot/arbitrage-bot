@@ -84,9 +84,9 @@ public func createStore() -> Int32 {
 }
 
 @_cdecl("_create_realtime_server_controller")
-public func createRealtimeServerController(callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
+public func createRealtimeServerController(storeId: Int, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void), userData: UnsafeRawPointer) -> Int {
     let id = controllers.count
-    let controller = RealtimeServerControllerWrapper(id: id, userData: userData, callback: callback)
+    let controller = RealtimeServerControllerWrapper(id: id, storeId: storeId, userData: userData, callback: callback)
     controllers[id] = controller
     return id
 }

@@ -163,7 +163,7 @@ void open_handler(uws_websocket_t *ws)
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     
     // Create an instance of RealtimeServerController
-    int controller = _create_realtime_server_controller(realtime_msg_forward, ws);
+    int controller = _create_realtime_server_controller(data->server->dataStore->_wrapper, realtime_msg_forward, ws);
 
     data->controller = controller;
 }

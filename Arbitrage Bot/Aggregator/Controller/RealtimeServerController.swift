@@ -10,14 +10,15 @@ import Foundation
 
 class RealtimeServerController {
     var callback: (String) -> Void
-    var priceSubscriber: PriceDataSubscriber? = nil
+    var priceSubscriber: PriceDataSubscriber
     
     var decisionSubscriber: DecisionDataSubscriber
-    var storeId: Int? = nil
+    var storeId: Int
     var id: Int
     
-    public init(id: Int, callback: @escaping (String) -> Void) {
+    public init(id: Int, storeId: Int, callback: @escaping (String) -> Void) {
         self.id = id
+        self.storeId = storeId
         self.callback = callback
         
         self.decisionSubscriber = DecisionDataSubscriber { res in
@@ -26,21 +27,19 @@ class RealtimeServerController {
                 callback(str)
             }
         }
+        self.priceSubscriber = PriceDataSubscriber(storeId: storeId) { res in
+            guard let str = try? res.toJSON() else { return }
+            if controllers.keys.contains(id) {
+                callback(str)
+            }
+        }
+        
         
         // Publishers
         DecisionDataPublisher.shared.receive(subscriber: decisionSubscriber)
+        priceDataStores[storeId]?.publisher.receive(subscriber: priceSubscriber)
     }
-    
-    func setPriceDataStore(with storeId: Int) {
-        self.priceSubscriber = PriceDataSubscriber(storeId: storeId) { res in
-            guard let str = try? res.toJSON() else { return }
-            if controllers.keys.contains(self.id) {
-                self.callback(str)
-            }
-        }
-        priceDataStores[storeId]?.publisher.receive(subscriber: priceSubscriber!)
-    }
-    
+
     // MARK: - Request
     func handleRequest(request: String) throws {
         let botRequest = try BotRequest.fromJSON(jsonString: request)
@@ -74,14 +73,13 @@ class RealtimeServerController {
                                                     pair: pair)
         
         if request.type == .subscribe {
-            self.priceSubscriber?.activeSubscriptions.append(activeSub)
+            self.priceSubscriber.activeSubscriptions.append(activeSub)
         } else {
-            self.priceSubscriber?.activeSubscriptions.removeAll { sub in
+            self.priceSubscriber.activeSubscriptions.removeAll { sub in
                 activeSub == sub
             }
             Task {
                 // Clear the pair price
-                guard let storeId = storeId else { return }
                 await priceDataStores[storeId]?
                     .adjacencyList
                     .remove(pair: .init(query.tokenA, query.tokenB))
@@ -92,9 +90,6 @@ class RealtimeServerController {
     }
     
     func decision(request: BotRequest) -> BotResponse {
-        guard let storeId = storeId else {
-            return BotResponse(status: .error, topic: .decision)
-        }
         if request.type == .subscribe {
             priceDataStores[storeId]?.publisher.priceDataSubscription.decisions = true
         } else {
@@ -105,11 +100,8 @@ class RealtimeServerController {
     }
     
     func reset(request: BotRequest) -> BotResponse {
-        guard let storeId = storeId else {
-            return BotResponse(status: .error, topic: .reset)
-        }
         // Restart the server
-        self.priceSubscriber?.activeSubscriptions.removeAll()
+        self.priceSubscriber.activeSubscriptions.removeAll()
         priceDataStores[storeId]?
             .publisher
             .priceDataSubscription
@@ -130,8 +122,8 @@ class RealtimeServerControllerWrapper {
     // the callback takes a C string.
     internal var serverController: RealtimeServerController
     
-    init(id: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
-        self.serverController = RealtimeServerController(id: id, callback: { message in
+    init(id: Int, storeId: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
+        self.serverController = RealtimeServerController(id: id, storeId: storeId, callback: { message in
             var message = message
             message.withCString { cMessage in
                 callback(cMessage, UInt16(message.count), userData)

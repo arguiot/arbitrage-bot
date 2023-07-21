@@ -17,7 +17,7 @@ void _attach_tick_price_data_store(int storeId, void (^ _Nonnull callback)(doubl
 void _close_realtime_server_controller(int id);
 
 
-int _create_realtime_server_controller(void (* _Nonnull callback)(char const * _Nonnull, uint16_t, void const * _Nonnull), void const * _Nonnull userData);
+int _create_realtime_server_controller(int storeId, void (* _Nonnull callback)(char const * _Nonnull, uint16_t, void const * _Nonnull), void const * _Nonnull userData);
 
 
 int _create_store(void);

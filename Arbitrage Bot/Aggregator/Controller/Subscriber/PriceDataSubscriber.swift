@@ -39,7 +39,7 @@ public class PriceDataSubscriber: Subscriber {
                     .insert(subscription)
             }
             let all = controllers.values.reduce(Set<Int>(), { partialResult, wrapper in
-                let sub = wrapper.serverController.priceSubscriber?.subscriptions
+                let sub = wrapper.serverController.priceSubscriber.subscriptions
                 return partialResult.union(sub ?? .init())
             })
             guard let store = priceDataStores[storeId] else { return }

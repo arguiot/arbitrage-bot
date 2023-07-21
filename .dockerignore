@@ -15,4 +15,3 @@ pm2/
 
 # other temporary or generated files
 *.swp
-*.env
