@@ -1,20 +1,16 @@
-name: CI
+name: Docker CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: swift-actions/setup-swift@v1
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
-    # - name: Install dependencies
-      # run: brew install
-
-    - name: Run Make
+    - name: Build Docker image
       run: |
-          make
+        docker build -t arbitrage .

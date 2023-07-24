@@ -1,9 +1,17 @@
+//
+//  2Web3WebSocketProvider.swift
+//  Arbitrage Bot
+//
+//  Created by Arthur Guiot on 24/07/2023.
+//
+
 import Foundation
 import Dispatch
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-//import NIOPosix
+import WebSocketKit
+import NIOPosix
 
 public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
     
@@ -21,7 +29,8 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
     
     public let timeoutNanoSeconds: UInt64
     
-    private var webSocketTask: URLSessionWebSocketTask!
+    private let wsEventLoopGroup: EventLoopGroup
+    public private(set) var webSocket: WebSocket!
     
     // Stores ids and notification groups
     private let pendingRequests: SynchronizedDictionary<Int, (timeoutItem: DispatchWorkItem, responseCompletion: (_ response: String?) -> Void)> = [:]
@@ -86,13 +95,18 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
             self.timeoutNanoSeconds = UInt64(120 * 1_000_000_000)
         }
         
+        self.wsEventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+        
         // Initial connect
-        try reconnect(firstTime: true)
+        try reconnect()
     }
     
     deinit {
         closed = true
-        self.closeWebSocketConnection()
+        _ = webSocket.close(code: .goingAway)
+        
+        // As described in https://github.com/apple/swift-nio/issues/2371
+        try? wsEventLoopGroup.syncShutdownGracefully()
     }
     
     // MARK: - Web3Provider
@@ -100,31 +114,32 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
     public func send<Params, Result>(request: RPCRequest<Params>, response: @escaping Web3ResponseCompletion<Result>) {
         let replacedIdRequest = RPCRequest(id: self.nextId, jsonrpc: request.jsonrpc, method: request.method, params: request.params)
         
-        let requestData: Data
+        let body: Data
         do {
-            requestData = try self.encoder.encode(replacedIdRequest)
+            body = try self.encoder.encode(replacedIdRequest)
         } catch {
-            let respError = Web3Response<Result>(error: .requestFailed(error))
-            response(respError)
+            let err = Web3Response<Result>(error: .requestFailed(error))
+            response(err)
             return
         }
         
-        let requestMessage = URLSessionWebSocketTask.Message.data(requestData)
-        
-        // Generic failure handler
+        // Generic failure sender
         let failure: (_ error: Error) -> () = { error in
-            let respError = Web3Response<Result>(error: .serverError(error))
-            response(respError)
+            let err = Web3Response<Result>(error: .serverError(error))
+            response(err)
+            return
         }
         
-        // Setup timeout handler
+        // The timeout
         let timeoutItem = DispatchWorkItem {
             self.pendingRequests[replacedIdRequest.id] = nil
+            
+            // Respond to user
             failure(Error.timeoutError)
         }
         self.receiveQueue.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: DispatchTime.now().uptimeNanoseconds + self.timeoutNanoSeconds), execute: timeoutItem)
         
-        // The response handler
+        // The response
         let responseCompletion: (_ response: String?) -> Void = { responseString in
             defer {
                 // Remove from pending requests
@@ -150,7 +165,6 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
                         failure(Error.unexpectedResponse)
                         return
                     }
-                    
                     // Put back original request id
                     let idReplacedDecoded = RPCResponse<Result>(id: request.id, jsonrpc: decoded.jsonrpc, result: decoded.result, error: decoded.error)
                     
@@ -161,26 +175,25 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
             }
         }
         
-        // Add the pending request
+        // Set the pending request
         self.pendingRequests[replacedIdRequest.id] = (timeoutItem: timeoutItem, responseCompletion: responseCompletion)
         
-        // Send Request through WebSocket once the responseCompletion was set
-        Task {
-            do {
-                try await self.webSocketTask.send(requestMessage)
-#if DEBUG
-                print("Request: ")
-                print(String(data: requestData, encoding: .utf8) ?? "Sent request")
-#endif
-                // Start reading messages once we have successfully sent the request
-                self.readMessage()
-            } catch {
+        // Response result for sending the message over the WebSocket
+        let promise = self.wsEventLoopGroup.next().makePromise(of: Void.self)
+        promise.futureResult.whenComplete { result in
+            switch result {
+            case .success(_):
+                break
+            case .failure(let error):
                 let err = Web3Response<Result>(error: .requestFailed(error))
                 response(err)
+                return
             }
         }
+        
+        // Send Request through WebSocket once the Promise was set
+        self.webSocket.send(String(data: body, encoding: .utf8) ?? "", promise: promise)
     }
-    
     
     // MARK: - Web3BidirectionalProvider
     
@@ -265,75 +278,72 @@ public class Web3WebSocketProvider: Web3Provider, Web3BidirectionalProvider {
         }
     }
     
-    // Maintain the similar to WebSocketKit handler for the URLSessionWebSocketTask
-    
-    private func readMessage() {
-        Task {
-            let message = try await webSocketTask.receive()
-#if DEBUG
-            print("Receive: ")
-#endif
+    private func registerWebSocketListeners() {
+        // Receive response
+        webSocket.onText { [weak self] ws, string in
+            guard let self else {
+                return
+            }
+            
             self.receiveQueue.async {
-                // Similar to WebSocketOnTextTmpCodable part with the received message
-                var data: Data!;
-                if case .data(let messageData) = message {
-                    // Try to decode the returned data and process it further
-                    data = messageData
-                    
-                } else if case .string(let messageString) = message {
-                    guard let stringData = messageString.data(using: .utf8) else { return }
-#if DEBUG
-                    print(stringData)
-#endif
-                    data = stringData
+                guard let data = string.data(using: .utf8) else {
+                    return
                 }
-                
-                guard let data = data else { return }
                 
                 if let tmpCodable = try? self.decoder.decode(WebSocketOnTextTmpCodable.self, from: data) {
                     if let id = tmpCodable.id {
                         self.pendingRequests.getValueAsync(key: id) { value in
                             self.receiveQueue.async {
-                                guard let string = String(data: data, encoding: .utf8) else { return }
                                 value?.responseCompletion(string)
                             }
                         }
                     } else if let params = tmpCodable.params {
                         self.currentSubscriptions.getValueAsync(key: params.subscription) { value in
                             self.receiveQueue.async {
-                                guard let string = String(data: data, encoding: .utf8) else { return }
                                 value?.onNotification(string)
                             }
                         }
                     }
                 }
             }
-            // Keep receiving new messages
-            if !self.closed {
-                self.readMessage()
+        }
+        
+        // Handle close
+        webSocket.onClose.whenComplete { [weak self] result in
+            guard let self else {
+                return
+            }
+            
+            if !self.closed && self.webSocket.isClosed {
+                self.reconnectQueue.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: DispatchTime.now().uptimeNanoseconds + 100_000_000)) {
+                    try? self.reconnect()
+                }
             }
         }
     }
     
-    
-    private func reconnect(firstTime: Bool = false) throws {
-        if !firstTime {
-            self.closeWebSocketConnection()
+    private func reconnect() throws {
+        // Delete all subscriptions
+        for key in currentSubscriptions.dictionary.keys {
+            currentSubscriptions.getValueAsync(key: key) { value in
+                self.receiveQueue.async {
+                    value?.onCancel()
+                }
+            }
         }
-        // Reconnect logic
+        for key in pendingRequests.dictionary.keys {
+            pendingRequests.getValueAsync(key: key) { value in
+                self.receiveQueue.async {
+                    value?.responseCompletion(nil)
+                }
+            }
+        }
         
-        let session = URLSession(configuration: .default)
-        webSocketTask = session.webSocketTask(with: wsUrl)
-        webSocketTask.resume()
-        
-        // Start listening for new messages right after the WebSocket connection established
-        self.readMessage()
+        // Reconnect
+        try WebSocket.connect(to: wsUrl, configuration: .init(maxFrameSize: Int(min(Int64(UInt32.max), Int64(Int.max)))), on: wsEventLoopGroup) { ws in
+            self.webSocket = ws
+            
+            self.registerWebSocketListeners()
+        }.wait()
     }
-    
-    // Close the WebSocket connection when we're done.
-    func closeWebSocketConnection() {
-        webSocketTask.cancel(with: .normalClosure, reason: nil)
-        self.closed = true
-    }
-    
 }

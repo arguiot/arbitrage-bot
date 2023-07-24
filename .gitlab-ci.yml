@@ -1,11 +1,6 @@
-image: swift:latest
-
-stages:
-  - test
-
-Test Arbitrage Server:
-  stage: test
+build:
+  image: docker:latest
+  services:
+    - docker:dind
   script:
-    - apt-get -q update && apt install -y make build-essential libssl-dev zlib1g-dev
-    - make
-    - swift test
+    - docker build -t arbitrage .

@@ -76,7 +76,6 @@
 		68518F0A2A52A5DB00E22676 /* SynchronizedDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EBE2A52A5D700E22676 /* SynchronizedDictionary.swift */; };
 		68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EBF2A52A5D700E22676 /* Secp256k1+CTXCreator.swift */; };
 		68518F0C2A52A5DB00E22676 /* UnsignedInteger+Shifting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC02A52A5D700E22676 /* UnsignedInteger+Shifting.swift */; };
-		68518F0D2A52A5DB00E22676 /* Web3WebSocketProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC22A52A5D800E22676 /* Web3WebSocketProvider.swift */; };
 		68518F0E2A52A5DB00E22676 /* Web3+WebSocketInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC32A52A5D800E22676 /* Web3+WebSocketInitializer.swift */; };
 		68518F0F2A52A5DB00E22676 /* Web3+HTTPInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC42A52A5D800E22676 /* Web3+HTTPInitializer.swift */; };
 		68518F102A52A5DB00E22676 /* Web3HttpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC52A52A5D800E22676 /* Web3HttpProvider.swift */; };
@@ -104,6 +103,8 @@
 		68518F2C2A52B6E400E22676 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F2B2A52B6E400E22676 /* BigInt */; };
 		68518F2F2A52B76100E22676 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F2E2A52B76100E22676 /* Collections */; };
 		68518F8C2A52BC8000E22676 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 68518F8B2A52BC8000E22676 /* Quick */; };
+		6861380F2A6EADB600805C54 /* Web3WebSocketProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6861380E2A6EADB600805C54 /* Web3WebSocketProvider.swift */; };
+		686138122A6EADFB00805C54 /* WebSocketKit in Frameworks */ = {isa = PBXBuildFile; productRef = 686138112A6EADFB00805C54 /* WebSocketKit */; };
 		6862A45C2A56A24C002E825B /* SwapRouteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8F92A544B9400CC9779 /* AGGRenderer */; };
@@ -309,7 +310,6 @@
 		68518EBE2A52A5D700E22676 /* SynchronizedDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SynchronizedDictionary.swift; sourceTree = "<group>"; };
 		68518EBF2A52A5D700E22676 /* Secp256k1+CTXCreator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Secp256k1+CTXCreator.swift"; sourceTree = "<group>"; };
 		68518EC02A52A5D700E22676 /* UnsignedInteger+Shifting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UnsignedInteger+Shifting.swift"; sourceTree = "<group>"; };
-		68518EC22A52A5D800E22676 /* Web3WebSocketProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3WebSocketProvider.swift; sourceTree = "<group>"; };
 		68518EC32A52A5D800E22676 /* Web3+WebSocketInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Web3+WebSocketInitializer.swift"; sourceTree = "<group>"; };
 		68518EC42A52A5D800E22676 /* Web3+HTTPInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Web3+HTTPInitializer.swift"; sourceTree = "<group>"; };
 		68518EC52A52A5D800E22676 /* Web3HttpProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3HttpProvider.swift; sourceTree = "<group>"; };
@@ -333,6 +333,7 @@
 		68518EDA2A52A5DA00E22676 /* ABIConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIConvertible.swift; sourceTree = "<group>"; };
 		68518EDC2A52A5DB00E22676 /* Web3+PromiseKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Web3+PromiseKit.swift"; sourceTree = "<group>"; };
 		68518EDF2A52A5DB00E22676 /* ContractPromiseExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractPromiseExtensions.swift; sourceTree = "<group>"; };
+		6861380E2A6EADB600805C54 /* Web3WebSocketProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3WebSocketProvider.swift; sourceTree = "<group>"; };
 		6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapRouteCoordinator.swift; sourceTree = "<group>"; };
 		68832F352A4752D400607523 /* libusockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libusockets.h; sourceTree = "<group>"; };
 		6894020B2A4C2B6A0089D4AA /* negate_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = negate_log.h; sourceTree = "<group>"; };
@@ -431,6 +432,7 @@
 				68F6FCD42A45A0C100E828DB /* OpenCombineFoundation in Frameworks */,
 				68DCBF0F2A45E710007DCB50 /* FastSockets.framework in Frameworks */,
 				68518F2C2A52B6E400E22676 /* BigInt in Frameworks */,
+				686138122A6EADFB00805C54 /* WebSocketKit in Frameworks */,
 				68FE7D492A4B067500D3A706 /* CollectionConcurrencyKit in Frameworks */,
 				68F6FCD22A45A0C100E828DB /* OpenCombineDispatch in Frameworks */,
 				68518F2F2A52B76100E22676 /* Collections in Frameworks */,
@@ -664,10 +666,10 @@
 		68518EC12A52A5D800E22676 /* FoundationHTTP */ = {
 			isa = PBXGroup;
 			children = (
-				68518EC22A52A5D800E22676 /* Web3WebSocketProvider.swift */,
 				68518EC32A52A5D800E22676 /* Web3+WebSocketInitializer.swift */,
 				68518EC42A52A5D800E22676 /* Web3+HTTPInitializer.swift */,
 				68518EC52A52A5D800E22676 /* Web3HttpProvider.swift */,
+				6861380E2A6EADB600805C54 /* Web3WebSocketProvider.swift */,
 			);
 			path = FoundationHTTP;
 			sourceTree = "<group>";
@@ -1106,6 +1108,7 @@
 				68A6F9012A547D4400CC9779 /* SwiftPlot */,
 				68A6F9072A54880B00CC9779 /* SVGRenderer */,
 				68ED7B0B2A692C4300A656FC /* secp256k1 */,
+				686138112A6EADFB00805C54 /* WebSocketKit */,
 			);
 			productName = "Arbitrage-Bot";
 			productReference = 68F6FC692A459DA500E828DB /* Arbitrage_Bot.framework */;
@@ -1186,6 +1189,7 @@
 				68137F312A52BCB900E6264A /* XCRemoteSwiftPackageReference "Nimble" */,
 				68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */,
 				68ED7B0A2A692C4300A656FC /* XCRemoteSwiftPackageReference "secp256k1" */,
+				686138102A6EADFB00805C54 /* XCRemoteSwiftPackageReference "websocket-kit" */,
 			);
 			productRefGroup = 68F6FC6A2A459DA500E828DB /* Products */;
 			projectDirPath = "";
@@ -1329,7 +1333,6 @@
 				68518F122A52A5DB00E22676 /* SolidityEvent.swift in Sources */,
 				68518EF62A52A5DB00E22676 /* EthereumQuantityTag.swift in Sources */,
 				68FCE2142A4EDA18009B79ED /* CycleArbtirage.swift in Sources */,
-				68518F0D2A52A5DB00E22676 /* Web3WebSocketProvider.swift in Sources */,
 				68FCE2152A4EDA18009B79ED /* Environment.swift in Sources */,
 				68518F142A52A5DB00E22676 /* ERC20.swift in Sources */,
 				68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */,
@@ -1383,6 +1386,7 @@
 				68518F202A52A5DB00E22676 /* ABI.swift in Sources */,
 				68FCE2062A4EDA18009B79ED /* BigInt+Typealias.swift in Sources */,
 				68017B472A57117600837B89 /* ArbitrageSwapCoordinator.swift in Sources */,
+				6861380F2A6EADB600805C54 /* Web3WebSocketProvider.swift in Sources */,
 				68518EE62A52A5DB00E22676 /* RLPItem.swift in Sources */,
 				68FCE1FB2A4EDA18009B79ED /* RealtimeServerController.swift in Sources */,
 				68518EFA2A52A5DB00E22676 /* Bytes+HexString.swift in Sources */,
@@ -2069,6 +2073,14 @@
 				minimumVersion = 5.0.1;
 			};
 		};
+		686138102A6EADFB00805C54 /* XCRemoteSwiftPackageReference "websocket-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vapor/websocket-kit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.14.0;
+			};
+		};
 		68A6F8F82A544B9400CC9779 /* XCRemoteSwiftPackageReference "swiftplot" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/KarthikRIyer/swiftplot";
@@ -2133,6 +2145,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 68518F8A2A52BC8000E22676 /* XCRemoteSwiftPackageReference "Quick" */;
 			productName = Quick;
+		};
+		686138112A6EADFB00805C54 /* WebSocketKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 686138102A6EADFB00805C54 /* XCRemoteSwiftPackageReference "websocket-kit" */;
+			productName = WebSocketKit;
 		};
 		68A6F8F92A544B9400CC9779 /* AGGRenderer */ = {
 			isa = XCSwiftPackageProductDependency;
