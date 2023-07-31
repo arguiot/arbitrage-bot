@@ -2,7 +2,6 @@
 //  Web3.swift
 //  Web3
 //
-//  Created by Koray Koska on 30.12.17.
 //
 
 import Foundation

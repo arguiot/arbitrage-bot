@@ -52,7 +52,7 @@ export default function ExchangeCard({ environment, index }) {
 
     const [isDeploying, setIsDeploying] = useState(false);
 
-    const pair = `${tokenA.name}/${tokenB.name}`;
+    const pair = `${tokenA.address}/${tokenB.address}`;
     const priceData = getQuote(exchange, pair);
 
     async function deployExchange(value) {
@@ -250,11 +250,11 @@ export default function ExchangeCard({ environment, index }) {
                                                                 <Input
                                                                     id="name"
                                                                     value={`${buy.token ==
-                                                                            tokenB
-                                                                            ? buy.amount /
-                                                                            priceData.price
-                                                                            : buy.amount *
-                                                                            priceData.price
+                                                                        tokenB
+                                                                        ? buy.amount /
+                                                                        priceData.price
+                                                                        : buy.amount *
+                                                                        priceData.price
                                                                         } ${buy.token ==
                                                                             tokenB
                                                                             ? priceData

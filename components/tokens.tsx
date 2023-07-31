@@ -56,6 +56,7 @@ export type Token = {
     address: string;
     name: string;
     ticker: string;
+    decimals?: number;
 };
 
 export const columns: ColumnDef<Token>[] = [
@@ -80,6 +81,15 @@ export const columns: ColumnDef<Token>[] = [
             );
         },
         cell: ({ row }) => <div>{row.getValue("address")}</div>,
+    },
+    {
+        accessorKey: "ticker",
+        header: "Ticker",
+        cell: ({ row }) => <div>{row.getValue("ticker")}</div>,
+    },
+    {
+        accessorKey: "decimals",
+        header: "Decimals",
     },
     {
         id: "actions",
@@ -133,10 +143,11 @@ export function TokensView() {
 
     // New states for the form inputs
     const [address, setAddress] = React.useState("");
+    const [decimals, setDecimals] = React.useState(18);
     const [name, setName] = React.useState("");
     const [open, setOpen] = React.useState(false);
     const handleAddToken = () => {
-        const newToken: Token = { address, name };
+        const newToken: Token = { address, name, decimals };
         addToken(newToken);
         setAddress("");
         setName("");
@@ -238,6 +249,17 @@ export function TokensView() {
                                     id="address"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
+                                    className="col-span-3"
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="address" className="text-right">
+                                    Decimals
+                                </Label>
+                                <Input
+                                    id="address"
+                                    value={decimals}
+                                    onChange={(e) => setDecimals(parseInt(e.target.value))}
                                     className="col-span-3"
                                 />
                             </div>

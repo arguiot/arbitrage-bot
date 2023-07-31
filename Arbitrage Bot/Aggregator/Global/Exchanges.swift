@@ -77,8 +77,8 @@ public struct ExchangesList {
 
     struct Production {
         var uniswap = ExchangeMetadata(name: "uniswap", exchange: UniswapV2(
-            router: try! EthereumAddress(hex: "0xF76921660f6fcDb161A59c77d5daE6Be5ae89D20", eip55: false),
-            factory: try! EthereumAddress(hex: "0xADf1687e201d1DCb466D902F350499D008811e84", eip55: false),
+            router: try! EthereumAddress(hex: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", eip55: false),
+            factory: try! EthereumAddress(hex: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f", eip55: false),
             coordinator: try! EthereumAddress(hex: "0x69FBa73a3D24A538f7E10eE0190B7Dc8Bb332fdF", eip55: false),
             fee: 3
         ))

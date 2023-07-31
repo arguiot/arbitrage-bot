@@ -10,7 +10,21 @@ import Foundation
 public struct Token: Codable, Hashable, Sendable, Identifiable, Comparable, CustomStringConvertible {
     var name: String
     var address: EthereumAddress
-    var decimals: Int?
+    var decimals: Int = 18
+    
+    public init(name: String, address: EthereumAddress, decimals: Int = 18) {
+        self.name = name
+        self.address = address
+        self.decimals = decimals
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.address = try container.decode(EthereumAddress.self, forKey: .address)
+        self.decimals = try container.decodeIfPresent(Int.self, forKey: .decimals) ?? 18
+    }
+    
     
     public var id: Int {
         return address.hashValue

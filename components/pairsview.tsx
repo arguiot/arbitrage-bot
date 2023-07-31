@@ -75,7 +75,7 @@ export const columns: ColumnDef<Pair>[] = [
         cell: ({ row }) => {
             const { getAverageQuote } = usePriceStore();
             const quote = getAverageQuote(
-                `${row.original.tokenA.name}/${row.original.tokenB.name}`
+                `${row.original.tokenA.address}/${row.original.tokenB.address}`
             );
             return (
                 <div>
@@ -90,7 +90,7 @@ export const columns: ColumnDef<Pair>[] = [
         cell: ({ row }) => {
             const { getAllQuotes } = usePriceStore();
             const allQuotes = getAllQuotes(
-                `${row.original.tokenA.name}/${row.original.tokenB.name}`
+                `${row.original.tokenA.address}/${row.original.tokenB.address}`
             );
             const min = Math.min(...allQuotes.map((quote) => quote.price));
             const max = Math.max(...allQuotes.map((quote) => quote.price));
@@ -105,10 +105,10 @@ export const columns: ColumnDef<Pair>[] = [
             const pair = row.original;
             const { getAverageQuote, getAllQuotes } = usePriceStore();
             const quote = getAverageQuote(
-                `${row.original.tokenA.name}/${row.original.tokenB.name}`
+                `${row.original.tokenA.address}/${row.original.tokenB.address}`
             );
             const allQuotes = getAllQuotes(
-                `${row.original.tokenA.name}/${row.original.tokenB.name}`
+                `${row.original.tokenA.address}/${row.original.tokenB.address}`
             );
 
             return (

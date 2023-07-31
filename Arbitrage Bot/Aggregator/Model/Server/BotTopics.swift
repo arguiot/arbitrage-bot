@@ -8,9 +8,9 @@
 import Foundation
 
 public enum BotMessageType: String, Codable {
-    case subscribe, unsubscribe, silent, reset, buy
+    case subscribe, unsubscribe, silent, reset, buy, update
 }
 
 public enum BotTopic: String, Codable, Sendable {
-    case priceData, decision, reset, buy, none
+    case priceData, decision, reset, buy, environment, none
 }

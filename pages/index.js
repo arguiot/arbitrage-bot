@@ -63,7 +63,10 @@ export default function Index() {
 
                     <Select
                         value={environment}
-                        onValueChange={(env) => setEnvironment(env)}
+                        onValueChange={(env) => {
+                            setEnvironment(env);
+                            Client.shared.environment(env); // set environment for the server
+                        }}
                     >
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Environment" />

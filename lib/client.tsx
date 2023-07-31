@@ -90,7 +90,7 @@ export class Client {
                 break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
-                    const pair = `${message.quote.tokenA.name}/${message.quote.tokenB.name}`;
+                    const pair = `${message.quote.tokenA.address}/${message.quote.tokenB.address}`;
                     usePriceStore
                         .getState()
                         .addQuote(message.quote.exchangeName, pair, {
@@ -177,7 +177,7 @@ export class Client {
         ) {
             return;
         }
-
+        console.log({ tokenA, tokenB })
         const exchangeMetadata = ExchangesList[environment][exchange];
         this.send(
             JSON.stringify({
@@ -296,5 +296,15 @@ export class Client {
     reset() {
         this.subscriptions.clear();
         this.subscribeToAll();
+    }
+
+    environment(env: "development" | "production") {
+        this.send(
+            JSON.stringify({
+                type: "update",
+                topic: "environment",
+                environment: env,
+            })
+        );
     }
 }

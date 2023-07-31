@@ -55,6 +55,8 @@ class RealtimeServerController {
             response = reset(request: botRequest)
         case .buy:
             response = buy(request: botRequest)
+        case .environment:
+            response = environment(request: botRequest)
         case .none:
             response = BotResponse(status: .success, topic: .none)
         }
@@ -113,7 +115,12 @@ class RealtimeServerController {
     }
     
     func buy(request: BotRequest) -> BotResponse {
-        return BotResponse(status: .success, topic: .buy)
+        return BotResponse(status: .error, topic: .buy)
+    }
+    
+    func environment(request: BotRequest) -> BotResponse {
+        Credentials.shared.environment = request.environment
+        return BotResponse(status: .error, topic: .environment)
     }
 }
 
@@ -124,7 +131,7 @@ class RealtimeServerControllerWrapper {
     
     init(id: Int, storeId: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
         self.serverController = RealtimeServerController(id: id, storeId: storeId, callback: { message in
-            var message = message
+            let message = message
             message.withCString { cMessage in
                 callback(cMessage, UInt16(message.count), userData)
             }

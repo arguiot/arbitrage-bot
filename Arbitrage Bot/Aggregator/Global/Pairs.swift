@@ -36,7 +36,7 @@ struct PairListType: Codable {
 
 let TokenList: [TokenSymbol: Token] = [
     .eth: Token(
-        name: "Ethereum", address: .zero
+        name: "Ethereum", address: .zero, decimals: 9
     ),
     .usdt: Token(
         name: "Tether", address: try! EthereumAddress(hex: "0xdac17f958d2ee523a2206206994597c13d831ec7", eip55: false)
@@ -54,7 +54,7 @@ let TokenList: [TokenSymbol: Token] = [
         name: "TKB", address: try! EthereumAddress(hex: "0xBf8C59a713927773f9Bf1BCcE21269f7bd95BC6c", eip55: false)
     ),
     .usdc: Token(
-        name: "USD Coin", address: try! EthereumAddress(hex: "0x3c3aA68bc795e72833218229b0e53eFB4143A152", eip55: false)
+        name: "USD Coin", address: try! EthereumAddress(hex: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", eip55: false)
     ),
 //    .btc: Token(
 //        address: nil,
