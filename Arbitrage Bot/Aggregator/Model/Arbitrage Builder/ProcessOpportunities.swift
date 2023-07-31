@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CollectionConcurrencyKit
 
 extension Builder {
     func process(systemTime: Int) {

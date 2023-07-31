@@ -2,7 +2,6 @@
 //  ABI.swift
 //  Web3
 //
-//  Created by Josh Pyles on 6/13/18.
 //
 
 import Foundation
@@ -10,11 +9,6 @@ import BigInt
 
 /// ABI Namespace
 public struct ABI {
-    
-    enum Error: Swift.Error {
-        case unknownError
-        case notImplemented
-    }
     
     // MARK: - Encoding
     

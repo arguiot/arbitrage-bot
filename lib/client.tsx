@@ -177,7 +177,7 @@ export class Client {
         ) {
             return;
         }
-        console.log({ tokenA, tokenB })
+        console.log({ tokenA, tokenB });
         const exchangeMetadata = ExchangesList[environment][exchange];
         this.send(
             JSON.stringify({
@@ -295,6 +295,7 @@ export class Client {
 
     reset() {
         this.subscriptions.clear();
+        this.environment(useEnvironment.getState().environment);
         this.subscribeToAll();
     }
 

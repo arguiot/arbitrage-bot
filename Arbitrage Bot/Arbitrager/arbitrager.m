@@ -22,6 +22,8 @@
 
 #define SSL 0
 
+pthread_mutex_t lock;
+
 // MARK: - Server
 
 typedef struct
@@ -147,11 +149,14 @@ void upgrade_handler(uws_res_t *response, uws_req_t *request, uws_socket_context
 }
 
 void realtime_msg_forward(const char * _Nonnull message, uint16_t length, uws_websocket_t *ws) {
+    pthread_mutex_lock(&lock);  // acquire the lock
+    
     struct PerSocketData *data = (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     
     if (data) {
         uws_ws_send(SSL, ws, message, length, TEXT);
     }
+    pthread_mutex_unlock(&lock);  // release the lock
 }
 
 void open_handler(uws_websocket_t *ws)

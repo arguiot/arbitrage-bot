@@ -6,6 +6,20 @@
 	objectVersion = 54;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		68680A242A77D8BE0079309F /* Periphery */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 68680A252A77D8BE0079309F /* Build configuration list for PBXAggregateTarget "Periphery" */;
+			buildPhases = (
+				68680A282A77D8C80079309F /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = Periphery;
+			productName = Periphery;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */; };
 		68017B442A57101400837B89 /* DecisionDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B432A57101400837B89 /* DecisionDataPublisher.swift */; };
@@ -152,7 +166,6 @@
 		68FCE2112A4EDA18009B79ED /* AdjacencyList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F12A4EDA17009B79ED /* AdjacencyList.swift */; };
 		68FCE2122A4EDA18009B79ED /* PriceDataStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F22A4EDA17009B79ED /* PriceDataStoreWrapper.swift */; };
 		68FCE2132A4EDA18009B79ED /* ReserveFeeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F42A4EDA17009B79ED /* ReserveFeeInfo.swift */; };
-		68FCE2142A4EDA18009B79ED /* CycleArbtirage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F52A4EDA17009B79ED /* CycleArbtirage.swift */; };
 		68FCE2152A4EDA18009B79ED /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F72A4EDA17009B79ED /* Environment.swift */; };
 		68FCE2162A4EDA18009B79ED /* Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F82A4EDA17009B79ED /* Pairs.swift */; };
 		68FCE2172A4EDA18009B79ED /* Exchanges.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FCE1F92A4EDA17009B79ED /* Exchanges.swift */; };
@@ -378,7 +391,6 @@
 		68FCE1F12A4EDA17009B79ED /* AdjacencyList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdjacencyList.swift; sourceTree = "<group>"; };
 		68FCE1F22A4EDA17009B79ED /* PriceDataStoreWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataStoreWrapper.swift; sourceTree = "<group>"; };
 		68FCE1F42A4EDA17009B79ED /* ReserveFeeInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReserveFeeInfo.swift; sourceTree = "<group>"; };
-		68FCE1F52A4EDA17009B79ED /* CycleArbtirage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleArbtirage.swift; sourceTree = "<group>"; };
 		68FCE1F72A4EDA17009B79ED /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		68FCE1F82A4EDA17009B79ED /* Pairs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pairs.swift; sourceTree = "<group>"; };
 		68FCE1F92A4EDA17009B79ED /* Exchanges.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exchanges.swift; sourceTree = "<group>"; };
@@ -930,7 +942,6 @@
 				68FCE1F12A4EDA17009B79ED /* AdjacencyList.swift */,
 				68FCE1F22A4EDA17009B79ED /* PriceDataStoreWrapper.swift */,
 				68FCE1F42A4EDA17009B79ED /* ReserveFeeInfo.swift */,
-				68FCE1F52A4EDA17009B79ED /* CycleArbtirage.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1160,6 +1171,9 @@
 					684292252A45AAA60043EF2F = {
 						CreatedOnToolsVersion = 15.0;
 					};
+					68680A242A77D8BE0079309F = {
+						CreatedOnToolsVersion = 15.0;
+					};
 					68F6FC682A459DA500E828DB = {
 						CreatedOnToolsVersion = 15.0;
 						LastSwiftMigration = 1500;
@@ -1201,6 +1215,7 @@
 				68137F432A52C7F700E6264A /* Arbitrage Bot Demo */,
 				68137F4A2A52C7F700E6264A /* Arbitrage Bot DemoTests */,
 				68137F632A52C8C400E6264A /* Arbitrage-Bot-Main */,
+				68680A242A77D8BE0079309F /* Periphery */,
 			);
 		};
 /* End PBXProject section */
@@ -1242,6 +1257,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		68680A282A77D8C80079309F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/opt/homebrew/bin/periphery scan --retain-public --format xcode\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		68137F402A52C7F700E6264A /* Sources */ = {
@@ -1332,7 +1367,6 @@
 				68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */,
 				68518F122A52A5DB00E22676 /* SolidityEvent.swift in Sources */,
 				68518EF62A52A5DB00E22676 /* EthereumQuantityTag.swift in Sources */,
-				68FCE2142A4EDA18009B79ED /* CycleArbtirage.swift in Sources */,
 				68FCE2152A4EDA18009B79ED /* Environment.swift in Sources */,
 				68518F142A52A5DB00E22676 /* ERC20.swift in Sources */,
 				68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */,
@@ -1696,6 +1730,26 @@
 			};
 			name = Release;
 		};
+		68680A262A77D8BE0079309F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 73CCF549YB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		68680A272A77D8BE0079309F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 73CCF549YB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		68F6FC7B2A459DA500E828DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1991,6 +2045,15 @@
 			buildConfigurations = (
 				6842922B2A45AAA70043EF2F /* Debug */,
 				6842922C2A45AAA70043EF2F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		68680A252A77D8BE0079309F /* Build configuration list for PBXAggregateTarget "Periphery" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68680A262A77D8BE0079309F /* Debug */,
+				68680A272A77D8BE0079309F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

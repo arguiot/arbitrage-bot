@@ -10,11 +10,6 @@ import Euler
 
 class ArbitrageSwapCoordinator {
     
-    enum CoordinationError: LocalizedError {
-        case noPathFound
-        case logSubscriptionFailed(String)
-    }
-    
     func coordinateFlashSwapArbitrage(with optimum: BuilderStep.OptimumResult) async throws {
         let contract = Credentials.shared.web3.eth.Contract(type: SwapRouteCoordinator.self)
         let invocation = contract.startArbitrage(startAmount: optimum.amountIn.asBigUInt,

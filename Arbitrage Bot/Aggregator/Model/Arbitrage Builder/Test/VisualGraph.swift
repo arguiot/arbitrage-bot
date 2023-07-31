@@ -8,6 +8,7 @@
 import Foundation
 
 #if DEBUG
+#if canImport(SwiftPlot)
 #if canImport(SVGRenderer)
 import Euler
 @testable import SwiftPlot
@@ -59,5 +60,6 @@ fileprivate func copyToClipboard(string: String) {
     pasteboard.declareTypes([.string], owner: nil)
     pasteboard.setString(string, forType: .string)
 }
+#endif
 #endif
 #endif

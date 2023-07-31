@@ -22,7 +22,9 @@ public struct PriceDataActiveSubscription: Hashable {
 final class PriceDataSubscriptionState {
     var activeSubscriptions = Set<PriceDataActiveSubscription>() {
         didSet {
-            print("Updated subscriber count: \(activeSubscriptions.count)")
+            if oldValue.count != activeSubscriptions.count {
+                print("Updated subscriber count: \(activeSubscriptions.count)")
+            }
         }
     }
     

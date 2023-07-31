@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 /// CToken is a structure representing a Digital Token used in arbitrage operations.
 /// @field index An integer acting as an unique identifier for the token.

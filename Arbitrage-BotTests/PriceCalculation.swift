@@ -5,6 +5,7 @@
 //  Created by Arthur Guiot on 03/07/2023.
 //
 
+#if canImport(SwiftPlot)
 import XCTest
 @testable import Arbitrage_Bot
 import Euler
@@ -69,7 +70,7 @@ final class PriceCalculation: XCTestCase {
             XCTAssertEqual(price.amountOut.description.split(separator: ".").first, 8941.cash.description.split(separator: ".").first)
         }
 
-        step1.drawGraph()
+//        step1.drawGraph()
     }
 
     func testTransactionBuilder() async throws {
@@ -158,7 +159,7 @@ final class PriceCalculation: XCTestCase {
         step2.next = step3
         step1.next = step2
 
-        step1.drawGraph()
+//        step1.drawGraph()
 
         let price = try! step1.optimalPrice()
 
@@ -215,3 +216,4 @@ final class PriceCalculation: XCTestCase {
         }
     }
 }
+#endif
