@@ -23,9 +23,9 @@ public class Credentials {
     var web3: Web3 {
         switch environment {
         case .development:
-            testnetWeb3
+            return testnetWeb3
         case .production:
-            productionWeb3
+            return productionWeb3
         }
     }
     

@@ -4,7 +4,7 @@
 
 		The bot is written in C, C++, Objective-C, Swift and TypeScript. Although it is technically possible to run the bot on other platforms, this tutorial will focus on macOS.
 
-        <!-- @Image(source: <#file#>, alt: "<#accessible description#>") -->
+        @Image(source: "clone-git.png", alt: "Clone a Git Repository")
     }
 
     @Section(title: "Download the project") {

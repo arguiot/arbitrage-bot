@@ -3,7 +3,7 @@
     "scripts": {
         "test": "hardhat test",
         "node": "hardhat node",
-        "dev": "next build --no-lint && (serve docs/Build/Products/Debug/Arbitrage_Bot.doccarchive -p 3001 & next start)",
+        "dev": "next build --no-lint && (serve docs/Build/Products/Debug/Arbitrage_Bot.doccarchive -p 3001 -n & next start)",
         "server": "bun run server/index.ts --watch",
         "server-node": "ts-node server/node.ts node --inspect"
     },

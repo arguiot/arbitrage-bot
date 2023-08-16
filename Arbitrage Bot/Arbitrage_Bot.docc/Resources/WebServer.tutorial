@@ -24,7 +24,7 @@
             @Step {
                 Start the server, and open http://localhost:3000 in your browser
                 
-                @Code(name: "Run this in your terminal", file: start-server.sh) {
+                @Code(name: "Run this in your terminal", file: "start-server.sh") {
                     @Image(source: "web-interface.png", alt: "Web Interface")
                 }
             }

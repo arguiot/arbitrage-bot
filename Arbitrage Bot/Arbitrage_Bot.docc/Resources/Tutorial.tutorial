@@ -8,7 +8,7 @@
     @Chapter(name: "Installation") {
         Here, we will see how to correctly install and build the bot.
         
-<!--        @Image(source: <#file#>, alt: "<#accessible description#>")-->
+        @Image(source: "clone-git.png", alt: "Clone a Git Repository")
         
         @TutorialReference(tutorial: "doc:Installation")
         @TutorialReference(tutorial: "doc:Build")

@@ -43,6 +43,7 @@ final class PriceDataSubscriptionState {
                         // Return
                         return (price, hash)
                     } catch {
+                        print("Error with \(pair)")
                         let res = BotResponse(status: .error, topic: .priceData, error: error.localizedDescription)
                         return (res, hash)
                     }

@@ -92,7 +92,7 @@ final class UniswapV2: Exchange {
         }
         return token
     }
-    
+
     func sortTokens(tokenA: EthereumAddress, tokenB: EthereumAddress) throws -> (EthereumAddress, EthereumAddress) {
         if tokenA == tokenB {
             throw UniswapV2Error.identicalAddresses
@@ -213,10 +213,10 @@ final class UniswapV2: Exchange {
             // Adjust decimals, using Token.decimals defaults to 18
             let tokenADecimals = tokenA.decimals
             let tokenBDecimals = tokenB.decimals
-            
+
             // adjust decimal difference
             let decimalDifference = tokenADecimals - tokenBDecimals
-            
+
             // if tokenA has more decimals
             if decimalDifference > 0 {
                 biRD = biRD * Euler.BigInt(10) ** (decimalDifference)

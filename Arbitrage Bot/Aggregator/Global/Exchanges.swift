@@ -83,6 +83,8 @@ public struct ExchangesList {
             fee: 3
         ))
         
+//        var uniswap3 = ExchangeMetadata(name: "uniswap3", exchange: )
+        
         
         init() {
             uniswap.path = \.production.uniswap
@@ -118,6 +120,10 @@ let UniswapV2PairHash: [UniType: [UInt8]] = [
     .apeswap: Array<UInt8>(hex: "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f"),
     .pancakeswap: Array<UInt8>(hex: "0xd0d4c4cd0848c93cb4fd1f498d7013ee6bfb25783ea21593d5834f5d250ece66"),
     .uniswap: Array<UInt8>(hex: "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f")
+]
+
+let UniswapV3PairHash: [UniType: [UInt8]] = [
+    .uniswap: Array<UInt8>(hex: "0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54")
 ]
 
 enum UniType: String {

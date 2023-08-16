@@ -40,11 +40,14 @@
 		68137F762A52FC7100E6264A /* ArbitrageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F752A52FC7100E6264A /* ArbitrageBuilder.swift */; };
 		68137F782A53106400E6264A /* ProcessOpportunities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F772A53106400E6264A /* ProcessOpportunities.swift */; };
 		68137F7D2A53347600E6264A /* PriceCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68137F7C2A53347600E6264A /* PriceCalculation.swift */; };
+		681BE3062A795BD0006BBE6F /* UniswapV3Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 681BE3052A795BD0006BBE6F /* UniswapV3Router.swift */; };
 		6842921C2A45A1120043EF2F /* Euler in Frameworks */ = {isa = PBXBuildFile; productRef = 6842921B2A45A1120043EF2F /* Euler */; };
 		6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */; };
 		684292292A45AAA70043EF2F /* FastSockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 684292282A45AAA70043EF2F /* FastSockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6842922F2A45AAE40043EF2F /* libuwebsockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */; };
+		684301782A79583F00CAA17C /* UniswapV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684301772A79583F00CAA17C /* UniswapV3.swift */; };
 		684EE4AF2A5438E2001E793F /* Cash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684EE4AE2A5438E2001E793F /* Cash.swift */; };
+		685184D22A7A479A0082A67E /* ERC721.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685184D12A7A479A0082A67E /* ERC721.swift */; };
 		68518EE02A52A5DB00E22676 /* EthereumPublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E8F2A52A5D700E22676 /* EthereumPublicKey.swift */; };
 		68518EE12A52A5DB00E22676 /* EthereumAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E902A52A5D700E22676 /* EthereumAddress.swift */; };
 		68518EE22A52A5DB00E22676 /* EthereumPrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518E912A52A5D700E22676 /* EthereumPrivateKey.swift */; };
@@ -97,7 +100,6 @@
 		68518F122A52A5DB00E22676 /* SolidityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518EC92A52A5DA00E22676 /* SolidityEvent.swift */; };
 		68518F132A52A5DB00E22676 /* ABIObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECA2A52A5DA00E22676 /* ABIObject.swift */; };
 		68518F142A52A5DB00E22676 /* ERC20.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECB2A52A5DA00E22676 /* ERC20.swift */; };
-		68518F152A52A5DB00E22676 /* ERC721.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECC2A52A5DA00E22676 /* ERC721.swift */; };
 		68518F162A52A5DB00E22676 /* ERC165.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECD2A52A5DA00E22676 /* ERC165.swift */; };
 		68518F172A52A5DB00E22676 /* SolidityFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECE2A52A5DA00E22676 /* SolidityFunction.swift */; };
 		68518F182A52A5DB00E22676 /* EthereumContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68518ECF2A52A5DA00E22676 /* EthereumContract.swift */; };
@@ -271,13 +273,16 @@
 		68137F752A52FC7100E6264A /* ArbitrageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrageBuilder.swift; sourceTree = "<group>"; };
 		68137F772A53106400E6264A /* ProcessOpportunities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessOpportunities.swift; sourceTree = "<group>"; };
 		68137F7C2A53347600E6264A /* PriceCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceCalculation.swift; sourceTree = "<group>"; };
+		681BE3052A795BD0006BBE6F /* UniswapV3Router.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniswapV3Router.swift; sourceTree = "<group>"; };
 		6842921D2A45A1A20043EF2F /* ArbitragerInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitragerInterface.swift; sourceTree = "<group>"; };
 		6842921F2A45A9180043EF2F /* arbitrager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = arbitrager.h; sourceTree = "<group>"; };
 		684292262A45AAA60043EF2F /* FastSockets.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FastSockets.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		684292282A45AAA70043EF2F /* FastSockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastSockets.h; sourceTree = "<group>"; };
 		6842922D2A45AAE40043EF2F /* libuwebsockets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = libuwebsockets.cpp; sourceTree = "<group>"; };
 		6842922E2A45AAE40043EF2F /* libuwebsockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libuwebsockets.h; sourceTree = "<group>"; };
+		684301772A79583F00CAA17C /* UniswapV3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniswapV3.swift; sourceTree = "<group>"; };
 		684EE4AE2A5438E2001E793F /* Cash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cash.swift; sourceTree = "<group>"; };
+		685184D12A7A479A0082A67E /* ERC721.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC721.swift; sourceTree = "<group>"; };
 		68518E8F2A52A5D700E22676 /* EthereumPublicKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumPublicKey.swift; sourceTree = "<group>"; };
 		68518E902A52A5D700E22676 /* EthereumAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumAddress.swift; sourceTree = "<group>"; };
 		68518E912A52A5D700E22676 /* EthereumPrivateKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumPrivateKey.swift; sourceTree = "<group>"; };
@@ -330,7 +335,6 @@
 		68518EC92A52A5DA00E22676 /* SolidityEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolidityEvent.swift; sourceTree = "<group>"; };
 		68518ECA2A52A5DA00E22676 /* ABIObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIObject.swift; sourceTree = "<group>"; };
 		68518ECB2A52A5DA00E22676 /* ERC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC20.swift; sourceTree = "<group>"; };
-		68518ECC2A52A5DA00E22676 /* ERC721.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC721.swift; sourceTree = "<group>"; };
 		68518ECD2A52A5DA00E22676 /* ERC165.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC165.swift; sourceTree = "<group>"; };
 		68518ECE2A52A5DA00E22676 /* SolidityFunction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolidityFunction.swift; sourceTree = "<group>"; };
 		68518ECF2A52A5DA00E22676 /* EthereumContract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumContract.swift; sourceTree = "<group>"; };
@@ -698,11 +702,11 @@
 		68518EC72A52A5DA00E22676 /* Contract */ = {
 			isa = PBXGroup;
 			children = (
+				685184D12A7A479A0082A67E /* ERC721.swift */,
 				68518EC82A52A5DA00E22676 /* Eth+Contract.swift */,
 				68518EC92A52A5DA00E22676 /* SolidityEvent.swift */,
 				68518ECA2A52A5DA00E22676 /* ABIObject.swift */,
 				68518ECB2A52A5DA00E22676 /* ERC20.swift */,
-				68518ECC2A52A5DA00E22676 /* ERC721.swift */,
 				68518ECD2A52A5DA00E22676 /* ERC165.swift */,
 				68518ECE2A52A5DA00E22676 /* SolidityFunction.swift */,
 				68518ECF2A52A5DA00E22676 /* EthereumContract.swift */,
@@ -841,6 +845,7 @@
 		68FCE1D12A4EDA17009B79ED /* Exchanges */ = {
 			isa = PBXGroup;
 			children = (
+				684301772A79583F00CAA17C /* UniswapV3.swift */,
 				68FCE1D22A4EDA17009B79ED /* UniswapV2.swift */,
 			);
 			path = Exchanges;
@@ -919,6 +924,7 @@
 		68FCE1E92A4EDA17009B79ED /* Contracts */ = {
 			isa = PBXGroup;
 			children = (
+				681BE3052A795BD0006BBE6F /* UniswapV3Router.swift */,
 				68FCE1EA2A4EDA17009B79ED /* UniswapV2Router.swift */,
 				68FCE1EB2A4EDA17009B79ED /* UniswapV2Pair.swift */,
 				6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */,
@@ -1328,7 +1334,6 @@
 				68FCE2162A4EDA18009B79ED /* Pairs.swift in Sources */,
 				68518EE12A52A5DB00E22676 /* EthereumAddress.swift in Sources */,
 				68518F0A2A52A5DB00E22676 /* SynchronizedDictionary.swift in Sources */,
-				68518F152A52A5DB00E22676 /* ERC721.swift in Sources */,
 				68FCE2132A4EDA18009B79ED /* ReserveFeeInfo.swift in Sources */,
 				68518F232A52A5DB00E22676 /* Web3+PromiseKit.swift in Sources */,
 				68FCE1FD2A4EDA18009B79ED /* PriceDataSubscription.swift in Sources */,
@@ -1369,6 +1374,7 @@
 				68518EF62A52A5DB00E22676 /* EthereumQuantityTag.swift in Sources */,
 				68FCE2152A4EDA18009B79ED /* Environment.swift in Sources */,
 				68518F142A52A5DB00E22676 /* ERC20.swift in Sources */,
+				681BE3062A795BD0006BBE6F /* UniswapV3Router.swift in Sources */,
 				68518F0B2A52A5DB00E22676 /* Secp256k1+CTXCreator.swift in Sources */,
 				68518F1C2A52A5DB00E22676 /* ABIDecoder.swift in Sources */,
 				68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */,
@@ -1392,6 +1398,7 @@
 				68FCE2052A4EDA18009B79ED /* AnyEncodable.swift in Sources */,
 				68518EE32A52A5DB00E22676 /* EthereumTransaction.swift in Sources */,
 				68FCE20F2A4EDA18009B79ED /* BotRequest.swift in Sources */,
+				685184D22A7A479A0082A67E /* ERC721.swift in Sources */,
 				68518EFC2A52A5DB00E22676 /* Bytes+TrimLeadingZeros.swift in Sources */,
 				68518F072A52A5DB00E22676 /* Int+ETH.swift in Sources */,
 				68518EF02A52A5DB00E22676 /* EthereumValueConvertible.swift in Sources */,
@@ -1407,6 +1414,7 @@
 				68518F1D2A52A5DB00E22676 /* SolidityType.swift in Sources */,
 				684EE4AF2A5438E2001E793F /* Cash.swift in Sources */,
 				68518F1F2A52A5DB00E22676 /* SolidityWrappedValue.swift in Sources */,
+				684301782A79583F00CAA17C /* UniswapV3.swift in Sources */,
 				68518F132A52A5DB00E22676 /* ABIObject.swift in Sources */,
 				68518F222A52A5DB00E22676 /* ABIConvertible.swift in Sources */,
 				68518EE22A52A5DB00E22676 /* EthereumPrivateKey.swift in Sources */,

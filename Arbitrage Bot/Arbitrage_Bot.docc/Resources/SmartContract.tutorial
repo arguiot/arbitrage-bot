@@ -20,7 +20,7 @@
             @Step {
                 Update the Hardhat configuration
                 
-                @Code(name: "hardhat.config.ts", file: hardhat.config.ts)
+                @Code(name: "hardhat.config.ts", file: "hardhat.config.ts")
             }
             
             @Step {
@@ -54,7 +54,7 @@
             @Step {
                 Write your contract. Make sure to test your contract before deploying.
                 
-                @Code(name: "uniswap-v3.sol", file: uniswap-v3.sol)
+                @Code(name: "uniswap-v3.sol", file: "uniswap-v3.sol")
             }
             
             @Step {

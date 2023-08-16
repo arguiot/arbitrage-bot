@@ -19,11 +19,3 @@ extension BN {
         self.init(cash, over: 10 ** 18)
     }
 }
-
-extension BinaryInteger {
-    var cash: Euler.BigInt {
-        let n = Euler.BigInt(self) * Euler.BigInt(10) ** 18
-//        n.decimals = 18
-        return n
-    }
-}

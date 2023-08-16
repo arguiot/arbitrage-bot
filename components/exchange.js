@@ -52,8 +52,8 @@ export default function ExchangeCard({ environment, index }) {
 
     const [isDeploying, setIsDeploying] = useState(false);
 
-    const pair = `${tokenA.address}/${tokenB.address}`;
-    const priceData = getQuote(exchange, pair);
+
+    const priceData = getQuote(exchange, tokenA.address, tokenB.address);
 
     async function deployExchange(value) {
         setIsDeploying(true);

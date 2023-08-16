@@ -7,7 +7,8 @@ import { Client } from "./client";
 
 export const TokenList = {
     ETH: {
-        address: "0x0000000000000000000000000000000000000000",
+        // Use WETH address
+        address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
         name: "Ethereum",
         ticker: "ETH",
         decimals: 18,
@@ -49,7 +50,7 @@ export const TokenList = {
         icon: <Badge>TKB</Badge>,
     },
     USDC: {
-        address: "0x3c3aA68bc795e72833218229b0e53eFB4143A152",
+        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         name: "USD Coin",
         ticker: "USDC",
         decimals: 6,

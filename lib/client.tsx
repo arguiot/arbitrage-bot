@@ -90,10 +90,9 @@ export class Client {
                 break;
             case "priceData":
                 if (typeof message.quote !== "undefined") {
-                    const pair = `${message.quote.tokenA.address}/${message.quote.tokenB.address}`;
                     usePriceStore
                         .getState()
-                        .addQuote(message.quote.exchangeName, pair, {
+                        .addQuote(message.quote.exchangeName, message.quote.tokenA.address, message.quote.tokenB.address, {
                             ...message.quote,
                             balanceA: message.balanceA,
                             balanceB: message.balanceB,

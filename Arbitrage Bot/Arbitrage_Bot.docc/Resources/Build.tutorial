@@ -46,7 +46,7 @@
             @Step {
                 Build the bot using `make`
                 
-                @Code(name: "Run this in your terminal", file: "build.sh") {
+                @Code(name: "Run this in your terminal", file: "code/build.sh") {
                     @Image(source: "build-make.png", alt: "Build using make")
                 }
             }

@@ -124,6 +124,7 @@ class RealtimeServerController {
     }
 }
 
+/// Wrapper for C api.
 class RealtimeServerControllerWrapper {
     // For simplicity in this example, I will assume that
     // the callback takes a C string.
