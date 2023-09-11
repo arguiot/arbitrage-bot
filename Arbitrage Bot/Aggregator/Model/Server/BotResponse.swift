@@ -20,6 +20,8 @@ public struct BotResponse: Sendable, Codable {
     var quote: Quote? = nil
     var executedTrade: Trade? = nil
     
+    var shouldSilent = false
+    
     public init(status: Status, topic: BotTopic, error: String? = nil) {
         self.status = status
         self.topic = topic

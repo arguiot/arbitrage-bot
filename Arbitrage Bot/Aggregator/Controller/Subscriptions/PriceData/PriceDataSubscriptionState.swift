@@ -11,6 +11,7 @@ public struct PriceDataActiveSubscription: Hashable {
     var exchangeKey: String
     var environment: BotRequest.Environment
     var pair: PairInfo
+    var silent = false
     
     public init(exchangeKey: String, environment: BotRequest.Environment, pair: PairInfo) {
         self.exchangeKey = exchangeKey
@@ -30,17 +31,17 @@ final class PriceDataSubscriptionState {
     
     func meanPrice(for type: PriceDataSubscriptionType, storeId: Int) async -> [(BotResponse, Int)] {
         return await withTaskGroup(of: Optional<(BotResponse, Int)>.self, returning: [(BotResponse, Int)].self) { taskGroup in
-            let subs: [(any Exchange, PairInfo, Int)] = activeSubscriptions.compactMap { activeSubscription in
+            let subs: [(any Exchange, PairInfo, Int, Bool)] = activeSubscriptions.compactMap { activeSubscription in
                 guard let adapter = ExchangesList.shared[activeSubscription.environment, activeSubscription.exchangeKey] else { return nil }
                 guard adapter.trigger == type else { return nil }
-                return (adapter, activeSubscription.pair, activeSubscription.hashValue)
+                return (adapter, activeSubscription.pair, activeSubscription.hashValue, activeSubscription.silent)
             }
             
-            for (exchange, pair, hash) in subs {
+            for (exchange, pair, hash, silent) in subs {
                 taskGroup.addTask {
                     do {
-                        let price = try await self.meanPrice(for: exchange, with: pair, storeId: storeId)
-                        // Return
+                        var price = try await self.meanPrice(for: exchange, with: pair, storeId: storeId)
+                        price.shouldSilent = silent
                         return (price, hash)
                     } catch {
                         print("Error with \(pair)")
@@ -50,11 +51,12 @@ final class PriceDataSubscriptionState {
                 }
             }
             
-            return await taskGroup.reduce(into: [(BotResponse, Int)]()) { partialResult, result in
+            let result = await taskGroup.reduce(into: [(BotResponse, Int)]()) { partialResult, result in
                 if let result = result {
                     partialResult.append(result)
                 }
             }
+            return result
         }
     }
     

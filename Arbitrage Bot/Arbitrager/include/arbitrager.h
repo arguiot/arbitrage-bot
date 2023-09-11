@@ -27,9 +27,11 @@ typedef struct {
 } CToken;
 
 /// Fetches the name associated with a specific token address.
+/// @param dataStore Pointer to price data store.
 /// @param tokenAddress (_Nonnull uint8_t*) The token address used to lookup the token name.
 /// @param result (_Nonnull char*) The pointer where the result string (token name) will be written.
-void get_name_for_token(const uint8_t * _Nonnull tokenAddress, char * _Nonnull result);
+void get_name_for_token(void *_Nonnull dataStore, const uint8_t *_Nonnull tokenAddress,
+                        char *_Nonnull result);
 
 /// PriceDataStore is a structure representing a system containing different token rates.
 /// @field wrapper Generic pointer representing the system wrapper.
@@ -96,14 +98,17 @@ typedef struct {
     PriceDataStore * _Nonnull dataStore;
     /// The uWebSockets app reference
     void * _Nonnull app;
+    /// Config file
+    const char * _Nullable config;
     /// Connecting the data store to the server.
     void (* _Nonnull pipe)(PriceDataStore * _Nonnull dataStore);
 } Server;
 
 /// Creates the web socket server.
 /// @discussion Allocates memory and sets up basic server parameters.
+/// @param config char*) config The server configuration file.
 /// @return (_Nonnull Server*) Pointer to the created server.
-Server * _Nonnull new_server(void);
+Server * _Nonnull new_server(const char *_Nullable config);
 
 /// Creates a new PriceDataStore.
 /// @discussion Allocates memory and sets up basic parameters for the PriceDataStore.

@@ -32,16 +32,16 @@ public class Credentials {
     let privateWallet: EthereumPrivateKey
     
     enum EnvironmentError: Error {
-        case undefinedVariable
+        case undefinedVariable(String)
     }
     
     init() throws {
-        guard let testnetJsonRPC = Environment.get("TESTNET_JSON_RPC_URL") else { throw EnvironmentError.undefinedVariable }
-        guard let productionJsonRPC = Environment.get("JSON_RPC_URL") else { throw EnvironmentError.undefinedVariable }
+        guard let testnetJsonRPC = Environment.get("TESTNET_JSON_RPC_URL") else { throw EnvironmentError.undefinedVariable("TESTNET_JSON_RPC_URL") }
+        guard let productionJsonRPC = Environment.get("JSON_RPC_URL") else { throw EnvironmentError.undefinedVariable("JSON_RPC_URL") }
         self.testnetWeb3 = try Web3(wsUrl: testnetJsonRPC)
         self.productionWeb3 = try Web3(wsUrl: productionJsonRPC)
         
-        guard let privateKey = Environment.get("WALLET_PRIVATE_KEY") else { throw EnvironmentError.undefinedVariable }
+        guard let privateKey = Environment.get("WALLET_PRIVATE_KEY") else { throw EnvironmentError.undefinedVariable("WALLET_PRIVATE_KEY") }
         self.privateWallet = try EthereumPrivateKey(hexPrivateKey: privateKey)
         
         let provider = web3.provider as! Web3WebSocketProvider

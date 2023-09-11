@@ -44,6 +44,8 @@ class ArbitrageSwapCoordinator {
         
         DecisionDataPublisher.shared.publishDecision(decision: response)
         
+        guard RealtimeServerControllerWrapper.config.testingMode == false else { return }
+        
         let txHash = try await Credentials.shared.web3.eth.sendRawTransaction(transaction: signed)
         
         // Let's wait for the transaction to be mined

@@ -26,8 +26,8 @@ public func attachTick(storeId: Int, callback: @escaping (UnsafePointer<Double>,
             guard let baseAddress = cAddresses.baseAddress else { return }
             array.withUnsafeBufferPointer { cArray in
                 guard let base = cArray.baseAddress else { return }
-                print(array);
-                print(tokens.map(\.name))
+//                print(array);
+//                print(tokens.map(\.name))
                 callback(base, baseAddress, UInt32(tokens.count), time)
             }
         }
@@ -35,12 +35,16 @@ public func attachTick(storeId: Int, callback: @escaping (UnsafePointer<Double>,
 }
 
 @_cdecl("_name_for_token")
-public func name(for tokenAddress: UnsafePointer<UInt8>, result: UnsafeMutablePointer<UnsafeMutablePointer<CChar>>) {
+public func name(storeId: Int32, for tokenAddress: UnsafePointer<UInt8>, result: UnsafeMutablePointer<UnsafeMutablePointer<CChar>>) {
     let byteCount = 20 // The length of the address
     let tokenAddressData = Data(bytes: tokenAddress, count: byteCount)
     let fullAddress = tokenAddressData.bytes
     
     if let token = TokenList.values.first(where: { $0.address.rawAddress == fullAddress }) {
+        guard let cString = strdup(token.name) else { return }
+        result.initialize(to: cString)
+    }
+    else if let token = priceDataStores[Int(storeId)]?.adjacencyList.getTokenName(address: fullAddress) {
         guard let cString = strdup(token.name) else { return }
         result.initialize(to: cString)
     }
@@ -88,6 +92,7 @@ public func createRealtimeServerController(storeId: Int, callback: @escaping (@c
     let id = controllers.count
     let controller = RealtimeServerControllerWrapper(id: id, storeId: storeId, userData: userData, callback: callback)
     controllers[id] = controller
+    controller.loadConfig()
     return id
 }
 
@@ -113,4 +118,31 @@ public func handleRequest(controllerId: Int, request: UnsafePointer<CChar>, size
 public func loadEnvironmentFromFile(cName: UnsafePointer<CChar>) {
     let fileName = String(cString: cName)
     Environment.load(from: fileName)
+}
+
+@_cdecl("_loadConfigurationFile")
+public func loadConfigurationFromFile(cName: UnsafePointer<CChar>?, storeId: Int) {
+    guard let cName = cName else { return }
+    let fileName = String(cString: cName)
+    let fileURL = URL(fileURLWithPath: fileName)
+    do {
+        let fileData = try Data(contentsOf: fileURL)
+        let decoder = JSONDecoder()
+        let config = try decoder.decode(ConfigFile.self, from: fileData)
+        
+        RealtimeServerControllerWrapper.config = config
+        
+        if config.headless {
+            let id = controllers.count
+            let controller = RealtimeServerControllerWrapper(id: id, storeId: storeId) { msg in
+                print(msg)
+            }
+            controllers[id] = controller
+            controller.loadConfig()
+        }
+        
+        print("Loaded config: \(fileURL.absoluteString)")
+    } catch {
+        fatalError(error.localizedDescription)
+    }
 }

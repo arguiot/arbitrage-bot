@@ -36,6 +36,18 @@ public struct BotRequest: Codable {
         query = try container.decodeIfPresent(Query.self, forKey: .query)
     }
     
+    public init(query: Query, environment: Environment) {
+        self.type = .silent
+        self.topic = .priceData
+        self.environment = environment
+        self.query = query
+    }
+    
+    public init(type: BotMessageType, topic: BotTopic, environment: Environment) {
+        self.type = type
+        self.topic = topic
+        self.environment = environment
+    }
 
     enum DecodingError: LocalizedError {
         case dataCorrupted

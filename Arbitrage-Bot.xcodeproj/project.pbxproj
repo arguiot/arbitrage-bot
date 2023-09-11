@@ -24,6 +24,9 @@
 		68017B402A570FBD00837B89 /* DecisionSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */; };
 		68017B442A57101400837B89 /* DecisionDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B432A57101400837B89 /* DecisionDataPublisher.swift */; };
 		68017B472A57117600837B89 /* ArbitrageSwapCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */; };
+		68058C622A9F9AA90046AE37 /* ConfigFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68058C612A9F9AA90046AE37 /* ConfigFile.swift */; };
+		68058C642AA0BBB10046AE37 /* Task+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68058C632AA0BBB10046AE37 /* Task+Timeout.swift */; };
+		68058C672AA0D2D90046AE37 /* MatrixViz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68058C662AA0D2D90046AE37 /* MatrixViz.swift */; };
 		6809AFA72A486FB100A89952 /* uSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68DCBEFF2A45D420007DCB50 /* uSockets.a */; };
 		68137F332A52BCB900E6264A /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 68137F322A52BCB900E6264A /* Nimble */; };
 		68137F4C2A52C7F800E6264A /* Arbitrage_Bot_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */; };
@@ -262,6 +265,9 @@
 		68017B3F2A570FBD00837B89 /* DecisionSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionSubscriber.swift; sourceTree = "<group>"; };
 		68017B432A57101400837B89 /* DecisionDataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionDataPublisher.swift; sourceTree = "<group>"; };
 		68017B462A57117600837B89 /* ArbitrageSwapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrageSwapCoordinator.swift; sourceTree = "<group>"; };
+		68058C612A9F9AA90046AE37 /* ConfigFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigFile.swift; sourceTree = "<group>"; };
+		68058C632AA0BBB10046AE37 /* Task+Timeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+Timeout.swift"; sourceTree = "<group>"; };
+		68058C662AA0D2D90046AE37 /* MatrixViz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixViz.swift; sourceTree = "<group>"; };
 		68137F442A52C7F700E6264A /* Arbitrage_Bot_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Arbitrage_Bot_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68137F462A52C7F700E6264A /* Arbitrage_Bot_Main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arbitrage_Bot_Main.h; sourceTree = "<group>"; };
 		68137F4B2A52C7F700E6264A /* Arbitrage Bot DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Arbitrage Bot DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -505,6 +511,22 @@
 				68A8BB692A5EE9BA00FCB139 /* Trade.swift */,
 			);
 			path = "Arbitrage Executor";
+			sourceTree = "<group>";
+		};
+		68058C602A9F9A990046AE37 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				68058C612A9F9AA90046AE37 /* ConfigFile.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		68058C652AA0D2A50046AE37 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				68058C662AA0D2D90046AE37 /* MatrixViz.swift */,
+			);
+			path = Test;
 			sourceTree = "<group>";
 		};
 		68137F452A52C7F700E6264A /* Arbitrage Bot Demo */ = {
@@ -885,6 +907,7 @@
 				68FCE1E12A4EDA17009B79ED /* BigInt+Typealias.swift */,
 				68FCE1E22A4EDA17009B79ED /* EthereumAddress+Utils.swift */,
 				68FCE1E32A4EDA17009B79ED /* BigUInt+Euler.swift */,
+				68058C632AA0BBB10046AE37 /* Task+Timeout.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -945,6 +968,7 @@
 		68FCE1F02A4EDA17009B79ED /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				68058C652AA0D2A50046AE37 /* Test */,
 				68FCE1F12A4EDA17009B79ED /* AdjacencyList.swift */,
 				68FCE1F22A4EDA17009B79ED /* PriceDataStoreWrapper.swift */,
 				68FCE1F42A4EDA17009B79ED /* ReserveFeeInfo.swift */,
@@ -963,6 +987,7 @@
 		68FCE1F62A4EDA17009B79ED /* Global */ = {
 			isa = PBXGroup;
 			children = (
+				68058C602A9F9A990046AE37 /* Config */,
 				68FCE1F72A4EDA17009B79ED /* Environment.swift */,
 				68FCE1F82A4EDA17009B79ED /* Pairs.swift */,
 				68FCE1F92A4EDA17009B79ED /* Exchanges.swift */,
@@ -1338,6 +1363,7 @@
 				68518F232A52A5DB00E22676 /* Web3+PromiseKit.swift in Sources */,
 				68FCE1FD2A4EDA18009B79ED /* PriceDataSubscription.swift in Sources */,
 				68518EE82A52A5DB00E22676 /* RLPItemConvertible.swift in Sources */,
+				68058C672AA0D2D90046AE37 /* MatrixViz.swift in Sources */,
 				68FCE2012A4EDA18009B79ED /* PriceDataSubscriber.swift in Sources */,
 				68518EE72A52A5DB00E22676 /* RLPEncoder.swift in Sources */,
 				68FCE2092A4EDA18009B79ED /* Quote.swift in Sources */,
@@ -1367,6 +1393,7 @@
 				68518EEE2A52A5DB00E22676 /* RPCRequest.swift in Sources */,
 				68518F102A52A5DB00E22676 /* Web3HttpProvider.swift in Sources */,
 				68518EF42A52A5DB00E22676 /* RPCResponse.swift in Sources */,
+				68058C622A9F9AA90046AE37 /* ConfigFile.swift in Sources */,
 				68518EF82A52A5DB00E22676 /* EthereumLogObject.swift in Sources */,
 				68FCE2022A4EDA18009B79ED /* Array+Uint8.swift in Sources */,
 				68A8BB6A2A5EE9BA00FCB139 /* Trade.swift in Sources */,
@@ -1416,6 +1443,7 @@
 				68518F1F2A52A5DB00E22676 /* SolidityWrappedValue.swift in Sources */,
 				684301782A79583F00CAA17C /* UniswapV3.swift in Sources */,
 				68518F132A52A5DB00E22676 /* ABIObject.swift in Sources */,
+				68058C642AA0BBB10046AE37 /* Task+Timeout.swift in Sources */,
 				68518F222A52A5DB00E22676 /* ABIConvertible.swift in Sources */,
 				68518EE22A52A5DB00E22676 /* EthereumPrivateKey.swift in Sources */,
 				68518EE02A52A5DB00E22676 /* EthereumPublicKey.swift in Sources */,

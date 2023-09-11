@@ -1,0 +1,158 @@
+{
+    "headless": true,
+    "testingMode": true,
+    "environment": "production",
+    "active": true,
+    "queries": [
+        {
+            "name": "Uniswap USDC/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "USDC",
+                "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                "decimals": 6
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap ETH/USDT",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            },
+            "tokenB": {
+                "name": "USDT",
+                "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                "decimals": 6
+            }
+        },
+        {
+            "name": "Uniswap DAI/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "DAI",
+                "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+                "decimals": 18
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap SCAMMY/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "SCAMMY",
+                "address": "0x05934eba98486693aaec2d00b0e9ce918e37dc3f",
+                "decimals": 0
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap welp/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "welp",
+                "address": "0x3d7e683fc9c86b4d653c9e47ca12517440fad14e",
+                "decimals": 0
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap ETH/Ian Laphan fan token",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            },
+            "tokenB": {
+                "name": "Ian Laphan fan token",
+                "address": "0xfae9c647ad7d89e738aba720acf09af93dc535f7",
+                "decimals": 0
+            }
+        },
+        {
+            "name": "Uniswap generalize fix for rebass tokens/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "generalize fix for rebass tokens",
+                "address": "0x7296368fe9bcb25d3ecc19af13655b907818cc09",
+                "decimals": 0
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap SHIB/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "SHIB",
+                "address": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+                "decimals": 18
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap WBTC/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "WBTC",
+                "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+                "decimals": 8
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        },
+        {
+            "name": "Uniswap FEI/ETH",
+            "exchange": "uniswap",
+            "type": "dex",
+            "tokenA": {
+                "name": "FEI",
+                "address": "0x956f47f50a910163d8bf957cf5846d573e7f87ca",
+                "decimals": 18
+            },
+            "tokenB": {
+                "name": "ETH",
+                "address": "0x0000000000000000000000000000000000000000",
+                "decimals": 18
+            }
+        }
+    ]
+}

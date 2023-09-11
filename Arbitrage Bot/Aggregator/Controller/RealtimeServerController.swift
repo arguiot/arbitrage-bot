@@ -28,6 +28,7 @@ class RealtimeServerController {
             }
         }
         self.priceSubscriber = PriceDataSubscriber(storeId: storeId) { res in
+            guard res.shouldSilent == false else { return }
             guard let str = try? res.toJSON() else { return }
             if controllers.keys.contains(id) {
                 callback(str)
@@ -70,11 +71,13 @@ class RealtimeServerController {
         }
         let pair = PairInfo(tokenA: query.tokenA, tokenB: query.tokenB)
         
-        let activeSub = PriceDataActiveSubscription(exchangeKey: query.exchange,
+        var activeSub = PriceDataActiveSubscription(exchangeKey: query.exchange,
                                                     environment: request.environment,
                                                     pair: pair)
         
-        if request.type == .subscribe {
+        activeSub.silent = request.type == .silent
+        
+        if request.type == .subscribe || request.type == .silent {
             self.priceSubscriber.activeSubscriptions.append(activeSub)
         } else {
             self.priceSubscriber.activeSubscriptions.removeAll { sub in
@@ -130,13 +133,46 @@ class RealtimeServerControllerWrapper {
     // the callback takes a C string.
     internal var serverController: RealtimeServerController
     
-    init(id: Int, storeId: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
-        self.serverController = RealtimeServerController(id: id, storeId: storeId, callback: { message in
+    static var config: ConfigFile = .init(headless: false, testingMode: false, queries: [], active: false)
+    
+    init(serverController: RealtimeServerController) {
+        self.serverController = serverController
+    }
+    
+    func loadConfig() {
+        for query in RealtimeServerControllerWrapper.config.queries {
+            _ = self.serverController.priceData(
+                request: BotRequest(
+                    query: query,
+                    environment: RealtimeServerControllerWrapper.config.environment
+                )
+            )
+        }
+        if RealtimeServerControllerWrapper.config.active {
+            _ = serverController.decision(
+                request: BotRequest(
+                    type: .subscribe,
+                    topic: .decision,
+                    environment: RealtimeServerControllerWrapper.config.environment
+                )
+            )
+        }
+    }
+    
+    convenience init(id: Int, storeId: Int, userData: UnsafeRawPointer, callback: @escaping (@convention(c) (UnsafePointer<CChar>, UInt16, UnsafeRawPointer) -> Void)) {
+        let serverController = RealtimeServerController(id: id, storeId: storeId, callback: { message in
             let message = message
             message.withCString { cMessage in
                 callback(cMessage, UInt16(message.count), userData)
             }
         })
+        
+        self.init(serverController: serverController)
+    }
+    
+    convenience init(id: Int, storeId: Int, callback: @escaping (String) -> Void) {
+        let serverController = RealtimeServerController(id: id, storeId: storeId, callback: callback)
+        self.init(serverController: serverController)
     }
     
     public func handleRequest(request: String, completion: @escaping (Error) -> Void) {

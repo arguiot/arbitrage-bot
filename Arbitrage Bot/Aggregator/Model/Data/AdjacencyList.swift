@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import OpenCombine
 
 actor AdjacencyList {
-    struct Pair: Hashable {
+    struct Pair: Hashable, CustomStringConvertible {
         let tokenA: Token
         let tokenB: Token
         
@@ -18,15 +19,25 @@ actor AdjacencyList {
             self.tokenA = token0
             self.tokenB = token1
         }
+        
+        var description: String {
+            return "\(tokenA.name) / \(tokenB.name)"
+        }
     }
     internal var prices: [Pair: [Int: ReserveFeeInfo]]
     internal var tokens: [Token]
+    
+    nonisolated let tokensPublisher = CurrentValueSubject<[Token], Never>([])
     
     let builder = Builder()
     
     init() {
         prices = [:]
         tokens = []
+    }
+    
+    nonisolated func getTokenName(address: Bytes) -> Token? {
+        return self.tokensPublisher.value.first(where: { $0.address.rawAddress == address })
     }
     
     func remove(pair: Pair) {
@@ -77,13 +88,16 @@ actor AdjacencyList {
     
     func getReserves(tokenA: Token, tokenB: Token) -> [ReserveFeeInfo]? {
         let index = Pair(tokenA, tokenB)
-        guard let values = prices[index]?.values else { return nil }
+        guard let values = prices[index]?.values else {
+            return nil
+        }
         guard values.count > 0 else { return nil }
         return Array(values)
     }
     
     var spotPicture: [Double] {
         let size = tokens.count
+        tokensPublisher.value = tokens
         guard size > 0 else { return [] }
         
         var flattenConversionRates = Array(repeating: Double.infinity, count: size * size)
@@ -97,5 +111,4 @@ actor AdjacencyList {
         
         return flattenConversionRates
     }
-
 }
