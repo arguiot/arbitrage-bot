@@ -90,23 +90,18 @@ void on_tick(void *dataStore, const double *rates, const CToken *tokens, size_t 
     print_kernel(rates, size, tokens, dataStore);
     
     int src = 0; // Source vertex as 0
-    int cycle[size + 2]; // Adjust the size to accommodate the two extra elements.
-    double cycle_weight[size + 2]; // Create a new array to store weights
+    int cycle[size * 2]; // Adjust the size to accommodate the two extra elements.
+    double cycle_weight; // Create a new array to store weights
     int cycle_length;
-    BellmanFord(weights, size, src, cycle, cycle_weight, &cycle_length); // Start from the second index
+    BellmanFord(weights, size, src, cycle, &cycle_weight, &cycle_length); // Start from the second index
     
-    if (cycle_length <= 0) {
+    if (cycle_weight > 0 || cycle_length <= 3 || cycle[0] != src) {
         return;
     }
     
-    // Insert src at the beginning and the end of the cycle.
-    //    cycle[0] = src;
-    //    cycle[cycle_length + 1] = src;
-    //    cycle_length += 2;
-    
     printf("Cycle: ");
     for (int i = 0; i < cycle_length; ++i) {
-        printf("%d (%.2f) ", cycle[i], cycle_weight[i]);
+        printf("%d (%.2f) ", cycle[i], cycle_weight);
     }
     printf("\n");
     
@@ -135,18 +130,22 @@ void BellmanFord(const double* matrix, size_t size, int src, int* cycle, double*
 {
     double distance[size];
     int predecessor[size];
+    *cycle_weight = 0;
     
-    // Initialize all distances as INFINITE and predecessors as -1
-    for (int i = 0; i < size; i++)
-        distance[i] = DBL_MAX, predecessor[i] = -1;
-    
+    for (int i = 0; i < size; i++) {
+        distance[i] = DBL_MAX;
+        predecessor[i] = -1;
+    }
     distance[src] = 0;
     
-    // Relax all edges |V| - 1 times
     for (int i = 1; i <= size - 1; i++) {
         for (int j = 0; j < size; j++) {
             for (int k = 0; k < size; k++) {
                 double weight = matrix[j * size + k];
+                if (weight == -INFINITY) {
+                    weight = INFINITY;
+                }
+                
                 if (weight != 0 && distance[j] != DBL_MAX && distance[j] + weight < distance[k]) {
                     distance[k] = distance[j] + weight;
                     predecessor[k] = j;
@@ -155,45 +154,69 @@ void BellmanFord(const double* matrix, size_t size, int src, int* cycle, double*
         }
     }
     
-    // Check for negative cycle
     for (int j = 0; j < size; j++) {
         for (int k = 0; k < size; k++) {
             double weight = matrix[j * size + k];
-            if (weight != 0 && distance[j] != DBL_MAX && distance[j] + weight < distance[k]) {
-                // If we found a negative cycle
-                // Step 1:  find the cycle
+            if (weight != 0 && weight != -INFINITY  && distance[j] != DBL_MAX && distance[j] + weight < distance[k]) {
+                
+                // Find the cycle
                 bool visited[size];
                 memset(visited, false, sizeof(visited));
                 int cycle_vertix = k;
-                // mark the cycle vertices
                 do {
-                    if (visited[cycle_vertix]) { // Break if we've visited this node when finding cycle
+                    if (visited[cycle_vertix]) {
                         break;
                     }
                     visited[cycle_vertix] = true;
                     cycle_vertix = predecessor[cycle_vertix];
                 } while (cycle_vertix != k);
-                // add cycle vertices to 'cycle' array
-                double cycle_weight_local = 0;
+                
+                // Add cycle vertices to 'temp_cycle' array - in reverse order
                 int cycle_length_local = 0;
+                int temp_cycle[size];
                 for (int s = 0; s < size; ++s) {
                     if(visited[s]) {
-                        cycle[cycle_length_local] = s;
-                        if (cycle_length_local > 0)
-                            cycle_weight_local += matrix[cycle[cycle_length_local-1] * size + s];
+                        temp_cycle[cycle_length_local] = s;
                         cycle_length_local++;
                     }
                 }
-                // updating min cycle
-                if (cycle_weight_local < *cycle_weight) {
-                    *cycle_weight = cycle_weight_local;
-                    *cycle_length = cycle_length_local;
+                
+                // Check for edge from src to first node and from last node to src
+                if (matrix[src*size + temp_cycle[cycle_length_local - 1]] != 0 && matrix[temp_cycle[0]*size + src] != 0) {
+                    // Copy temp_cycle into cycle in reverse order
+                    for (int p = 0; p < cycle_length_local; p++) {
+                        cycle[p] = temp_cycle[cycle_length_local - p - 1];
+                    }
+                    
+                    // Now the first and last nodes are src
+                    if (cycle[0] != src) {
+                        for (int p = cycle_length_local; p > 0; p--) {
+                            cycle[p] = cycle[p-1];
+                        }
+                        cycle[0] = src;
+                        cycle_length_local++;
+                    }
+                    
+                    if (cycle[cycle_length_local - 1] != src) {
+                        cycle[cycle_length_local] = src;
+                        cycle_length_local++;
+                    }
+                    
+                    // Calculate cycle weight
+                    double cycle_weight_local = 0;
+                    for (int p = 0; p < cycle_length_local - 1; ++p) {
+                        cycle_weight_local += matrix[cycle[p]*size + cycle[p+1]];
+                    }
+                    
+                    if (cycle_weight_local < *cycle_weight) {
+                        *cycle_weight = cycle_weight_local;
+                        *cycle_length = cycle_length_local;
+                    }
                 }
             }
         }
     }
 }
-
 
 void dfs(const double* matrix, size_t size, int current, int start, double weightSoFar, int* path, int* pathLength, bool* visiting, int* minCycle, double* minCycleWeight, int* minCycleLength) {
     if (*pathLength >= MAX_EDGES) {
@@ -260,12 +283,11 @@ void reverseArray(int *a, int n) {
 void processArbitrage(void *dataStore, const CToken *tokens, int *arbitrageOrder, int size,
                       size_t systemTime) {
     int i;
-    reverseArray(arbitrageOrder, size);
     
     add_opportunity_in_queue(dataStore, arbitrageOrder, size, systemTime);
     
     printf("Arbitrage Opportunity detected: \n\n");
-    for (i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         char *name = NULL;
         get_name_for_token(dataStore, tokens[arbitrageOrder[i]].address, &name);
         
