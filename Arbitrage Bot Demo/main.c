@@ -14,6 +14,7 @@
 #include "negate_log.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef DBL_MAX
 #define DBL_MAX 1.7976931348623158e+308
