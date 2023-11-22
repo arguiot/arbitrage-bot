@@ -125,6 +125,7 @@
 		6861380F2A6EADB600805C54 /* Web3WebSocketProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6861380E2A6EADB600805C54 /* Web3WebSocketProvider.swift */; };
 		686138122A6EADFB00805C54 /* WebSocketKit in Frameworks */ = {isa = PBXBuildFile; productRef = 686138112A6EADFB00805C54 /* WebSocketKit */; };
 		6862A45C2A56A24C002E825B /* SwapRouteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6862A45B2A56A24C002E825B /* SwapRouteCoordinator.swift */; };
+		687D50E82AB8C83500721B1C /* VisualGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6F8FD2A545FC900CC9779 /* VisualGraph.swift */; };
 		68832F362A47531300607523 /* libusockets.h in Headers */ = {isa = PBXBuildFile; fileRef = 68832F352A4752D400607523 /* libusockets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68A6F8FA2A544B9400CC9779 /* AGGRenderer in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8F92A544B9400CC9779 /* AGGRenderer */; };
 		68A6F8FC2A544B9400CC9779 /* SwiftPlot in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6F8FB2A544B9400CC9779 /* SwiftPlot */; };
@@ -1371,6 +1372,7 @@
 				68518F192A52A5DB00E22676 /* SolidityInvocation.swift in Sources */,
 				6842921E2A45A1A20043EF2F /* ArbitragerInterface.swift in Sources */,
 				68FCE2072A4EDA18009B79ED /* EthereumAddress+Utils.swift in Sources */,
+				687D50E82AB8C83500721B1C /* VisualGraph.swift in Sources */,
 				68518F172A52A5DB00E22676 /* SolidityFunction.swift in Sources */,
 				68FCE2002A4EDA18009B79ED /* PriceDataPublisher.swift in Sources */,
 				68518EE52A52A5DB00E22676 /* Web3.swift in Sources */,

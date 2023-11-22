@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Euler
 import CollectionConcurrencyKit
 
 extension Builder {
@@ -37,7 +38,13 @@ extension Builder {
         Task(timeout: 5) {
             // It's okay to do that, because we start from a single node
             let all = await self.steps.concurrentCompactMap { step in
-                try? step.optimalPrice()
+                do {
+                    return try step.optimalPrice()
+                } catch {
+                    print(error.localizedDescription)
+                    try! step.price(for: BN(1).cash)
+                    return nil
+                }
             }
             
             guard all.count > 0 else { throw BuilderProcessError.noOpportunity }

@@ -2,25 +2,32 @@
 
 import requests
 import json
-import itertools
 
-# GraphQL query to get top tokens
+# GraphQL query to get top pairs
 query = """
-query tokens($first: Int!) {
-	tokens(first: $first, orderBy: tradeVolumeUSD, orderDirection: desc) {
+query pairs($first: Int!) {
+	pairs(first: $first, orderBy: reserveUSD, orderDirection: desc) {
 		id
-		symbol
-		decimals
+		token0 {
+			id
+			symbol
+			decimals
+		}
+		token1 {
+			id
+			symbol
+			decimals
+		}
 	}
 }
 """
 
-# Function to retrieve top N tokens
-def get_top_tokens(n):
+# Function to retrieve top N pairs
+def get_top_pairs(n):
 	url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
 	variables = {'first': n}
 	response = requests.post(url, json={'query': query, 'variables': variables})
-	data = response.json()['data']['tokens']
+	data = response.json()['data']['pairs']
 	return data
 
 def get_unsupported_tokens():
@@ -34,7 +41,7 @@ def get_unsupported_tokens():
 		print(f"Error while fetching unsupported tokens: {str(e)}")
 		return {}
 
-def create_bot_config(tokens):
+def create_bot_config(pairs):
 	bot_config = {
 		"headless": True,
 		"testingMode": True,
@@ -48,11 +55,9 @@ def create_bot_config(tokens):
 	# WETH Address
 	WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
-	# Generate all pairs within these 10 tokens
-	pairs = list(itertools.combinations(tokens, 2))
-
 	for pair in pairs:
-		token0, token1 = pair
+		token0 = pair["token0"]
+		token1 = pair["token1"]
 
 		if token0['id'].lower() in unsupported_tokens or token1['id'].lower() in unsupported_tokens:
 			continue
@@ -83,9 +88,9 @@ def create_bot_config(tokens):
 
 	return bot_config
 
-# Generate config for top 10 tokens
-tokens = get_top_tokens(10)
-bot_config = create_bot_config(tokens)
+# Generate config for top 10 pairs
+pairs = get_top_pairs(100)
+bot_config = create_bot_config(pairs)
 
 # Write config to file
 with open('botconfig.json', 'w') as f:

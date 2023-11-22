@@ -85,8 +85,14 @@ class BuilderStep: CustomStringConvertible, CustomDebugStringConvertible {
                     tokenB.name].compactMap { $0 }
         
         if let meta = reserveFeeInfos?[0].meta as? UniswapV2.RequiredPriceInfo {
-            path.insert("(\((tokenA > tokenB ? meta.reserveA : meta.reserveB) / 1e18))", at: 1)
-            path.insert("(\((tokenA > tokenB ? meta.reserveB : meta.reserveA) / 1e18))", at: 4)
+            let scalingFactorA = pow(10.0, Double(tokenA.decimals))
+            let scalingFactorB = pow(10.0, Double(tokenB.decimals))
+            
+            let adjustedReserveA = Double(meta.reserveA) / scalingFactorA
+            let adjustedReserveB = Double(meta.reserveB) / scalingFactorB
+            
+            path.insert("(\(adjustedReserveA))", at: 1)
+            path.insert("(\(adjustedReserveB))", at: 4)
         }
         
         let nextStr = next?.description
