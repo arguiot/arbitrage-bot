@@ -105,7 +105,7 @@ void on_res_aborted(uws_res_t *response, void *data) {
     upgrade_data->aborted = true;
 }
 void upgrade_handler(uws_res_t *response, uws_req_t *request,
-                     uws_socket_context_t *context) {
+                     uws_socket_context_t *context, void * arg) {
     
     /* HttpRequest (req) is only valid in this very callback, so we must COPY the
      * headers we need later on while upgrading to WebSocket. You must not access
@@ -142,8 +142,9 @@ void upgrade_handler(uws_res_t *response, uws_req_t *request,
     perform_upgrade(data);
 }
 
-void realtime_msg_forward(const char *_Nonnull message, uint16_t length,
-                          uws_websocket_t *ws) {
+void realtime_msg_forward(const char *_Nonnull message, uint16_t length, const void *_Nonnull wsVoid) {
+    uws_websocket_t *ws = (uws_websocket_t *)wsVoid;
+    
     pthread_mutex_lock(&lock); // acquire the lock
     
     struct PerSocketData *data =
@@ -155,7 +156,8 @@ void realtime_msg_forward(const char *_Nonnull message, uint16_t length,
     pthread_mutex_unlock(&lock); // release the lock
 }
 
-void open_handler(uws_websocket_t *ws) {
+
+void open_handler(uws_websocket_t *ws, void * arg) {
     
     /* Open event here, you may access uws_ws_get_user_data(ws) which points to a
      * PerSocketData struct. Here we simply validate that indeed, something == 15
@@ -172,7 +174,7 @@ void open_handler(uws_websocket_t *ws) {
 }
 
 void message_handler(uws_websocket_t *ws, const char *message, size_t length,
-                     uws_opcode_t opcode) {
+                     uws_opcode_t opcode, void * arg) {
     struct PerSocketData *data =
     (struct PerSocketData *)uws_ws_get_user_data(SSL, ws);
     int controller = data->controller;
@@ -181,7 +183,7 @@ void message_handler(uws_websocket_t *ws, const char *message, size_t length,
 }
 
 void close_handler(uws_websocket_t *ws, int code, const char *message,
-                   size_t length) {
+                   size_t length, void * arg) {
     
     /* You may access uws_ws_get_user_data(ws) here, but sending or
      * doing any kind of I/O with the socket is not valid. */
@@ -193,16 +195,16 @@ void close_handler(uws_websocket_t *ws, int code, const char *message,
     }
 }
 
-void drain_handler(uws_websocket_t *ws) {
+void drain_handler(uws_websocket_t *ws, void * arg) {
     /* Check uws_ws_get_buffered_amount(ws) here */
 }
 
-void ping_handler(uws_websocket_t *ws, const char *message, size_t length) {
+void ping_handler(uws_websocket_t *ws, const char *message, size_t length, void * arg) {
     /* You don't need to handle this one, we automatically respond to pings as per
      * standard */
 }
 
-void pong_handler(uws_websocket_t *ws, const char *message, size_t length) {
+void pong_handler(uws_websocket_t *ws, const char *message, size_t length, void * arg) {
     
     /* You don't need to handle this one either */
 }
@@ -263,8 +265,8 @@ Server *new_server(const char *_Nullable config) {
            (uws_socket_behavior_t){
         .compression = SHARED_COMPRESSOR,
         .maxPayloadLength = 16 * 1024,
-        .idleTimeout = NULL, // 10 minutes
-        .maxBackpressure = NULL,
+        .idleTimeout = 0, // 10 minutes
+        .maxBackpressure = 0,
         .upgrade = upgrade_handler,
         .open = open_handler,
         .message = message_handler,

@@ -30,7 +30,7 @@ void _loadEnvironmentFromFile(char const * _Nonnull cName);
 
 void _loadConfigurationFile(char const * _Nullable cName, int storeId);
 
-void _name_for_token(int32_t storeId, uint8_t const * _Nonnull tokenAddress, char * _Nonnull * _Nonnull result);
+void _name_for_token(int32_t storeId, uint8_t const * _Nonnull tokenAddress, char * _Nonnull result);
 
 
 void _review_and_process_opportunities(int storeId, int systemTime);
